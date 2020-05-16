@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" th:href="@{/plugins/element/theme/index.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/public/css/app/app.css}">
+
+    <style type="text/css">
+        html,body{
+            width: 100%;
+            height: 100%;
+        }
+        * {
+            outline: 0;
+            padding: 0;
+            margin: 0;
+            border: 0;
+        }
+        #app{
+            height: 100%;
+            overflow: auto;
+        }
+        .tabs-content{
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0px;
+            bottom: 0px;
+        }
+        .page-tabs{
+            height: 32px;
+            width: 100%;
+            background: #fafafa;
+            line-height: 30px;
+            position: relative;
+        }
+
+        .content-tabs{
+            width: 100%;
+            position: relative;
+            height: 32px;
+            background: #fafafa;
+            line-height: 30px;
+            overflow: hidden;
+        }
+        .page-tabs ul li{
+            list-style: none;
+            float: left;
+            padding-left: 10px;
+            padding-right: 10px;
+            height: 28px;
+            border: 1px solid #c7cbd2;
+            background: #fff;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+        .page-tabs ul li span{
+            font-size: 14px;
+        }
+        .page-tabs ul li:hover{
+            background: #F3F7F9;
+        }
+        .page-tabs ul li.active{
+            background: #5cb6ff;
+            color: #fff;
+        }
+        .tabs_nav_prev{
+            position: absolute;
+            cursor: pointer;
+            line-height: 30px;
+            font-size: 12px;
+            color: #909399;
+            left: 0px;
+            width: 30px;
+            text-align: center;
+            z-index: 2;
+            background: #ffffff;
+        }
+        .tabs_nav_next{
+            position: absolute;
+            cursor: pointer;
+            line-height: 30px;
+            font-size: 12px;
+            color: #909399;
+            right: 30px;
+            width: 30px;
+            text-align: center;
+            z-index: 2;
+            top: 0px;
+            background: #ffffff;
+        }
+        .tabs-close-box{
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            width: 30px;
+            line-height: 30px;
+            text-align: center;
+            background: #ffffff;
+        }
+        .tabs_nav_prev:hover,.tabs_nav_next:hover,.tabs-close-box:hover{
+            background: #F3F7F9;
+        }
+        .page-tabs ul li a{
+            text-decoration: none;
+            color: #666;
+        }
+        .page-tabs ul li a.active{
+            color: #fff;
+        }
+        .tabs-close{
+            text-align: right;
+        }
+        .content-tabs-container{
+            width: 100000px;
+            margin-left: 32px;
+            overflow: hidden;
+            height: 32px;
+            transition: margin-left 0.2s;
+            -moz-transition: margin-left 0.2s;
+            -webkit-transition: margin-left 0.2s;
+            -o-transition: margin-left 0.2s;
+        }
+        .tab-content {
+            height: calc(100% - 32px);
+        }
+        .tabs-frame{
+            width:100%;
+            /*height: calc(100% - 42px);*/
+            height: 100%;
+            position: relative;
+            overflow-x: hidden;
+            display: block;
+        }
+        .tab-pane{
+            height: 100%;
+        }
+    </style>
+    <template type="x-template" id="head">
+        <div class="header">
+            <!-- 折叠按钮 -->
+            <div class="collapse-btn" @click="collapseChage">
+                <i v-if="!collapse" class="el-icon-s-fold"></i>
+                <i v-else class="el-icon-s-unfold"></i>
+            </div>
+            <div class="logo">后台管理系统</div>
+            <div class="header-right">
+                <div class="header-user-con">
+                    <!-- 全屏显示 -->
+                    <div class="btn-fullscreen" @click="handleFullScreen">
+                        <el-tooltip effect="dark" :content="fullscreen?'取消全屏':'全屏'" placement="bottom">
+                            <i class="el-icon-rank"></i>
+                        </el-tooltip>
+                    </div>
+                    <!-- 消息中心 -->
+                    <div class="btn-bell">
+                        <el-tooltip
+                                effect="dark"
+                                :content="message?'有${message}条未读消息':'消息中心'"
+                                placement="bottom"
+                        >
+                            <!--                            <router-link to="/tabs">-->
+                            <!--                                <i class="el-icon-bell"></i>-->
+                            <!--                            </router-link>-->
+                        </el-tooltip>
+                        <span class="btn-bell-badge" v-if="message"></span>
+                    </div>
+                    <!-- 用户头像 -->
+                    <div class="user-avator">
+                        <img th:src="@{/public/css/assets/img/img.jpg}" />
+                    </div>
+                    <!-- 用户名下拉菜单 -->
+                    <el-dropdown class="user-name" trigger="click" @command="handleCommand">
+                    <span class="el-dropdown-link" th:text="${session.name}">
+                        <i class="el-icon-caret-bottom"></i>
+                    </span>
+                        <el-dropdown-menu slot="dropdown">
+                            <a href="https://github.com/lin-xin/vue-manage-system" target="_self">
+                                <el-dropdown-item>项目仓库</el-dropdown-item>
+                            </a>
+                            <a th:href="logout" target="_blank">
+                                <el-dropdown-item>退出登录</el-dropdown-item>
+                            </a>
+<!--                            <el-dropdown-item divided command="loginout">退出登录</el-dropdown-item>-->
+                        </el-dropdown-menu>
+                    </el-dropdown>
+                </div>
+            </div>
+        </div>
+    </template>
+    <template type="x-template" id="sidebar">
+        <div class="sidebar">
+            <el-menu
+                    class="sidebar-el-menu"
+                    :collapse="collapse"
+                    :default-active="active"
+                    background-color="#324157"
+                    text-color="#bfcbd9"
+                    active-text-color="#20a0ff"
+                    unique-opened
+            >
+                <template v-for="item in items">
+                    <template v-if="item.menus">
+                        <el-submenu :index="item.menuCode" :key="item.menuId">
+                            <template slot="title">
+                                <i :class="item.iconCls"></i>
+                                <span slot="title">{{ item.menuName }}</span>
+                            </template>
+                            <template v-for="subItem in item.menus">
+                                <el-submenu
+                                        v-if="subItem.menus"
+                                        :index="subItem.menuCode"
+                                        :key="subItem.menuId"
+                                >
+                                    <template slot="title">{{ subItem.menuName }}</template>
+                                    <el-menu-item
+                                            v-for="(threeItem,i) in subItem.menus"
+                                            :key="i"
+                                            :index="threeItem.menuCode"
+                                            :path="threeItem.url"
+                                            @click="handClick(threeItem)"
+                                    >{{ threeItem.menuName }}</el-menu-item>
+                                </el-submenu>
+                                <el-menu-item
+                                        v-else
+                                        :index="subItem.menuCode"
+                                        :key="subItem.menuId"
+                                        :path="subItem.url"
+                                        @click="handClick(subItem)"
+                                >{{ subItem.menuName }}</el-menu-item>
+                            </template>
+                        </el-submenu>
+                    </template>
+                    <template v-else>
+                        <el-menu-item :index="item.menuCode" :key="item.menuId" :path="item.url" @click="handClick(item)">
+                            <i :class="item.iconCls"></i>
+                            <span slot="title">{{ item.menuName }}</span>
+                        </el-menu-item>
+                    </template>
+                </template>
+            </el-menu>
+        </div>
+    </template>
+    <template type="x-template" id="tabs">
+        <div class="tabs-content">
+            <div class="page-tabs">
+                <span class="tabs_nav_prev" @click="prevTab">
+                    <i class="el-icon-d-arrow-left"></i>
+                </span>
+                <div class="content-tabs">
+                    <div class="content-tabs-container">
+                        <ul id="tabUl">
+                            <li v-for="(item,index) in tabList" :class="{'active': isActive(item.id)}" :key="index">
+                                <a href="#" :class="{'active': isActive(item.id)}" @click="activeTab(item.id)">{{item.name}}</a>
+                                <span v-if="item.allowClose==true" class="tabs-close" @click="removeTab(item.id)"><i class="el-icon-close"></i></span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <span class="tabs_nav_next" @click="nextTab">
+                    <i class="el-icon-d-arrow-right"></i>
+                </span>
+                <div class="tabs-close-box">
+                    <el-dropdown @command="handleCommand">
+                    <span>
+                        <i class="el-icon-caret-bottom"></i>
+                    </span>
+                        <el-dropdown-menu slot="dropdown">
+                            <el-dropdown-item command="A">定位当前选项卡</el-dropdown-item>
+                            <el-dropdown-item command="B">关闭当前选项卡</el-dropdown-item>
+                            <el-dropdown-item divided command="C">关闭其他选项卡</el-dropdown-item>
+                            <el-dropdown-item command="D">关闭全部选项卡</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </el-dropdown>
+                </div>
+            </div>
+            <div class="tab-content">
+                <div class="tab-pane" v-for="(item,index) in tabList" :key="index" :style="{'display':(item.id==activeId?'block':'none')}">
+                    <iframe :src="item.url" class="tabs-frame" frameborder="0" :name="item.id" scrolling="auto"></iframe>
+                </div>
+            </div>
+        </div>
+    </template>
+</head>
+<body>
+<div id="app">
+    <div class="wrapper">
+        <v-head></v-head>
+        <v-sidebar ref="sidebar" @add-tab="addTab"></v-sidebar>
+        <div class="content-box" :class="{'content-collapse':collapse}">
+            <v-tabs :tabarr="tabList" :active="active" @update-tabs="updateTabs" @update-active="updateActive" ref="tabs"></v-tabs>
+        </div>
+    </div>
+</div>
+</body>
+<script th:src="@{/public/js/app/app.js}" type="text/javascript"></script>
+<script th:src="@{/plugins/vue.js}" type="text/javascript"></script>
+<script th:src="@{/plugins/element/js/index.js}" type="text/javascript"></script>
+<script th:src="@{/plugins/axios/axios.min.js}" type="text/javascript"></script>
+<script th:inline="javascript">
+    var context = [[@{/}]];
+</script>
+<script>
+    const bus = new Vue();
+    const vHead = {
+        template: "#head",
+        data() {
+            return {
+                collapse: false,
+                fullscreen: false,
+                name: 'linxin',
+                message: 2
+            };
+        },
+        computed: {},
+        methods: {
+            // 用户名下拉菜单选择事件
+            handleCommand(command) {
+            },
+            // 侧边栏折叠
+            collapseChage() {
+                this.collapse = !this.collapse;
+                bus.$emit('collapse', this.collapse);
+            },
+            // 全屏事件
+            handleFullScreen() {
+                let element = document.documentElement;
+                if (this.fullscreen) {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.webkitCancelFullScreen) {
+                        document.webkitCancelFullScreen();
+                    } else if (document.mozCancelFullScreen) {
+                        document.mozCancelFullScreen();
+                    } else if (document.msExitFullscreen) {
+                        document.msExitFullscreen();
+                    }
+                } else {
+                    if (element.requestFullscreen) {
+                        element.requestFullscreen();
+                    } else if (element.webkitRequestFullScreen) {
+                        element.webkitRequestFullScreen();
+                    } else if (element.mozRequestFullScreen) {
+                        element.mozRequestFullScreen();
+                    } else if (element.msRequestFullscreen) {
+                        // IE11
+                        element.msRequestFullscreen();
+                    }
+                }
+                this.fullscreen = !this.fullscreen;
+            }
+        },
+        mounted() {
+        }
+    };
+
+    const vSidebar = {
+        template: "#sidebar",
+        data() {
+            return {
+                active: "",
+                collapse: false,
+                selectNode: {},
+                items: []
+            };
+        },
+        computed: {},
+        methods: {
+            handleOpen(key, keyPath) {
+                console.log(key, keyPath);
+            },
+            handleClose(key, keyPath) {
+                console.log(key, keyPath);
+            },
+            handSelect(key, keyPath) {
+                this.selectNode = null;
+                this.getNode(key, this.items);
+            },
+            getNode(index, items) {
+                for (var i = 0; i < items.length; i++) {
+                    if (this.selectNode != null) {
+                        break;
+                    }
+                    if (items[i].subs && items[i].subs.length > 0) {
+                        this.getNode(index3, items[i].subs);
+                    } else {
+                        if (index3 == items[i].index) {
+                            this.selectNode = items[i];
+                            break;
+                        }
+                    }
+                }
+            },
+            handClick(item) {
+                console.info(item);
+                this.$emit("add-tab",item);
+            },
+            setActive(active){
+                this.active=active;
+            }
+        },
+        mounted() {
+
+        },
+        created() {
+            bus.$on('collapse', msg => {
+                this.collapse = msg;
+                bus.$emit('collapse-content', msg);
+            });
+            bus.$on('activemenu', msg => {
+                this.active = msg;
+            });
+            bus.$on('items', msg => {
+                this.items = msg;
+            });
+        }
+    };
+
+    const vTabs = {
+        template: "#tabs",
+        props: {
+            tabarr: Array,
+            active: String
+        },
+        data: function () {
+            return {
+                activeId: this.active,
+                tabList: this.tabarr,
+                leftestShowIndex: 0
+            }
+        },
+        methods: {
+            isActive(id) {
+                return this.activeId == id;
+            },
+            activeTab(id) {
+                if (this.activeId != id) {
+                    this.activeId = id;
+                    this.$emit('update-active', this.activeId);
+                }
+            },
+            getActive() {
+                for (var i = 0; i < this.tabList.length; i++) {
+                    if (this.activeId == this.tabList[i].id) {
+                        return this.tabList[i];
+                    }
+                }
+            },
+            getActiveIndex() {
+                for (var i = 0; i < this.tabList.length; i++) {
+                    if (this.activeId == this.tabList[i].id) {
+                        return i;
+                    }
+                }
+            },
+            updateTabList(tabList) {
+                this.tabList = tabList;
+                this.$emit('update-tabs', this.tabList);
+            },
+            prevTab() {
+                //显示的最左边的li
+                var leftestShowLi;
+                var totalLiWidth = 0;
+                var contentTabs = document.querySelector(".content-tabs");
+                //显示的宽度
+                var totalWidth = contentTabs.offsetWidth - 30 - 30 - 30;
+                var ul = document.querySelector("#tabUl");
+                var childNodes = ul.childNodes;
+                for (var i = 0; i < childNodes.length; i++) {
+                    if (i >= this.leftestShowIndex) {
+                        totalLiWidth = totalLiWidth + childNodes[i].offsetWidth;
+                    }
+                    if (i == this.leftestShowIndex) {
+                        leftestShowLi = childNodes[i];
+                    }
+                }
+                var marginLeft = ul.offsetLeft;
+                if (totalLiWidth > totalWidth) {
+                    var contentTabsContainer = document.querySelector(".content-tabs-container");
+                    contentTabsContainer.style.marginLeft = marginLeft - leftestShowLi.offsetWidth + 'px';
+                    this.leftestShowIndex++;
+                }
+            },
+            nextTab() {
+                //显示的最左边的li
+                if (this.leftestShowIndex > 0) {
+                    var rightestHideLi;
+                    var ul = document.querySelector("#tabUl");
+                    var childNodes = ul.childNodes;
+                    for (var i = 0; i < childNodes.length; i++) {
+                        if (i == this.leftestShowIndex) {
+                            var m = i-1;
+                            rightestHideLi = childNodes[m];
+                        }
+                    }
+                    var marginLeft = ul.offsetLeft;
+                    var contentTabsContainer = document.querySelector(".content-tabs-container");
+                    contentTabsContainer.style.marginLeft = marginLeft + rightestHideLi.offsetWidth + 'px';
+                    this.leftestShowIndex--;
+                }
+            },
+            removeTab(id) {
+                if (id == this.activeId) {
+                    var index = this.getActiveIndex();
+                    if (index3 === this.tabList.length - 1) {
+                        this.activeTab(this.tabList[index3 - 1].id);
+                    } else {
+                        this.activeTab(this.tabList[index3 + 1].id);
+                    }
+                }
+
+                var newTabList = this.tabList.filter(item => {
+                    return item.id != id;
+                });
+                this.updateTabList(newTabList)
+            },
+            isExists(id) {
+                for (var n = 0; n < this.tabList.length; n++) {
+                    if (id == this.tabList[n].id) {
+                        return true;
+                    }
+                }
+                return false;
+            },
+            addTab(item) {
+                var isExist = this.isExists(item.id);
+                if (isExist) {
+                    this.activeTab(item.id);
+                } else {
+                    this.tabList.push({
+                        id: item.id,
+                        name: item.name,
+                        url: item.url,
+                        allowClose: item.allowClose ? item.allowClose : false
+
+                    });
+                    this.activeTab(item.id);
+                    this.locationCurrent();
+                    this.$emit('updateTabs', this.tabList);
+                }
+            },
+            locationCurrent() {
+                //当前激活选项卡及右侧的总宽度
+                var rightTotalWidth = 0;
+                //当前激活选项卡左侧的总宽度（不包括当前）
+                var leftTotalWidth = 0;
+                var contentTabs = document.querySelector(".content-tabs");
+                //可显示的宽度（此为固定值）
+                var totalWidth = contentTabs.offsetWidth - 30 - 30 - 30;
+                //当前激活的li,从0开始计数
+                var index = this.getActiveIndex();
+                //变为从1开始
+                index3 = index3+1;
+                var ul = document.querySelector("#tabUl");
+                var childNodes = ul.childNodes;
+                //当新增选项卡时，index为真实的，但是此时childNodes还没有增加，此处默认取第一个li的长度
+                if(index3>childNodes.length){
+                    rightTotalWidth = rightTotalWidth + childNodes[0].offsetWidth;
+                }
+                for (var i = 0; i < childNodes.length; i++) {
+                    if (i >= (index3-1)) {
+                        rightTotalWidth = rightTotalWidth + childNodes[i].offsetWidth;
+                    } else {
+                        leftTotalWidth = leftTotalWidth + childNodes[i].offsetWidth;
+                    }
+                }
+                var contentTabsContainer = document.querySelector(".content-tabs-container");
+                //若totalWidth<=rightTotalWidth，将当前选中的选项卡作为第一个显示的选项卡
+                if (totalWidth <= rightTotalWidth) {
+                    contentTabsContainer.style.marginLeft = 32 - leftTotalWidth + 'px';
+                    this.leftestShowIndex = index3;
+                } else {
+                    var rightIndex;
+                    for (var k = index3-2; k >= 0; k--) {
+                        if (rightTotalWidth + childNodes[k].offsetWidth >= totalWidth) {
+                            rightIndex = k;
+                            break;
+                        } else {
+                            rightTotalWidth = rightTotalWidth + childNodes[k].offsetWidth
+                        }
+                    }
+                    leftTotalWidth = 0;
+                    //当childNodes还没增加时，默认多移动一个选项卡
+                    if(index3>childNodes.length){
+                        rightIndex++;
+                    }
+                    for (var j = 0; j <= rightIndex; j++) {
+                        leftTotalWidth = leftTotalWidth + childNodes[j].offsetWidth;
+                    }
+                    contentTabsContainer.style.marginLeft = 32 - leftTotalWidth + 'px';
+                    this.leftestShowIndex = rightIndex + 1;
+                }
+            },
+            closeCurrent() {
+                this.removeTab(this.activeId);
+            },
+            closeOthers() {
+                var newTabList = this.tabList.filter(item => {
+                    return item.id == this.activeId || item.allowClose == undefined || item.allowClose == false;
+                });
+                this.updateTabList(newTabList);
+            },
+            closeAll() {
+                var newTabList = this.tabList.filter(item => {
+                    return item.id == this.activeId || item.allowClose == undefined || item.allowClose == false;
+                });
+                this.updateTabList(newTabList)
+                if (this.tabList.length > 0) {
+                    this.activeTab(this.tabList[0].id);
+                }
+            },
+            handleCommand(command) {
+                if ("A" == command) {
+                    this.locationCurrent();
+                } else if ("B" == command) {
+                    this.closeCurrent();
+                } else if ("C" == command) {
+                    this.closeOthers();
+                } else {
+                    this.closeAll();
+                }
+            }
+        }
+    };
+
+
+    var vm = new Vue({
+        el: '#app',
+        data: function() {
+            return {
+                collapse: false,
+                tabList:[{
+                    id:'first1',
+                    name:'首页',
+                    url:context+"main"
+                }],
+                active:'first1'
+            }
+        },
+        components:{
+            'v-head':vHead,
+            'v-sidebar':vSidebar,
+            'v-tabs':vTabs
+        },
+        methods:{
+            async initItems(){
+                var res = {};
+                await axios.get(context+'getMenus?pCode=m_00')
+                    .then(response => {
+                        res = response.data;
+                        bus.$emit('items', res);
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+                return res;
+            },
+            updateTabs(tabList){
+                this.tabList=tabList;
+            },
+            updateActive(active){
+                this.active=active;
+                this.$refs.sidebar.setActive(active);
+            },
+            addTab(item){
+                this.$refs.tabs.addTab({
+                    id:item.menuCode,
+                    name:item.menuName,
+                    url: context+item.url,
+                    allowClose:true
+                });
+            }
+        },
+        created() {
+            this.initItems();
+            bus.$on('collapse-content', msg => {
+                this.collapse = msg;
+            });
+        }
+    });
+
+</script>
+</html>

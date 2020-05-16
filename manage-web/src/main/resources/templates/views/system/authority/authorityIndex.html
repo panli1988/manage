@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <th:block th:insert="common/common_header::header"></th:block>
+</head>
+<body>
+<div id="app">
+    <div style="width: 100%;">
+        <el-row :gutter="20" style="width: 100%;">
+            <el-col :span="6">
+                <el-input v-model="query.authorityName" placeholder="权限名称" style="width: 200px" clearable></el-input>
+            </el-col>
+            <el-col :span="6">
+                <el-date-picker
+                        v-model="query.createDate"
+                        type="date"
+                        style="width: 200px"
+                        format="yyyy-MM-dd"
+                        value-format="yyyy-MM-dd"
+                        placeholder="选择日期"
+                        clearable>
+                </el-date-picker>
+            </el-col>
+            <el-col :span="6">
+                <el-input v-model="query.authorityDesc" placeholder="权限描述" style="width: 200px" clearable></el-input>
+            </el-col>
+            <el-col :span="6">
+                <el-button type="primary" @click="handQuery">查询</el-button>
+            </el-col>
+        </el-row>
+    </div>
+    <el-table
+            :data="tableData"
+            stripe
+            max-height="340"
+            border
+            :cell-style="{padding:'8px'}"
+            highlight-current-row
+            header-cell-class-name="table-header"
+            @current-change="handleCurrentRowChange"
+            style="width: 100%">
+        <el-table-column
+                type="index"
+                width="100">
+            <template scope="scope"><span>{{scope.$index+(page - 1) * pageSize + 1}} </span></template>
+        </el-table-column>
+        <el-table-column
+                prop="authorityName"
+                label="权限名称"
+                width="180">
+        </el-table-column>
+        <el-table-column
+                prop="authorityDesc"
+                label="权限描述">
+        </el-table-column>
+        <el-table-column
+                prop="createDate"
+                label="日期"
+                width="180">
+        </el-table-column>
+        <el-table-column
+                fixed="right"
+                label="操作"
+                width="180">
+            <template slot-scope="scope">
+                <el-button type="primary" size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                <el-button type="danger" size="small" @click="handleDel(scope.$index, scope.row)">删除</el-button>
+            </template>
+        </el-table-column>
+    </el-table>
+    <div class="block">
+        <el-pagination
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page="currentPage"
+                :page-sizes="[10, 20, 30, 50]"
+                :page-size="pageSize"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="total">
+        </el-pagination>
+    </div>
+    <el-dialog title="编辑" :visible.sync="dialogFormVisible" :width="formWidth">
+        <el-form :model="form">
+            <el-input v-model="form.authorityId" type="hidden"></el-input>
+            <el-form-item label="权限名称" :label-width="formLabelWidth">
+                <el-input v-model="form.authorityName" autocomplete="off" style="width: 200px" :readOnly="true"></el-input>
+            </el-form-item>
+            <el-form-item label="权限描述" :label-width="formLabelWidth">
+                <el-input v-model="form.authorityDesc" autocomplete="off" style="width: 200px"></el-input>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="dialogFormVisible = false">取 消</el-button>
+            <el-button type="primary" @click="saveEdit">确 定</el-button>
+        </div>
+    </el-dialog>
+</div>
+<th:block th:replace="common/common_footer::footer">
+</th:block>
+</body>
+<script>
+    new Vue({
+        el: '#app',
+        data: function() {
+            return {
+                query:{
+                    authorityName:'',
+                    createDate:'',
+                    authorityDesc:''
+                },
+                tableData:[],
+                currentPage: 1,
+                page: 1,
+                pageSize: 10,
+                total: 0,
+                dialogFormVisible: false,
+                form: {
+                    authorityId:'',
+                    authorityName:'',
+                    authorityDesc:''
+                },
+                formLabelWidth: '120px',
+                formWidth: '40%',
+                queryFlag: true //用于防止同时触发@size-chang @current-change
+            }
+        },
+        components:{
+        },
+        created() {
+
+        },
+        methods: {
+            handleSizeChange(val) {
+                console.log('每页 '+val+' 条');
+                this.currentPage = 1;
+                if(this.queryFlag){
+                    this.queryFlag = false;
+                    this.queryData(this.currentPage,val)
+                }
+            },
+            handleCurrentChange(val) {
+                console.log('当前页: '+val);
+                this.page = val;
+                if(this.queryFlag){
+                    this.queryFlag = false;
+                    this.queryData(val,this.pageSize)
+                }
+            },
+            queryData(pageNum,pageSize){
+                var params = this.query;
+                if(null==pageNum){
+                    pageNum = this.currentPage;
+                }
+                if(null==pageSize){
+                    pageSize = this.pageSize;
+                }
+                params.pageSize = pageSize;
+                params.pageNum = pageNum;
+                axios
+                    .get(context+'authority/queryPage',{
+                        params: params
+                    })
+                    .then(response => {
+                        if(response.data && response.data.success){
+                            this.tableData = response.data.list;
+                            this.total = response.data.total;
+                        }
+                        this.queryFlag = true;
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            handleCurrentRowChange(val) {
+                this.currentRow = val;
+            },
+            handQuery(){
+                this.queryData();
+            },
+            handleEdit(index, row) {
+                this.form = row;
+                this.dialogFormVisible = true;
+            },
+            saveEdit() {
+                this.dialogFormVisible = false;
+                var that = this;
+                axios.get(context+'authority/update',{
+                        params: {
+                            authorityId: this.form.authorityId,
+                            authorityDesc: this.form.authorityDesc,
+                        }
+                    })
+                    .then(response => {
+                        if(response.data && response.data.success){
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: 'success'
+                            });
+                            this.queryData();
+                        }else{
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: 'error'
+                            });
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        that.$message({
+                            showClose: true,
+                            message: "操作失败",
+                            type: 'error'
+                        });
+                    });
+            },
+            handleClick(row) {
+                console.log(row);
+            },
+            handleDel(index, row){
+                axios.get(context+'authority/deleteById',{
+                        params: {
+                            authorityId: row.authorityId,
+                        }
+                    })
+                    .then(response => {
+                        if(response.data && response.data.success){
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: 'success'
+                            });
+                            this.queryData();
+                        }else{
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: 'error'
+                            });
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        that.$message({
+                            showClose: true,
+                            message: "操作失败",
+                            type: 'error'
+                        });
+                    });
+            }
+        },
+        mounted(){
+            this.queryData(this.currentPage,this.pageSize)
+        }
+    })
+</script>
+</html>

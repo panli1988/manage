@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <th:block th:insert="common/common_header::header"></th:block>
+</head>
+<body>
+<div id="app">
+    <div style="width: 100%;">
+        <el-row :gutter="20" style="width: 100%;">
+            <el-col :span="6">
+                <el-input v-model="query.name" placeholder="请输入内容"></el-input>
+            </el-col>
+            <el-col :span="6">
+                <el-date-picker
+                        v-model="query.createDate"
+                        type="date"
+                        format="yyyy-MM-dd"
+                        value-format="yyyy-MM-dd"
+                        placeholder="选择日期">
+                </el-date-picker>
+            </el-col>
+            <el-col :span="6">
+                <el-input v-model="query.address" placeholder="请输入内容"></el-input>
+            </el-col>
+            <el-col :span="6">
+                <el-button type="primary" @click="handQuery">查詢</el-button>
+            </el-col>
+        </el-row>
+    </div>
+    <el-table
+            :data="tableData"
+            stripe
+            height="350"
+            border
+            :cell-style="{padding:'8px'}"
+            highlight-current-row
+            header-cell-class-name="table-header"
+            @current-change="handleCurrentRowChange"
+            style="width: 100%">
+        <el-table-column
+                type="index"
+                width="50">
+        </el-table-column>
+        <el-table-column
+                prop="createDate"
+                label="日期"
+                width="180">
+        </el-table-column>
+        <el-table-column
+                prop="name"
+                label="姓名"
+                width="180">
+        </el-table-column>
+        <el-table-column
+                prop="address"
+                label="地址">
+        </el-table-column>
+        <el-table-column
+                fixed="right"
+                label="操作"
+                width="180">
+            <template slot-scope="scope">
+                <el-button type="text" size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+            </template>
+        </el-table-column>
+    </el-table>
+    <div class="block">
+        <el-pagination
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page="currentPage"
+                :page-sizes="[10, 20, 30, 50]"
+                :page-size="pageSize"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="total">
+        </el-pagination>
+    </div>
+    <el-dialog title="编辑" :visible.sync="dialogFormVisible" :width="formWidth">
+        <el-form :model="form">
+            <el-form-item label="日期" :label-width="formLabelWidth">
+                <el-date-picker
+                        v-model="form.createDate"
+                        style="width: 200px"
+                        type="date"
+                        format="yyyy-MM-dd"
+                        value-format="yyyy-MM-dd"
+                        placeholder="选择日期">
+                </el-date-picker>
+            </el-form-item>
+            <el-form-item label="姓名" :label-width="formLabelWidth">
+                <el-input v-model="form.name" autocomplete="off" style="width: 200px"></el-input>
+            </el-form-item>
+            <el-form-item label="地址" :label-width="formLabelWidth">
+                <el-input v-model="form.address" autocomplete="off" style="width: 200px"></el-input>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="dialogFormVisible = false">取 消</el-button>
+            <el-button type="primary" @click="saveEdit">确 定</el-button>
+        </div>
+    </el-dialog>
+</div>
+<th:block th:replace="common/common_footer::footer">
+</th:block>
+</body>
+<script>
+    new Vue({
+        el: '#app',
+        data: function() {
+            return {
+                query:{
+                    name:'',
+                    createDate:'',
+                    address:''
+                },
+                tableData:[],
+                currentPage: 1,
+                pageSize: 10,
+                total: 0,
+                dialogFormVisible: false,
+                form: {
+                    name:'',
+                    createDate:'',
+                    address:''
+                },
+                formLabelWidth: '120px',
+                formWidth: '40%'
+            }
+        },
+        components:{
+        },
+        created() {
+
+        },
+        methods: {
+            handleSizeChange(val) {
+                console.log('每页 '+val+' 条');
+                var start = val*(this.currentPage-1)+1;
+                var end = val*this.currentPage;
+                this.queryData(start,end+1)
+            },
+            handleCurrentChange(val) {
+                console.log('当前页: '+val);
+                var start = this.pageSize*(val-1)+1;
+                var end = this.pageSize*val;
+                this.queryData(start,end+1)
+            },
+            queryData(start,end){
+                axios
+                    .get(context+'/table.json')
+                    .then(response => {
+                        console.log(start,end)
+                        console.log(response.data)
+                        this.total = response.data.length;
+                        this.tableData = response.data.slice(start,end)
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            handleCurrentRowChange(val) {
+                this.currentRow = val;
+            },
+            handQuery(){
+                console.info(this.query);
+            },
+            handleEdit(index, row) {
+                this.form = row;
+                this.dialogFormVisible = true;
+            },
+            saveEdit() {
+                this.dialogFormVisible = false;
+                this.$message({
+                    showClose: true,
+                    message: '操作成功',
+                    type: 'success'
+                });
+            },
+            handleClick(row) {
+                console.log(row);
+            }
+        },
+        mounted(){
+            var start = this.pageSize*(this.currentPage-1)+1;
+            var end = this.pageSize*this.currentPage;
+            this.queryData(start,end+1)
+        }
+    })
+</script>
+</html>

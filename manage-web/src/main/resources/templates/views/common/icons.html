@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <th:block th:insert="common/common_header::header"></th:block>
+    <style type="text/css">
+        .el-row {
+            margin-bottom: 20px;
+        &:last-child {
+             margin-bottom: 0;
+         }
+        }
+        .el-col {
+            border-radius: 4px;
+        }
+        .bg-purple-dark {
+            background: #99a9bf;
+        }
+        .bg-purple {
+            background: #d3dce6;
+        }
+        .bg-purple-light {
+            background: #e5e9f2;
+        }
+        .grid-content {
+            border-radius: 4px;
+            min-height: 36px;
+        }
+        .row-bg {
+            padding: 10px 0;
+            background-color: #f9fafc;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <el-row :gutter="10">
+        <el-col :span="4">
+            <div class="grid-content bg-purple">1</div>
+        </el-col>
+        <el-col :span="4">
+            <div class="grid-content bg-purple">2</div>
+        </el-col>
+        <el-col :span="4">
+            <div class="grid-content bg-purple">3</div>
+        </el-col>
+        <el-col :span="4">
+            <div class="grid-content bg-purple">4</div>
+        </el-col>
+        <el-col :span="4">
+            <div class="grid-content bg-purple">5</div>
+        </el-col>
+        <el-col :span="4">
+            <div class="grid-content bg-purple">6</div>
+        </el-col>
+    </el-row>
+</div>
+</body>
+</html>

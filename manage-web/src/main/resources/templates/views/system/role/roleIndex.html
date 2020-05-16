@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <th:block th:insert="common/common_header::header"></th:block>
+</head>
+<body>
+<div id="app">
+    <div class="container-box">
+        <div style="width: 100%;padding: 10px 0px;">
+            <el-row :gutter="20" style="width: 100%;">
+                <el-col :span="5">
+                    <el-input v-model="query.roleCode" size="small" placeholder="角色编码" style="width: 200px" clearable></el-input>
+                </el-col>
+                <el-col :span="5">
+                    <el-input v-model="query.roleName" size="small" placeholder="角色名称" style="width: 200px" clearable></el-input>
+                </el-col>
+                <el-col :span="8">
+                    <el-date-picker
+                            v-model="query.createDate"
+                            type="daterange"
+                            size="small"
+                            style="width: 300px"
+                            format="yyyy-MM-dd"
+                            value-format="yyyy-MM-dd"
+                            range-separator="至"
+                            start-placeholder="开始日期"
+                            end-placeholder="结束日期"
+                            clearable>
+                    </el-date-picker>
+                </el-col>
+                <el-col :span="6">
+                    <el-button type="primary" size="small" @click="openMenu">配置菜单</el-button>
+                    <el-button type="primary" size="small" @click="openAdd">新增</el-button>
+                    <el-button type="primary" size="small" @click="handQuery">查询</el-button>
+                </el-col>
+            </el-row>
+        </div>
+        <el-table
+                :data="tableData"
+                stripe
+                max-height="430"
+                border
+                :cell-style="{padding:'2px'}"
+                highlight-current-row
+                header-cell-class-name="table-header"
+                @current-change="handleCurrentRowChange"
+                style="width: 100%">
+            <el-table-column label="选择" width="50">
+                <template slot-scope="scope">
+                    <el-radio v-model="tableRadio" :label="scope.$index" style="padding-left: 6px;">&nbsp;</el-radio>
+                </template>
+            </el-table-column>
+            <el-table-column
+                    type="index"
+                    label="序号"
+                    width="60">
+                <template scope="scope"><span>{{scope.$index+(page - 1) * pageSize + 1}} </span></template>
+            </el-table-column>
+            <el-table-column
+                    prop="roleCode"
+                    label="角色编码"
+                    width="100">
+            </el-table-column>
+            <el-table-column
+                    prop="roleName"
+                    label="角色名称">
+            </el-table-column>
+            <el-table-column
+                    prop="remark"
+                    label="备注">
+            </el-table-column>
+            <el-table-column
+                    prop="createDate"
+                    label="日期">
+            </el-table-column>
+            <el-table-column
+                    fixed="right"
+                    label="操作">
+                <template slot-scope="scope">
+                    <el-button type="primary" size="small" @click="openEdit(scope.$index, scope.row)">编辑</el-button>
+                    <el-button type="danger" size="small" @click="handleDel(scope.$index, scope.row)">删除</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+        <div class="block">
+            <el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page="currentPage"
+                    :page-sizes="[10, 20, 30, 50]"
+                    :page-size="pageSize"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="total"
+                    @prev-click="prevClick"
+                    @next-click="nextClick"
+            >
+            </el-pagination>
+        </div>
+        <el-dialog title="新增" :visible.sync="dialogAddFormVisible" :width="formWidth">
+            <el-form :model="addForm">
+                <el-form-item label="角色编码" :label-width="formLabelWidth">
+                    <el-input v-model="addForm.roleCode" size="small" autocomplete="off" style="width: 200px"></el-input>
+                </el-form-item>
+                <el-form-item label="角色名称" :label-width="formLabelWidth">
+                    <el-input v-model="addForm.roleName" size="small" autocomplete="off" style="width: 200px"></el-input>
+                </el-form-item>
+                <el-form-item label="备注" :label-width="formLabelWidth">
+                    <el-input v-model="addForm.remark" size="small" autocomplete="off" style="width: 200px"></el-input>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button size="small" @click="dialogAddFormVisible = false">取 消</el-button>
+                <el-button type="primary" size="small" @click="saveAdd">确 定</el-button>
+            </div>
+        </el-dialog>
+        <el-dialog title="编辑" :visible.sync="dialogEditFormVisible" :width="formWidth">
+            <el-form :model="editForm">
+                <el-input v-model="editForm.roleId" type="hidden"></el-input>
+                <el-form-item label="角色编码" :label-width="formLabelWidth">
+                    <el-input v-model="editForm.roleCode" size="small" autocomplete="off" style="width: 200px"></el-input>
+                </el-form-item>
+                <el-form-item label="角色名称" :label-width="formLabelWidth">
+                    <el-input v-model="editForm.roleName" size="small" autocomplete="off" style="width: 200px"></el-input>
+                </el-form-item>
+                <el-form-item label="备注" :label-width="formLabelWidth">
+                    <el-input v-model="editForm.remark" size="small" autocomplete="off" style="width: 200px"></el-input>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button size="small" @click="dialogEditFormVisible = false">取 消</el-button>
+                <el-button type="primary" size="small" @click="saveEdit">确 定</el-button>
+            </div>
+        </el-dialog>
+        <el-dialog title="菜单" :visible.sync="dialogMenuVisible" :width="treeWidth">
+            <el-tree
+                    :data="tree"
+                    show-checkbox
+                    node-key="id"
+                    :props="defaultProps">
+            </el-tree>
+        </el-dialog>
+    </div>
+</div>
+<th:block th:replace="common/common_footer::footer">
+</th:block>
+</body>
+<script>
+    new Vue({
+        el: '#app',
+        data: function() {
+            return {
+                query:{
+                    roleCode:'',
+                    roleName:'',
+                    createDate:''
+                },
+                tableData:[],
+                currentPage: 1,
+                page: 1,
+                pageSize: 10,
+                total: 0,
+                dialogAddFormVisible: false,
+                dialogEditFormVisible: false,
+                dialogMenuVisible: false,
+                addForm: {
+                    roleId:'',
+                    roleCode:'',
+                    roleName:'',
+                    remark:''
+                },
+                editForm: {
+                    roleId:'',
+                    roleCode:'',
+                    roleName:'',
+                    remark:''
+                },
+                formLabelWidth: '120px',
+                formWidth: '40%',
+                queryFlag: true, //用于防止同时触发@size-chang @current-change
+                currentRow: null,
+                tableRadio: null, //table单选
+                tree: [{
+                    id: 1,
+                    label: '一级 1',
+                    children: [{
+                        id: 4,
+                        label: '二级 1-1',
+                        children: [{
+                            id: 9,
+                            label: '三级 1-1-1'
+                        }, {
+                            id: 10,
+                            label: '三级 1-1-2'
+                        }]
+                    }]
+                }, {
+                    id: 2,
+                    label: '一级 2',
+                    children: [{
+                        id: 5,
+                        label: '二级 2-1'
+                    }, {
+                        id: 6,
+                        label: '二级 2-2'
+                    }]
+                }, {
+                    id: 3,
+                    label: '一级 3',
+                    children: [{
+                        id: 7,
+                        label: '二级 3-1'
+                    }, {
+                        id: 8,
+                        label: '二级 3-2'
+                    }]
+                }],
+                defaultProps: {
+                    children: 'children',
+                    label: 'label'
+                },
+                treeWidth: '40%'
+            }
+        },
+        components:{
+        },
+        created() {
+
+        },
+        methods: {
+            handleSizeChange(val) {
+                console.log('每页 '+val+' 条');
+                this.currentPage = 1;
+                this.page = 1;
+                if(this.queryFlag){
+                    this.queryFlag = false;
+                    this.queryData(this.currentPage,val)
+                }
+            },
+            handleCurrentChange(val) {
+                console.log('当前页: '+val);
+                this.page = val;
+                this.currentPage = val;
+                if(this.queryFlag){
+                    this.queryFlag = false;
+                    this.queryData(val,this.pageSize)
+                }
+            },
+            prevClick(){
+                this.currentPage = this.currentPage-1;
+            },
+            nextClick(){
+                this.currentPage = this.currentPage+1;
+            },
+            queryData(pageNum,pageSize){
+                var params = {};
+                if(this.query.createDate!=''&&this.query.createDate!=null&&this.query.createDate.length>0){
+                    params.createDateStart = this.query.createDate[0];
+                    params.createDateEnd = this.query.createDate[1];
+                }
+                params.roleName = this.query.roleName;
+                params.roleCode = this.query.roleCode;
+                if(null==pageNum){
+                    pageNum = this.currentPage;
+                }
+                if(null==pageSize){
+                    pageSize = this.pageSize;
+                }
+                params.pageSize = pageSize;
+                params.pageNum = pageNum;
+                axios
+                    .get(context+'role/queryPage',{
+                        params: params
+                    })
+                    .then(response => {
+                        if(response.data && response.data.success){
+                            this.tableData = response.data.list;
+                            this.total = response.data.total;
+                        }else{
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: 'error'
+                            });
+                        }
+                        this.queryFlag = true;
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            //行变化
+            handleCurrentRowChange(currentRow, oldCurrentRow) {
+                this.currentRow = currentRow;
+                //this.tableRadio = currentRow.roleId;
+            },
+            //查询
+            handQuery(){
+                this.queryData();
+            },
+            //打开新增
+            openAdd(index, row) {
+                this.addForm = {};
+                this.dialogAddFormVisible = true;
+            },
+            //保存编辑
+            saveAdd() {
+                this.dialogAddFormVisible = false;
+                var that = this;
+                axios.post(context+'role/insert',{
+                    roleCode: this.addForm.roleCode,
+                    roleName: this.addForm.roleName,
+                    remark: this.addForm.remark
+                }).then(response => {
+                        if(response.data && response.data.success){
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: 'success'
+                            });
+                            this.queryData();
+                        }else{
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: 'error'
+                            });
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        that.$message({
+                            showClose: true,
+                            message: "操作失败",
+                            type: 'error'
+                        });
+                    });
+            },
+            //打开编辑
+            openEdit(index, row) {
+                this.editForm = row;
+                this.dialogEditFormVisible = true;
+            },
+            //保存编辑
+            saveEdit() {
+                this.dialogEditFormVisible = false;
+                var that = this;
+                axios.post(context+'role/update',{
+                        roleId: this.editForm.roleId,
+                        roleCode: this.editForm.roleCode,
+                        roleName: this.editForm.roleName,
+                        remark: this.editForm.remark
+                    })
+                    .then(response => {
+                        if(response.data && response.data.success){
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: 'success'
+                            });
+                            console.log("page",this.page);
+                            console.log("currentPage",this.currentPage);
+                            this.queryData();
+                        }else{
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: 'error'
+                            });
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        that.$message({
+                            showClose: true,
+                            message: "操作失败",
+                            type: 'error'
+                        });
+                    });
+            },
+            handleClick(row) {
+                console.log(row);
+            },
+            handleDel(index, row){
+                axios.get(context+'role/deleteById',{
+                        params: {
+                            roleId: row.roleId,
+                        }
+                    })
+                    .then(response => {
+                        if(response.data && response.data.success){
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: 'success'
+                            });
+                            this.queryData();
+                        }else{
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: 'error'
+                            });
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        that.$message({
+                            showClose: true,
+                            message: "操作失败",
+                            type: 'error'
+                        });
+                    });
+            },
+            openMenu(row, column, event){
+                this.dialogMenuVisible = true;
+            }
+        },
+        mounted(){
+            this.queryData(this.currentPage,this.pageSize)
+        }
+    })
+</script>
+</html>

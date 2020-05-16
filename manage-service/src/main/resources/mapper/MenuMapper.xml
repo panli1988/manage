@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lp.framework.manage.mapper.MenuMapper">
+  <resultMap id="BaseResultMap" type="com.lp.framework.manage.model.Menu">
+    <id column="menu_id" jdbcType="INTEGER" property="menuId" />
+    <result column="menu_code" jdbcType="VARCHAR" property="menuCode" />
+    <result column="menu_name" jdbcType="VARCHAR" property="menuName" />
+    <result column="icon_cls" jdbcType="VARCHAR" property="iconCls" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="url" jdbcType="VARCHAR" property="url" />
+    <result column="p_code" jdbcType="VARCHAR" property="pCode" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    menu_id, menu_code, menu_name, icon_cls, `status`, url, p_code, `type`, create_date
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from d_menu
+    where menu_id = #{menuId,jdbcType=INTEGER}
+  </select>
+  <select id="selectMenusByPCode" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from d_menu
+    where p_code = #{pCode,jdbcType=VARCHAR}
+  </select>
+  <select id="selectByPage" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from d_menu
+    <where>
+      <if test="menuCode != null and menuCode != ''">
+        menu_code like CONCAT('%',#{menuCode},'%')
+      </if>
+      <if test="menuName != null and menuName != ''">
+        AND menu_name like CONCAT('%',#{menuName},'%')
+      </if>
+      <if test="pCode != null and pCode != ''">
+        AND p_code= #{pCode}
+      </if>
+    </where>
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from d_menu
+    where menu_id = #{menuId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" keyColumn="menu_id" keyProperty="menuId" parameterType="com.lp.framework.manage.model.Menu" useGeneratedKeys="true">
+    insert into d_menu (menu_code, menu_name, icon_cls, 
+      `status`, url, p_code, 
+      `type`, create_date)
+    values (#{menuCode,jdbcType=VARCHAR}, #{menuName,jdbcType=VARCHAR}, #{iconCls,jdbcType=VARCHAR}, 
+      #{status,jdbcType=VARCHAR}, #{url,jdbcType=VARCHAR}, #{pCode,jdbcType=VARCHAR}, 
+      #{type,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" keyColumn="menu_id" keyProperty="menuId" parameterType="com.lp.framework.manage.model.Menu" useGeneratedKeys="true">
+    insert into d_menu
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="menuCode != null and menuCode != ''">
+        menu_code,
+      </if>
+      <if test="menuName != null and menuName != ''">
+        menu_name,
+      </if>
+      <if test="iconCls != null and iconCls != ''">
+        icon_cls,
+      </if>
+      <if test="status != null and createDate != ''">
+        `status`,
+      </if>
+      <if test="url != null and url != ''">
+        url,
+      </if>
+      <if test="pCode != null and pCode != ''">
+        p_code,
+      </if>
+      <if test="type != null and type != ''">
+        `type`,
+      </if>
+      <if test="createDate != null and createDate != ''">
+        create_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="menuCode != null and menuCode != ''">
+        #{menuCode,jdbcType=VARCHAR},
+      </if>
+      <if test="menuName != null and menuName != ''">
+        #{menuName,jdbcType=VARCHAR},
+      </if>
+      <if test="iconCls != null and createDate != ''">
+        #{iconCls,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null and status != ''">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null and url != ''">
+        #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="pCode != null and pCode != ''">
+        #{pCode,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null and type != ''">
+        #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null and createDate != ''">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.lp.framework.manage.model.Menu">
+    update d_menu
+    <set>
+      <if test="menuCode != null and menuCode != ''">
+        menu_code = #{menuCode,jdbcType=VARCHAR},
+      </if>
+      <if test="menuName != null and menuName != ''">
+        menu_name = #{menuName,jdbcType=VARCHAR},
+      </if>
+      <if test="iconCls != null and iconCls != ''">
+        icon_cls = #{iconCls,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null and status != ''">
+        `status` = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null and url != ''">
+        url = #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="pCode != null and pCode != ''">
+        p_code = #{pCode,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null and type != ''">
+        `type` = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null and createDate != ''">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where menu_id = #{menuId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.lp.framework.manage.model.Menu">
+    update d_menu
+    set menu_code = #{menuCode,jdbcType=VARCHAR},
+      menu_name = #{menuName,jdbcType=VARCHAR},
+      icon_cls = #{iconCls,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=VARCHAR},
+      url = #{url,jdbcType=VARCHAR},
+      p_code = #{pCode,jdbcType=VARCHAR},
+      `type` = #{type,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP}
+    where menu_id = #{menuId,jdbcType=INTEGER}
+  </update>
+</mapper>
