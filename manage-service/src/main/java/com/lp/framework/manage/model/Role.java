@@ -1,9 +1,9 @@
 package com.lp.framework.manage.model;
 
-import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * d_role
@@ -18,7 +18,11 @@ public class Role implements Serializable {
 
     private String remark;
 
-    private Date createDate;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updateTime;
 
     private static final long serialVersionUID = 1L;
 
@@ -54,16 +58,19 @@ public class Role implements Serializable {
         this.remark = remark;
     }
 
-    public Date getCreateDate() {
-        return createDate;
+    public LocalDateTime getCreateTime() {
+        return createTime;
     }
 
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
     }
 
-    @Override
-    public String toString() {
-        return JSONObject.toJSONString(this);
+    public LocalDateTime getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(LocalDateTime updateTime) {
+        this.updateTime = updateTime;
     }
 }
