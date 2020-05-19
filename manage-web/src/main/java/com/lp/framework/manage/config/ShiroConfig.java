@@ -1,6 +1,7 @@
 package com.lp.framework.manage.config;
 
 import at.pollux.thymeleaf.shiro.dialect.ShiroDialect;
+import com.lp.framework.manage.shiro.ShiroFormAuthenticationFilter;
 import org.apache.shiro.authc.Authenticator;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
@@ -41,6 +42,8 @@ public class ShiroConfig {
 		LogoutFilter logoutFilter = new LogoutFilter();
 		logoutFilter.setRedirectUrl("/toLogin");
 		filtersMap.put("logout", logoutFilter);
+		filtersMap.put("authc", new ShiroFormAuthenticationFilter());
+
 
 		shiroFilter.setFilters(filtersMap);
 		Map<String, String> chainDefinition = new LinkedHashMap<>();
@@ -168,7 +171,7 @@ public class ShiroConfig {
 		//去除URL中的JSESSIONID
 		defaultWebSessionManager.setSessionIdUrlRewritingEnabled(false);
 		//设置超时时间
-		defaultWebSessionManager.setGlobalSessionTimeout(1000*60*30);
+		defaultWebSessionManager.setGlobalSessionTimeout(1000*60*1);
 		defaultWebSessionManager.setSessionIdCookie(sessionIdCookie());
 		defaultWebSessionManager.setSessionValidationSchedulerEnabled(true);
 		return defaultWebSessionManager;
