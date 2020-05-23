@@ -159,8 +159,13 @@ public class ShiroConfig {
 	
 	@Bean
 	public EhCacheManager ehCacheManager() {
+		net.sf.ehcache.CacheManager cacheManager = net.sf.ehcache.CacheManager.getCacheManager(null);
 		EhCacheManager em = new EhCacheManager();
-		em.setCacheManagerConfigFile("classpath:ehcache.xml");
+		if(cacheManager!=null){
+			em.setCacheManager(cacheManager);
+		}else{
+			em.setCacheManagerConfigFile("classpath:ehcache.xml");
+		}
 		return em;
 	}
 
@@ -171,7 +176,7 @@ public class ShiroConfig {
 		//去除URL中的JSESSIONID
 		defaultWebSessionManager.setSessionIdUrlRewritingEnabled(false);
 		//设置超时时间
-		defaultWebSessionManager.setGlobalSessionTimeout(1000*60*1);
+		defaultWebSessionManager.setGlobalSessionTimeout(1000*60*30);
 		defaultWebSessionManager.setSessionIdCookie(sessionIdCookie());
 		defaultWebSessionManager.setSessionValidationSchedulerEnabled(true);
 		return defaultWebSessionManager;
