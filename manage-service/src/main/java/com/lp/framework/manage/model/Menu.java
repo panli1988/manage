@@ -1,8 +1,9 @@
 package com.lp.framework.manage.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -25,6 +26,8 @@ public class Menu implements Serializable {
      */
     private String menuName;
 
+    private String pCode;
+
     /**
      * 图标
      */
@@ -36,23 +39,33 @@ public class Menu implements Serializable {
     private String status;
 
     /**
-     * 菜单地址
-     */
-    private String url;
-
-    private String pCode;
-
-    /**
      * 0-目录，1-菜单，2-按钮
      */
     private String type;
 
     /**
+     * 菜单地址
+     */
+    private String url;
+
+    /**
+     * 权限
+     */
+    private String authority;
+
+    /**
      * 创建时间
      */
-    private Date createDate;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createTime;
 
-    private List<Menu> menus = new ArrayList<Menu>();
+    /**
+     * 更新时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updateTime;
+
+    private List<Menu> menus;
 
     private static final long serialVersionUID = 1L;
 
@@ -80,6 +93,14 @@ public class Menu implements Serializable {
         this.menuName = menuName;
     }
 
+    public String getpCode() {
+        return pCode;
+    }
+
+    public void setpCode(String pCode) {
+        this.pCode = pCode;
+    }
+
     public String getIconCls() {
         return iconCls;
     }
@@ -96,22 +117,6 @@ public class Menu implements Serializable {
         this.status = status;
     }
 
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getpCode() {
-        return pCode;
-    }
-
-    public void setpCode(String pCode) {
-        this.pCode = pCode;
-    }
-
     public String getType() {
         return type;
     }
@@ -120,12 +125,36 @@ public class Menu implements Serializable {
         this.type = type;
     }
 
-    public Date getCreateDate() {
-        return createDate;
+    public String getUrl() {
+        return url;
     }
 
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getAuthority() {
+        return authority;
+    }
+
+    public void setAuthority(String authority) {
+        this.authority = authority;
+    }
+
+    public LocalDateTime getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
+    }
+
+    public LocalDateTime getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(LocalDateTime updateTime) {
+        this.updateTime = updateTime;
     }
 
     public List<Menu> getMenus() {

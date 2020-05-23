@@ -88,4 +88,26 @@ public class MenuController {
         }
         return jsonResult;
     }
+
+    @GetMapping("/deleteById")
+    @ResponseBody
+    public JsonResult deleteById(Integer menuId,String pCode){
+        JsonResult jsonResult = new JsonResult();
+        try {
+            List<Menu> menus = menuService.selectMenusByPCode(pCode);
+            if(menus!=null&&!menus.isEmpty()){
+                jsonResult.setSuccess(false);
+                jsonResult.setMsg("存在子级，请先删除子级");
+                return jsonResult;
+            }
+            menuService.deleteByPrimaryKey(menuId);
+            jsonResult.setSuccess(true);
+            jsonResult.setMsg("删除成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            jsonResult.setSuccess(false);
+            jsonResult.setMsg("删除失败");
+        }
+        return jsonResult;
+    }
 }

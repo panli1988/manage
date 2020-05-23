@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <th:block th:insert="common/common_header::header"></th:block>
+</head>
+<body>
+<div id="app">
+    <div style="width: 100%;padding: 10px 0px;">
+        <el-row :gutter="20" style="width: 100%;">
+            <el-col :span="5">
+                <el-input v-model="query.menuCode" size="small" placeholder="请输入内容" style="width: 200px"></el-input>
+            </el-col>
+            <el-col :span="5">
+                <el-input v-model="query.menuName" size="small" placeholder="请输入内容" style="width: 200px"></el-input>
+            </el-col>
+            <el-col :span="8">
+                <el-date-picker
+                        v-model="query.createDate"
+                        type="daterange"
+                        size="small"
+                        style="width: 300px"
+                        format="yyyy-MM-dd"
+                        value-format="yyyy-MM-dd"
+                        range-separator="至"
+                        start-placeholder="开始日期"
+                        end-placeholder="结束日期"
+                        clearable>
+                </el-date-picker>
+            </el-col>
+            <el-col :span="6">
+                <el-button type="primary" size="small" @click="openAdd">新增</el-button>
+                <el-button type="primary" size="small" @click="handQuery">查询</el-button>
+            </el-col>
+        </el-row>
+    </div>
+    <el-table
+            :data="tableData"
+            stripe
+            max-height="340"
+            border
+            :cell-style="{padding:'8px'}"
+            highlight-current-row
+            header-cell-class-name="table-header"
+            @current-change="handleCurrentRowChange"
+            style="width: 100%"
+            row-key="menuCode"
+            lazy
+            :load="load"
+            :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+    >
+        <el-table-column
+                prop="menuCode"
+                label="菜单编码"
+                width="180">
+        </el-table-column>
+        <el-table-column
+                prop="menuName"
+                label="菜单名称"
+                width="180">
+        </el-table-column>
+        <el-table-column
+                prop="iconCls"
+                label="图标"
+                width="180">
+        </el-table-column>
+        <el-table-column
+                prop="status"
+                label="状态"
+                :formatter="statusFormatter">
+        </el-table-column>
+        <el-table-column
+                prop="url"
+                label="地址"
+                width="180">
+        </el-table-column>
+        <el-table-column
+                prop="pCode"
+                label="上级菜单">
+        </el-table-column>
+        <el-table-column
+                prop="type"
+                label="类型">
+        </el-table-column>
+        <el-table-column
+                prop="createDate"
+                label="日期"
+                width="180">
+        </el-table-column>
+        <el-table-column
+                fixed="right"
+                label="操作">
+            <template slot-scope="scope">
+                <el-button type="text" size="small" @click="openEdit(scope.$index, scope.row)">编辑</el-button>
+            </template>
+        </el-table-column>
+    </el-table>
+    <div class="block">
+        <el-pagination
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page="currentPage"
+                :page-sizes="[10, 20, 30, 50]"
+                :page-size="pageSize"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="total"
+                @prev-click="prevClick"
+                @next-click="nextClick"
+        >
+        </el-pagination>
+    </div>
+    <el-dialog title="新增" :visible.sync="dialogAddFormVisible" :width="formWidth">
+        <el-form :model="addForm">
+            <el-row :gutter="20" style="width: 100%;">
+                <el-col :span="12">
+                    <el-form-item label="上级菜单" :label-width="formLabelWidth">
+<!--                        <el-input v-model="addForm.pCode" size="small" autocomplete="off" style="width: 200px"></el-input>-->
+                        <el-select v-model="addForm.status" placeholder="请选择" size="small" >
+                            <el-option
+                                    v-for="item in typeOptions"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                    <el-form-item label="类型" :label-width="formLabelWidth">
+                        <el-radio v-model="addForm.type" label="0">目录</el-radio>
+                        <el-radio v-model="addForm.type" label="1">菜单</el-radio>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row :gutter="20" style="width: 100%;">
+                <el-col :span="12">
+                    <el-form-item label="菜单编码" :label-width="formLabelWidth">
+                        <el-input v-model="addForm.menuCode" size="small" autocomplete="off" style="width: 200px"></el-input>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                    <el-form-item label="菜单名称" :label-width="formLabelWidth">
+                        <el-input v-model="addForm.menuName" size="small" autocomplete="off" style="width: 200px"></el-input>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row :gutter="20" style="width: 100%;">
+                <el-col :span="12">
+                    <el-form-item label="图标" :label-width="formLabelWidth">
+                        <el-input v-model="addForm.iconCls" size="small" autocomplete="off" style="width: 200px"></el-input>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                    <el-form-item label="状态" :label-width="formLabelWidth">
+                        <el-select v-model="addForm.status" placeholder="请选择" size="small" >
+                            <el-option
+                                    v-for="item in typeOptions"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row :gutter="20" style="width: 100%;">
+                <el-col :span="12">
+                    <el-form-item label="地址" :label-width="formLabelWidth">
+                        <el-input v-model="addForm.url" size="small" autocomplete="off" style="width: 200px"></el-input>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="12">
+
+                </el-col>
+            </el-row>
+
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button size="small" @click="dialogAddFormVisible = false">取 消</el-button>
+            <el-button size="small" type="primary" @click="saveAdd">确 定</el-button>
+        </div>
+    </el-dialog>
+    <el-dialog title="编辑" :visible.sync="dialogEditFormVisible" :width="formWidth">
+        <el-form :model="editForm">
+            <el-input v-model="editForm.menuId" type="hidden"></el-input>
+            <el-row :gutter="20" style="width: 100%;">
+                <el-col :span="12">
+                    <el-form-item label="上级菜单" :label-width="formLabelWidth">
+                        <el-input v-model="editForm.pCode" size="small" autocomplete="off" style="width: 200px" readOnly="true"></el-input>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                    <el-form-item label="类型" :label-width="formLabelWidth">
+                        <el-radio v-model="editForm.type" label="0">目录</el-radio>
+                        <el-radio v-model="editForm.type" label="1">菜单</el-radio>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row :gutter="20" style="width: 100%;">
+                <el-col :span="12">
+                    <el-form-item label="菜单编码" :label-width="formLabelWidth">
+                        <el-input v-model="editForm.menuCode" size="small" autocomplete="off" style="width: 200px"  readOnly="true"></el-input>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                    <el-form-item label="菜单名称" :label-width="formLabelWidth">
+                        <el-input v-model="editForm.menuName" size="small" autocomplete="off" style="width: 200px"></el-input>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row :gutter="20" style="width: 100%;">
+                <el-col :span="12">
+                    <el-form-item label="图标" :label-width="formLabelWidth">
+                        <el-input v-model="editForm.iconCls" size="small" autocomplete="off" style="width: 200px"></el-input>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                    <el-form-item label="状态" :label-width="formLabelWidth">
+                        <el-select v-model="editForm.status" placeholder="请选择" size="small" >
+                            <el-option
+                                    v-for="item in typeOptions"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row :gutter="20" style="width: 100%;">
+                <el-col :span="12">
+                    <el-form-item label="地址" :label-width="formLabelWidth">
+                        <el-input v-model="editForm.url" size="small" autocomplete="off" style="width: 200px"></el-input>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="12">
+
+                </el-col>
+            </el-row>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button size="small" @click="dialogEditFormVisible = false">取 消</el-button>
+            <el-button size="small" type="primary" @click="saveEdit">确 定</el-button>
+        </div>
+    </el-dialog>
+</div>
+<th:block th:replace="common/common_footer::footer">
+</th:block>
+</body>
+<script>
+    new Vue({
+        el: '#app',
+        data: function() {
+            return {
+                query:{
+                    menuCode:'',
+                    menuName:'',
+                    createDate:''
+                },
+                addForm: {
+                    menuCode:'',
+                    menuName:'',
+                    iconCls:'',
+                    status:'',
+                    url:'',
+                    pCode:'',
+                    type:'0'
+                },
+                typeOptions:[
+                    {
+                       label:"启用",
+                       value:"1"
+                    },{
+                        label:"停用",
+                        value:"0"
+                    }
+                ],
+                editForm: {
+                    menuId:'',
+                    menuCode:'',
+                    menuName:'',
+                    iconCls:'',
+                    status:'',
+                    url:'',
+                    pCode:'',
+                    type:'0'
+                },
+                tableData:[],
+                currentPage: 1,
+                page: 1,
+                pageSize: 10,
+                total: 0,
+                dialogAddFormVisible: false,
+                dialogEditFormVisible: false,
+                formLabelWidth: '120px',
+                formWidth: '65%',
+                queryFlag: true,
+                tree: [{
+                    id: 1,
+                    label: '一级 1',
+                    children: [{
+                        id: 4,
+                        label: '二级 1-1',
+                        children: [{
+                            id: 9,
+                            label: '三级 1-1-1'
+                        }, {
+                            id: 10,
+                            label: '三级 1-1-2'
+                        }]
+                    }]
+                }, {
+                    id: 2,
+                    label: '一级 2',
+                    children: [{
+                        id: 5,
+                        label: '二级 2-1'
+                    }, {
+                        id: 6,
+                        label: '二级 2-2'
+                    }]
+                }, {
+                    id: 3,
+                    label: '一级 3',
+                    children: [{
+                        id: 7,
+                        label: '二级 3-1'
+                    }, {
+                        id: 8,
+                        label: '二级 3-2'
+                    }]
+                }],
+                defaultProps: {
+                    children: 'children',
+                    label: 'label'
+                }
+            }
+        },
+        components:{
+        },
+        created() {
+
+        },
+        methods: {
+            handleSizeChange(val) {
+                console.log('每页 '+val+' 条');
+                this.currentPage = 1;
+                this.page = 1;
+                if(this.queryFlag){
+                    this.queryFlag = false;
+                    this.queryData(this.currentPage,val)
+                }
+            },
+            handleCurrentChange(val) {
+                console.log('当前页: '+val);
+                this.page = val;
+                if(this.queryFlag){
+                    this.queryFlag = false;
+                    this.queryData(val,this.pageSize)
+                }
+            },
+            prevClick(){
+                this.currentPage = this.currentPage-1;
+            },
+            nextClick(){
+                this.currentPage = this.currentPage+1;
+            },
+            load(tree, treeNode, resolve) {
+                axios
+                    .get(context+'menu/queryByPCode',{
+                        params: {
+                            pCode:tree.menuCode
+                        }
+                    })
+                    .then(response => {
+                        var arr = [];
+                        if(response.data){
+                            console.log(response.data)
+                            for(var i=0;i<response.data.length;i++){
+                                var obj = response.data[i];
+                                if(obj.type=="0"){
+                                    obj.hasChildren = true;
+                                }
+                                arr.push(obj);
+                            }
+                        }
+                        resolve(arr);
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            queryData(pageNum,pageSize){
+                axios
+                    .get(context+'menu/queryPage',{
+                        params: {
+                            pageNum: pageNum,
+                            pageSize: pageSize
+                        }
+                    })
+                    .then(response => {
+                        var arr = [];
+                        if(response.data && response.data.success){
+                            for(var i=0;i<response.data.list.length;i++){
+                                var obj = response.data.list[i];
+                                if(obj.type=="0"){
+                                    obj.hasChildren = true;
+                                }
+                                arr.push(obj);
+                            }
+                            this.tableData = arr;
+                            this.total = response.data.total;
+                        }
+                        this.queryFlag = true;
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            handleCurrentRowChange(val) {
+                this.currentRow = val;
+            },
+            handQuery(){
+                console.info(this.query);
+            },
+            //打开新增
+            openAdd(index, row) {
+                this.addForm = {
+                    type:"0",
+                    status:"1"
+                };
+                this.dialogAddFormVisible = true;
+            },
+            saveAdd(){
+                this.dialogAddFormVisible = false;
+                console.log(this.addForm)
+                var that = this;
+                axios.post(context+'menu/insert',{
+                    menuCode: this.addForm.menuCode,
+                    menuName: this.addForm.menuName,
+                    iconCls: this.addForm.iconCls,
+                    status: this.addForm.status,
+                    url: this.addForm.url,
+                    pCode: this.addForm.pCode,
+                    type: this.addForm.type
+                }).then(response => {
+                    if(response.data && response.data.success){
+                        this.$message({
+                            showClose: true,
+                            message: response.data.msg,
+                            type: 'success'
+                        });
+                        this.queryData();
+                    }else{
+                        this.$message({
+                            showClose: true,
+                            message: response.data.msg,
+                            type: 'error'
+                        });
+                    }
+                }).catch(function (error) { // 请求失败处理
+                        that.$message({
+                            showClose: true,
+                            message: "操作失败",
+                            type: 'error'
+                        });
+                    });
+            },
+            openEdit(index, row) {
+                this.editForm = row;
+                console.log(row)
+                this.dialogEditFormVisible = true;
+            },
+            saveEdit() {
+                this.dialogEditFormVisible = false;
+                var that = this;
+                axios.post(context+'menu/update',{
+                    menuId: this.editForm.menuId,
+                    menuCode: this.editForm.menuCode,
+                    menuName: this.editForm.menuName,
+                    iconCls: this.editForm.iconCls,
+                    status: this.editForm.status,
+                    url: this.editForm.url,
+                    pCode: this.editForm.pCode,
+                    type: this.editForm.type
+                })
+                    .then(response => {
+                        if(response.data && response.data.success){
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: 'success'
+                            });
+                            console.log("page",this.page);
+                            console.log("currentPage",this.currentPage);
+                            this.queryData();
+                        }else{
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: 'error'
+                            });
+                        }
+                    }).catch(function (error) { // 请求失败处理
+                        that.$message({
+                            showClose: true,
+                            message: "操作失败",
+                            type: 'error'
+                        });
+                    });
+            },
+            handleClick(row) {
+                console.log(row);
+            },
+            statusFormatter(row, column, cellValue, index){
+                if("1"==cellValue){
+                    return "在用";
+                }else{
+                    return "停用";
+                }
+            },
+            typeFormatter(row, column, cellValue, index){
+                if("1"==cellValue){
+                    return "菜单";
+                }else{
+                    return "功能";
+                }
+            },
+        },
+        mounted(){
+            this.queryData(this.currentPage,this.pageSize);
+        }
+    })
+</script>
+</html>

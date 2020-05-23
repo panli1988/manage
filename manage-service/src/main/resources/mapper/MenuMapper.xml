@@ -5,15 +5,18 @@
     <id column="menu_id" jdbcType="INTEGER" property="menuId" />
     <result column="menu_code" jdbcType="VARCHAR" property="menuCode" />
     <result column="menu_name" jdbcType="VARCHAR" property="menuName" />
+    <result column="p_code" jdbcType="VARCHAR" property="pCode" />
     <result column="icon_cls" jdbcType="VARCHAR" property="iconCls" />
     <result column="status" jdbcType="VARCHAR" property="status" />
-    <result column="url" jdbcType="VARCHAR" property="url" />
-    <result column="p_code" jdbcType="VARCHAR" property="pCode" />
     <result column="type" jdbcType="VARCHAR" property="type" />
-    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="url" jdbcType="VARCHAR" property="url" />
+    <result column="authority" jdbcType="VARCHAR" property="authority" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>
   <sql id="Base_Column_List">
-    menu_id, menu_code, menu_name, icon_cls, `status`, url, p_code, `type`, create_date
+    menu_id, menu_code, menu_name, p_code, icon_cls, `status`, `type`, url, authority, 
+    create_time, update_time
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -21,7 +24,7 @@
     from d_menu
     where menu_id = #{menuId,jdbcType=INTEGER}
   </select>
-  <select id="selectMenusByPCode" resultMap="BaseResultMap">
+  <select id="selectMenusByPCode" parameterType="java.lang.String" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
     from d_menu
@@ -31,125 +34,136 @@
     select
     <include refid="Base_Column_List" />
     from d_menu
-    <where>
+    where p_code= 'm_00'
       <if test="menuCode != null and menuCode != ''">
-        menu_code like CONCAT('%',#{menuCode},'%')
+        AND menu_code like CONCAT('%',#{menuCode},'%')
       </if>
       <if test="menuName != null and menuName != ''">
         AND menu_name like CONCAT('%',#{menuName},'%')
       </if>
-      <if test="pCode != null and pCode != ''">
-        AND p_code= #{pCode}
+      <if test="createTimeStart != null and createTimeStart != ''">
+        AND create_time &gt;= #{createTimeStart,jdbcType=TIMESTAMP}
       </if>
-    </where>
+      <if test="createTimeEnd != null and createTimeEnd != ''">
+        AND create_time &lt;= #{createTimeEnd,jdbcType=TIMESTAMP}
+      </if>
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from d_menu
     where menu_id = #{menuId,jdbcType=INTEGER}
   </delete>
   <insert id="insert" keyColumn="menu_id" keyProperty="menuId" parameterType="com.lp.framework.manage.model.Menu" useGeneratedKeys="true">
-    insert into d_menu (menu_code, menu_name, icon_cls, 
-      `status`, url, p_code, 
-      `type`, create_date)
-    values (#{menuCode,jdbcType=VARCHAR}, #{menuName,jdbcType=VARCHAR}, #{iconCls,jdbcType=VARCHAR}, 
-      #{status,jdbcType=VARCHAR}, #{url,jdbcType=VARCHAR}, #{pCode,jdbcType=VARCHAR}, 
-      #{type,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP})
+    insert into d_menu (menu_code, menu_name, p_code, 
+      icon_cls, `status`, `type`, 
+      url, authority, create_time, 
+      update_time)
+    values (#{menuCode,jdbcType=VARCHAR}, #{menuName,jdbcType=VARCHAR}, #{pCode,jdbcType=VARCHAR}, 
+      #{iconCls,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
+      #{url,jdbcType=VARCHAR}, #{authority,jdbcType=VARCHAR}, now(),null)
   </insert>
   <insert id="insertSelective" keyColumn="menu_id" keyProperty="menuId" parameterType="com.lp.framework.manage.model.Menu" useGeneratedKeys="true">
-    insert into d_menu
-    <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="menuCode != null and menuCode != ''">
+    insert into d_menu(
+      <if test="menuCode != null">
         menu_code,
       </if>
-      <if test="menuName != null and menuName != ''">
+      <if test="menuName != null">
         menu_name,
       </if>
-      <if test="iconCls != null and iconCls != ''">
-        icon_cls,
-      </if>
-      <if test="status != null and createDate != ''">
-        `status`,
-      </if>
-      <if test="url != null and url != ''">
-        url,
-      </if>
-      <if test="pCode != null and pCode != ''">
+      <if test="pCode != null">
         p_code,
       </if>
-      <if test="type != null and type != ''">
+      <if test="iconCls != null">
+        icon_cls,
+      </if>
+      <if test="status != null">
+        `status`,
+      </if>
+      <if test="type != null">
         `type`,
       </if>
-      <if test="createDate != null and createDate != ''">
-        create_date,
+      <if test="url != null">
+        url,
       </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="menuCode != null and menuCode != ''">
+      <if test="authority != null">
+        authority,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+    )values (
+      <if test="menuCode != null">
         #{menuCode,jdbcType=VARCHAR},
       </if>
-      <if test="menuName != null and menuName != ''">
+      <if test="menuName != null">
         #{menuName,jdbcType=VARCHAR},
       </if>
-      <if test="iconCls != null and createDate != ''">
-        #{iconCls,jdbcType=VARCHAR},
-      </if>
-      <if test="status != null and status != ''">
-        #{status,jdbcType=VARCHAR},
-      </if>
-      <if test="url != null and url != ''">
-        #{url,jdbcType=VARCHAR},
-      </if>
-      <if test="pCode != null and pCode != ''">
+      <if test="pCode != null">
         #{pCode,jdbcType=VARCHAR},
       </if>
-      <if test="type != null and type != ''">
+      <if test="iconCls != null">
+        #{iconCls,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
         #{type,jdbcType=VARCHAR},
       </if>
-      <if test="createDate != null and createDate != ''">
-        #{createDate,jdbcType=TIMESTAMP},
+      <if test="url != null">
+        #{url,jdbcType=VARCHAR},
       </if>
-    </trim>
+      <if test="authority != null">
+        #{authority,jdbcType=VARCHAR},
+      </if>
+      now(),
+      null
+    )
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.lp.framework.manage.model.Menu">
     update d_menu
-    <set>
-      <if test="menuCode != null and menuCode != ''">
+        set
+      <if test="menuCode != null">
         menu_code = #{menuCode,jdbcType=VARCHAR},
       </if>
-      <if test="menuName != null and menuName != ''">
+      <if test="menuName != null">
         menu_name = #{menuName,jdbcType=VARCHAR},
       </if>
-      <if test="iconCls != null and iconCls != ''">
-        icon_cls = #{iconCls,jdbcType=VARCHAR},
-      </if>
-      <if test="status != null and status != ''">
-        `status` = #{status,jdbcType=VARCHAR},
-      </if>
-      <if test="url != null and url != ''">
-        url = #{url,jdbcType=VARCHAR},
-      </if>
-      <if test="pCode != null and pCode != ''">
+      <if test="pCode != null">
         p_code = #{pCode,jdbcType=VARCHAR},
       </if>
-      <if test="type != null and type != ''">
+      <if test="iconCls != null">
+        icon_cls = #{iconCls,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
         `type` = #{type,jdbcType=VARCHAR},
       </if>
-      <if test="createDate != null and createDate != ''">
-        create_date = #{createDate,jdbcType=TIMESTAMP},
+      <if test="url != null">
+        url = #{url,jdbcType=VARCHAR},
       </if>
-    </set>
+      <if test="authority != null">
+        authority = #{authority,jdbcType=VARCHAR},
+      </if>
+        update_time = now()
     where menu_id = #{menuId,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.lp.framework.manage.model.Menu">
     update d_menu
     set menu_code = #{menuCode,jdbcType=VARCHAR},
       menu_name = #{menuName,jdbcType=VARCHAR},
+      p_code = #{pCode,jdbcType=VARCHAR},
       icon_cls = #{iconCls,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
-      url = #{url,jdbcType=VARCHAR},
-      p_code = #{pCode,jdbcType=VARCHAR},
       `type` = #{type,jdbcType=VARCHAR},
-      create_date = #{createDate,jdbcType=TIMESTAMP}
+      url = #{url,jdbcType=VARCHAR},
+      authority = #{authority,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = now()
     where menu_id = #{menuId,jdbcType=INTEGER}
   </update>
 </mapper>
