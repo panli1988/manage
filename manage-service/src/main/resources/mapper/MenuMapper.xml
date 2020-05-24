@@ -13,10 +13,11 @@
     <result column="authority" jdbcType="VARCHAR" property="authority" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="order_no" jdbcType="INTEGER" property="orderNo" />
   </resultMap>
   <sql id="Base_Column_List">
     menu_id, menu_code, menu_name, p_code, icon_cls, `status`, `type`, url, authority, 
-    create_time, update_time
+    create_time, update_time,order_no
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -29,12 +30,17 @@
     <include refid="Base_Column_List" />
     from d_menu
     where p_code = #{pCode,jdbcType=VARCHAR}
+        AND `type`&lt;&gt;'2'
+        order by order_no
   </select>
   <select id="selectByPage" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
     from d_menu
-    where p_code= 'm_00'
+    where 1 = 1
+      <if test="pCode != null and pCode != ''">
+        AND p_code= #{pCode,jdbcType=VARCHAR}
+      </if>
       <if test="menuCode != null and menuCode != ''">
         AND menu_code like CONCAT('%',#{menuCode},'%')
       </if>
@@ -56,10 +62,10 @@
     insert into d_menu (menu_code, menu_name, p_code, 
       icon_cls, `status`, `type`, 
       url, authority, create_time, 
-      update_time)
+      update_time,order_no)
     values (#{menuCode,jdbcType=VARCHAR}, #{menuName,jdbcType=VARCHAR}, #{pCode,jdbcType=VARCHAR}, 
       #{iconCls,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
-      #{url,jdbcType=VARCHAR}, #{authority,jdbcType=VARCHAR}, now(),null)
+      #{url,jdbcType=VARCHAR}, #{authority,jdbcType=VARCHAR}, now(),null,#{orderNo,jdbcType=INTEGER})
   </insert>
   <insert id="insertSelective" keyColumn="menu_id" keyProperty="menuId" parameterType="com.lp.framework.manage.model.Menu" useGeneratedKeys="true">
     insert into d_menu(
@@ -87,12 +93,11 @@
       <if test="authority != null">
         authority,
       </if>
-      <if test="createTime != null">
+      <if test="orderNo != null">
+        order_no,
+      </if>
         create_time,
-      </if>
-      <if test="updateTime != null">
-        update_time,
-      </if>
+        update_time
     )values (
       <if test="menuCode != null">
         #{menuCode,jdbcType=VARCHAR},
@@ -117,6 +122,9 @@
       </if>
       <if test="authority != null">
         #{authority,jdbcType=VARCHAR},
+      </if>
+      <if test="orderNo != null">
+        #{orderNo,jdbcType=INTEGER},
       </if>
       now(),
       null
@@ -149,6 +157,9 @@
       <if test="authority != null">
         authority = #{authority,jdbcType=VARCHAR},
       </if>
+      <if test="orderNo != null">
+        order_no = #{orderNo,jdbcType=INTEGER},
+      </if>
         update_time = now()
     where menu_id = #{menuId,jdbcType=INTEGER}
   </update>
@@ -162,6 +173,7 @@
       `type` = #{type,jdbcType=VARCHAR},
       url = #{url,jdbcType=VARCHAR},
       authority = #{authority,jdbcType=VARCHAR},
+      order_no = #{orderNo,jdbcType=INTEGER},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = now()
     where menu_id = #{menuId,jdbcType=INTEGER}

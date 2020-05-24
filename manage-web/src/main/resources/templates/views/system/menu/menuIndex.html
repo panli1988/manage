@@ -11,10 +11,10 @@
         <div style="width: 100%;padding: 10px 0px;">
             <el-row :gutter="20" style="width: 100%;">
                 <el-col :span="5">
-                    <el-input v-model="query.menuCode" size="small" placeholder="请输入内容" style="width: 200px" clearable></el-input>
+                    <el-input v-model="query.menuCode" size="small" placeholder="菜单编码" style="width: 200px" clearable></el-input>
                 </el-col>
                 <el-col :span="5">
-                    <el-input v-model="query.menuName" size="small" placeholder="请输入内容" style="width: 200px" clearable></el-input>
+                    <el-input v-model="query.menuName" size="small" placeholder="菜单名称" style="width: 200px" clearable></el-input>
                 </el-col>
                 <el-col :span="8">
                     <el-date-picker
@@ -72,11 +72,6 @@
                     :formatter="statusFormatter">
             </el-table-column>
             <el-table-column
-                    prop="url"
-                    label="地址"
-                    width="180">
-            </el-table-column>
-            <el-table-column
                     prop="pCode"
                     label="上级菜单">
             </el-table-column>
@@ -86,8 +81,22 @@
                     :formatter="typeFormatter">
             </el-table-column>
             <el-table-column
-                    prop="createDate"
-                    label="日期"
+                    prop="url"
+                    label="地址"
+                    width="180">
+            </el-table-column>
+            <el-table-column
+                    prop="authority"
+                    label="权限"
+                    width="180">
+            </el-table-column>
+            <el-table-column
+                    prop="orderNo"
+                    label="序号">
+            </el-table-column>
+            <el-table-column
+                    prop="createTime"
+                    label="创建时间"
                     width="180">
             </el-table-column>
             <el-table-column
@@ -168,14 +177,17 @@
                 </el-row>
                 <el-row :gutter="20" style="width: 100%;">
                     <el-col :span="12">
+                        <el-form-item label="序号" :label-width="formLabelWidth">
+                            <el-input v-model="addForm.orderNo" size="small" autocomplete="off" style="width: 200px"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
                         <el-form-item v-if="addForm.type=='1'" label="地址" :label-width="formLabelWidth">
                             <el-input v-model="addForm.url" size="small" autocomplete="off" style="width: 200px"></el-input>
                         </el-form-item>
                         <el-form-item v-if="addForm.type=='2'" label="权限" :label-width="formLabelWidth">
                             <el-input v-model="addForm.authority" size="small" autocomplete="off" style="width: 200px"></el-input>
                         </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
                     </el-col>
                 </el-row>
 
@@ -240,15 +252,17 @@
                 </el-row>
                 <el-row :gutter="20" style="width: 100%;">
                     <el-col :span="12">
+                        <el-form-item label="序号" :label-width="formLabelWidth">
+                            <el-input v-model="editForm.orderNo" size="small" autocomplete="off" style="width: 200px"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
                         <el-form-item v-if="editForm.type=='1'" label="地址" :label-width="formLabelWidth">
                             <el-input v-model="editForm.url" size="small" autocomplete="off" style="width: 200px"></el-input>
                         </el-form-item>
                         <el-form-item v-if="editForm.type=='2'" label="权限" :label-width="formLabelWidth">
                             <el-input v-model="editForm.authority" size="small" autocomplete="off" style="width: 200px"></el-input>
                         </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-
                     </el-col>
                 </el-row>
             </el-form>
@@ -280,7 +294,8 @@
                     url:'',
                     pCode:'',
                     type:'0',
-                    authority:''
+                    authority:'',
+                    orderNo:null
                 },
                 editForm: {
                     menuId:'',
@@ -291,7 +306,8 @@
                     url:'',
                     pCode:'',
                     type:'',
-                    authority:''
+                    authority:'',
+                    orderNo:null
                 },
                 tableData:[],
                 page:{
@@ -411,8 +427,10 @@
                         console.log(error);
                     });
             },
-            handleCurrentRowChange(val) {
-                this.currentRow = val;
+            handleCurrentRowChange(newCurrentRow,oldCurrentRow) {
+                console.log(newCurrentRow);
+                console.log(oldCurrentRow);
+                this.currentRow = newCurrentRow;
             },
             handQuery(){
                 this.queryData(this.page);
@@ -435,7 +453,8 @@
                     status: this.addForm.status,
                     url: this.addForm.url,
                     pCode: this.addForm.pCode,
-                    type: this.addForm.type
+                    type: this.addForm.type,
+                    orderNo: this.addForm.orderNo
                 }).then(response => {
                     if(response.data && response.data.success){
                         this.$message({
@@ -470,7 +489,8 @@
                     status: this.editForm.status,
                     url: this.editForm.url,
                     pCode: this.editForm.pCode,
-                    type: this.editForm.type
+                    type: this.editForm.type,
+                    orderNo: this.editForm.orderNo
                 }).then(response => {
                         if(response.data && response.data.success){
                             this.$message({

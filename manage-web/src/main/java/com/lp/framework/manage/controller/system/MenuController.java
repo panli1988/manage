@@ -2,15 +2,14 @@ package com.lp.framework.manage.controller.system;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.lp.framework.manage.model.Authority;
 import com.lp.framework.manage.model.Menu;
-import com.lp.framework.manage.model.Role;
 import com.lp.framework.manage.service.MenuService;
+import com.lp.framework.manage.utils.CommonUtils;
 import com.lp.framework.manage.utils.JsonResult;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.WebUtils;
 
 import javax.servlet.ServletRequest;
 import java.util.List;
@@ -31,13 +30,15 @@ public class MenuController {
     @GetMapping("/queryPage")
     @ResponseBody
     public JsonResult queryPage(ServletRequest request){
-        Map<String, Object> params = WebUtils.getParametersStartingWith(request, "");
+        Map<String, Object> params = CommonUtils.getParametersMap(request);
         JsonResult jsonResult = null;
         try {
             int pageNum = Integer.parseInt((String) params.get("pageNum"));
             int pageSize = Integer.parseInt((String) params.get("pageSize"));
             PageHelper.startPage(pageNum,pageSize);
-            if(null!=params&&params.keySet().size()<=2){
+            params.remove("pageNum");
+            params.remove("pageSize");
+            if(ObjectUtils.isEmpty(params)){
                 params.put("pCode","m_00");
             }
             List<Menu> menuList = menuService.selectByPage(params);

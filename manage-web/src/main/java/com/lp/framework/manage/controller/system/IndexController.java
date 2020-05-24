@@ -4,6 +4,7 @@ import com.lp.framework.manage.model.Menu;
 import com.lp.framework.manage.model.User;
 import com.lp.framework.manage.service.MenuService;
 import com.lp.framework.manage.service.UserService;
+import com.lp.framework.manage.utils.CommonUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
-import org.springframework.web.util.WebUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -55,7 +55,7 @@ public class IndexController {
 
     @RequestMapping("/login")
     public String login(HttpServletRequest request, RedirectAttributes model) {
-        Map<String, Object> params = WebUtils.getParametersStartingWith(request, "");
+        Map<String, Object> params = CommonUtils.getParametersMap(request);
         String username = (String) params.get("username");
         String password = (String) params.get("password");
         Subject currentUser = SecurityUtils.getSubject();

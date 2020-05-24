@@ -4,11 +4,11 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.lp.framework.manage.model.Role;
 import com.lp.framework.manage.service.RoleService;
+import com.lp.framework.manage.utils.CommonUtils;
 import com.lp.framework.manage.utils.JsonResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.WebUtils;
 
 import javax.servlet.ServletRequest;
 import java.util.List;
@@ -30,7 +30,7 @@ public class RoleController {
     @GetMapping("/queryPage")
     @ResponseBody
     public JsonResult queryPage(ServletRequest request){
-        Map<String, Object> params = WebUtils.getParametersStartingWith(request, "");
+        Map<String, Object> params = CommonUtils.getParametersMap(request);
         JsonResult jsonResult = new JsonResult();
         try {
             int pageNum = Integer.parseInt((String) params.get("pageNum"));

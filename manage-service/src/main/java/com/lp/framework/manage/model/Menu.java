@@ -65,6 +65,8 @@ public class Menu implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updateTime;
 
+    private Integer orderNo;
+
     private List<Menu> menus;
 
     private static final long serialVersionUID = 1L;
@@ -155,6 +157,14 @@ public class Menu implements Serializable {
 
     public void setUpdateTime(LocalDateTime updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public Integer getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(Integer orderNo) {
+        this.orderNo = orderNo;
     }
 
     public List<Menu> getMenus() {

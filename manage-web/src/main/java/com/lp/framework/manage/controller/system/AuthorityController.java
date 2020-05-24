@@ -4,6 +4,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.lp.framework.manage.model.Authority;
 import com.lp.framework.manage.service.AuthorityService;
+import com.lp.framework.manage.utils.CommonUtils;
 import com.lp.framework.manage.utils.JsonResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -32,7 +33,7 @@ public class AuthorityController {
     @GetMapping("/queryPage")
     @ResponseBody
     public JsonResult queryPage(ServletRequest request){
-        Map<String, Object> params = WebUtils.getParametersStartingWith(request, "");
+        Map<String, Object> params = CommonUtils.getParametersMap(request);
         int pageNum = Integer.parseInt((String) params.get("pageNum"));
         int pageSize = Integer.parseInt((String) params.get("pageSize"));
         PageHelper.startPage(pageNum,pageSize);
