@@ -67,6 +67,8 @@ public class Menu implements Serializable {
 
     private Integer orderNo;
 
+    private List<RoleMenu> roleMenuList;
+
     private List<Menu> menus;
 
     private static final long serialVersionUID = 1L;
@@ -173,5 +175,13 @@ public class Menu implements Serializable {
 
     public void setMenus(List<Menu> menus) {
         this.menus = menus;
+    }
+
+    public List<RoleMenu> getRoleMenuList() {
+        return roleMenuList;
+    }
+
+    public void setRoleMenuList(List<RoleMenu> roleMenuList) {
+        this.roleMenuList = roleMenuList;
     }
 }

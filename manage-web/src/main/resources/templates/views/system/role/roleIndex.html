@@ -46,17 +46,18 @@
                 highlight-current-row
                 header-cell-class-name="table-header"
                 @current-change="handleCurrentRowChange"
+                :default-checked-keys="checkedkeys"
                 style="width: 100%">
             <el-table-column label="选择" width="50">
                 <template slot-scope="scope">
-                    <el-radio v-model="tableRadio" :label="scope.$index" style="padding-left: 6px;">&nbsp;</el-radio>
+                    <el-radio v-model="singleSelection" :label="scope.row" style="padding-left: 6px;">&nbsp;</el-radio>
                 </template>
             </el-table-column>
             <el-table-column
                     type="index"
                     label="序号"
                     width="60">
-                <template scope="scope"><span>{{scope.$index+(page - 1) * pageSize + 1}} </span></template>
+                <template scope="scope"><span>{{scope.$index+(page.currentPage - 1) * page.pageSize + 1}} </span></template>
             </el-table-column>
             <el-table-column
                     prop="roleCode"
@@ -88,11 +89,11 @@
             <el-pagination
                     @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"
-                    :current-page="currentPage"
-                    :page-sizes="[10, 20, 30, 50]"
-                    :page-size="pageSize"
+                    :current-page="page.currentPage"
+                    :page-sizes="page.pageSizes"
+                    :page-size="page.pageSize"
                     layout="total, sizes, prev, pager, next, jumper"
-                    :total="total"
+                    :total="page.total"
                     @prev-click="prevClick"
                     @next-click="nextClick"
             >
@@ -133,13 +134,24 @@
                 <el-button type="primary" size="small" @click="saveEdit">确 定</el-button>
             </div>
         </el-dialog>
-        <el-dialog title="菜单" :visible.sync="dialogMenuVisible" :width="treeWidth">
-            <el-tree
-                    :data="tree"
-                    show-checkbox
-                    node-key="id"
-                    :props="defaultProps">
-            </el-tree>
+        <el-dialog title="菜单" :visible.sync="dialogMenuVisible" :width="treeWidth" top="2%">
+            <div style="height: 230px;overflow: auto;">
+                <el-tree
+                        :data="treeData"
+                        show-checkbox
+                        node-key="menuCode"
+                        ref="tree"
+                        :props="defaultProps"
+                        @check-change="checkNodesChange"
+                        @current-change="currentNodesChange"
+                        :default-checked-keys="checkedkeys">
+                </el-tree>
+            </div>
+
+            <div slot="footer" class="dialog-footer">
+                <el-button size="small" @click="dialogMenuVisible = false">取 消</el-button>
+                <el-button size="small" type="primary" @click="saveRoleMenu">确 定</el-button>
+            </div>
         </el-dialog>
     </div>
 </div>
@@ -157,10 +169,12 @@
                     createDate:''
                 },
                 tableData:[],
-                currentPage: 1,
-                page: 1,
-                pageSize: 10,
-                total: 0,
+                page:{
+                    currentPage: 1,
+                    pageSize: 10,
+                    total: 0,
+                    pageSizes:[10, 20, 30, 50]
+                },
                 dialogAddFormVisible: false,
                 dialogEditFormVisible: false,
                 dialogMenuVisible: false,
@@ -178,49 +192,18 @@
                 },
                 formLabelWidth: '120px',
                 formWidth: '40%',
-                queryFlag: true, //用于防止同时触发@size-chang @current-change
                 currentRow: null,
-                tableRadio: null, //table单选
-                tree: [{
-                    id: 1,
-                    label: '一级 1',
-                    children: [{
-                        id: 4,
-                        label: '二级 1-1',
-                        children: [{
-                            id: 9,
-                            label: '三级 1-1-1'
-                        }, {
-                            id: 10,
-                            label: '三级 1-1-2'
-                        }]
-                    }]
-                }, {
-                    id: 2,
-                    label: '一级 2',
-                    children: [{
-                        id: 5,
-                        label: '二级 2-1'
-                    }, {
-                        id: 6,
-                        label: '二级 2-2'
-                    }]
-                }, {
-                    id: 3,
-                    label: '一级 3',
-                    children: [{
-                        id: 7,
-                        label: '二级 3-1'
-                    }, {
-                        id: 8,
-                        label: '二级 3-2'
-                    }]
-                }],
+                singleSelection: null, //table单选
+                treeData: [],
+                checkedkeys:[],
+                originCheckedkeys:[],
+                oldArr:[],
+                newArr:[],
                 defaultProps: {
-                    children: 'children',
-                    label: 'label'
+                    children: 'menus',
+                    label: 'menuName'
                 },
-                treeWidth: '40%'
+                treeWidth: '30%'
             }
         },
         components:{
@@ -230,22 +213,13 @@
         },
         methods: {
             handleSizeChange(val) {
-                console.log('每页 '+val+' 条');
-                this.currentPage = 1;
-                this.page = 1;
-                if(this.queryFlag){
-                    this.queryFlag = false;
-                    this.queryData(this.currentPage,val)
-                }
+                this.page.pageSize = val;
+                this.page.currentPage = 1;
+                this.queryData(this.page);
             },
             handleCurrentChange(val) {
-                console.log('当前页: '+val);
-                this.page = val;
-                this.currentPage = val;
-                if(this.queryFlag){
-                    this.queryFlag = false;
-                    this.queryData(val,this.pageSize)
-                }
+                this.page.currentPage = val;
+                this.queryData(this.page);
             },
             prevClick(){
                 this.currentPage = this.currentPage-1;
@@ -253,7 +227,7 @@
             nextClick(){
                 this.currentPage = this.currentPage+1;
             },
-            queryData(pageNum,pageSize){
+            queryData(page){
                 var params = {};
                 if(this.query.createDate!=''&&this.query.createDate!=null&&this.query.createDate.length>0){
                     params.createDateStart = this.query.createDate[0];
@@ -261,14 +235,8 @@
                 }
                 params.roleName = this.query.roleName;
                 params.roleCode = this.query.roleCode;
-                if(null==pageNum){
-                    pageNum = this.currentPage;
-                }
-                if(null==pageSize){
-                    pageSize = this.pageSize;
-                }
-                params.pageSize = pageSize;
-                params.pageNum = pageNum;
+                params.pageSize = page.pageSize;
+                params.pageNum = page.currentPage;
                 axios
                     .get(context+'role/queryPage',{
                         params: params
@@ -284,7 +252,6 @@
                                 type: 'error'
                             });
                         }
-                        this.queryFlag = true;
                     })
                     .catch(function (error) { // 请求失败处理
                         console.log(error);
@@ -297,7 +264,7 @@
             },
             //查询
             handQuery(){
-                this.queryData();
+                this.queryData(this.page);
             },
             //打开新增
             openAdd(index, row) {
@@ -319,7 +286,7 @@
                                 message: response.data.msg,
                                 type: 'success'
                             });
-                            this.queryData();
+                            this.queryData(this.page);
                         }else{
                             this.$message({
                                 showClose: true,
@@ -358,9 +325,7 @@
                                 message: response.data.msg,
                                 type: 'success'
                             });
-                            console.log("page",this.page);
-                            console.log("currentPage",this.currentPage);
-                            this.queryData();
+                            this.queryData(this.page);
                         }else{
                             this.$message({
                                 showClose: true,
@@ -393,7 +358,7 @@
                                 message: response.data.msg,
                                 type: 'success'
                             });
-                            this.queryData();
+                            this.queryData(this.page);
                         }else{
                             this.$message({
                                 showClose: true,
@@ -403,19 +368,115 @@
                         }
                     })
                     .catch(function (error) { // 请求失败处理
-                        that.$message({
-                            showClose: true,
-                            message: "操作失败",
-                            type: 'error'
-                        });
+                        console.log(error);
                     });
             },
             openMenu(row, column, event){
+                if(this.singleSelection==null){
+                    this.$message({
+                        showClose: true,
+                        message: "请选择一条记录",
+                        type: 'warning'
+                    });
+                    return;
+                }
                 this.dialogMenuVisible = true;
+                this.loadMenuData();
+            },
+            loadMenuData(){
+                this.checkedkeys = [];
+                axios.get(context+'role/getMenus?pCode=m_00&roleCode='+this.singleSelection.roleCode).then(response => {
+                        this.treeData = response.data;
+                        this.getMenus(response.data);
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    })
+            },
+            getMenus(dataArr){
+                for(var i=0;i<dataArr.length;i++){
+                    var dd = dataArr[i];
+                    if(dd.roleCode!=undefined && dd.roleCode!='' && dd.roleCode!=null){
+                        this.originCheckedkeys.push(dd.menuCode);
+                        if(dd.menus && dd.menus.length>0){
+                            var flag = true;
+                            for(var y=0;y<dd.menus.length;y++){
+                                if(dd.menus[y].roleCode==undefined || dd.menus[y].roleCode=='' || dd.menus[y].roleCode==null){
+                                    flag = false;
+                                    break;
+                                }
+                            }
+                            if(flag){
+                                this.checkedkeys.push(dd.menuCode);
+                            }
+                        }else{
+                            this.originCheckedkeys.push(dd.menuCode);
+                            this.checkedkeys.push(dd.menuCode);
+                        }
+                    }
+                    if(dd.menus && dd.menus.length>0){
+                        this.getMenus(dd.menus);
+                    }
+                }
+            },
+            currentNodesChange(a,b){
+            },
+            checkNodesChange(a,b,c){
+            },
+            saveRoleMenu(){
+                var newCheckedkeys = [];
+                var addArr = [];
+                var delArr = [];
+                var checkedNodes = this.$refs.tree.getCheckedNodes(false,true);
+                for(var k=0;k<checkedNodes.length;k++){
+                    newCheckedkeys.push(checkedNodes[k].menuCode);
+                }
+                console.log('1',newCheckedkeys);
+                for(var i=0;i<this.originCheckedkeys.length;i++){
+                    if(!newCheckedkeys.includes(this.originCheckedkeys[i])){
+                        delArr.push(this.originCheckedkeys[i]);
+                    }
+                }
+                for(var j=0;j<newCheckedkeys.length;j++){
+                    if(!this.originCheckedkeys.includes(newCheckedkeys[j])){
+                        addArr.push(newCheckedkeys[j]);
+                    }
+                }
+                if(addArr.length==0 && delArr.length==0){
+                    this.$message({
+                        showClose: true,
+                        message: "数据无变化",
+                        type: 'warning'
+                    });
+                    return;
+                }
+                this.dialogMenuVisible = false;
+                axios.post(context+'role/updateRoleMenu',{
+                    roleCode:this.singleSelection.roleCode,
+                    addArr: addArr,
+                    delArr: delArr
+                }).then(response => {
+                    if(response.data && response.data.success){
+                        this.$message({
+                            showClose: true,
+                            message: response.data.msg,
+                            type: 'success'
+                        });
+                    }else{
+                        this.$message({
+                            showClose: true,
+                            message: response.data.msg,
+                            type: 'error'
+                        });
+                    }
+                }).catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+
             }
         },
         mounted(){
-            this.queryData(this.currentPage,this.pageSize)
+            this.queryData(this.page)
         }
     })
 </script>

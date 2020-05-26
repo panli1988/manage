@@ -15,6 +15,24 @@
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
     <result column="order_no" jdbcType="INTEGER" property="orderNo" />
   </resultMap>
+  <resultMap id="BaseResultMap2" type="com.lp.framework.manage.model.Menu">
+    <id column="menu_id" jdbcType="INTEGER" property="menuId" />
+    <result column="menu_code" jdbcType="VARCHAR" property="menuCode" />
+    <result column="menu_name" jdbcType="VARCHAR" property="menuName" />
+    <result column="p_code" jdbcType="VARCHAR" property="pCode" />
+    <result column="icon_cls" jdbcType="VARCHAR" property="iconCls" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="url" jdbcType="VARCHAR" property="url" />
+    <result column="authority" jdbcType="VARCHAR" property="authority" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="order_no" jdbcType="INTEGER" property="orderNo" />
+    <collection property="roleMenuList" javaType="com.lp.framework.manage.model.RoleMenu">
+      <result column="menu_code" property="menuCode"/>
+      <result column="role_code" property="roleCode"/>
+    </collection>
+  </resultMap>
   <sql id="Base_Column_List">
     menu_id, menu_code, menu_name, p_code, icon_cls, `status`, `type`, url, authority, 
     create_time, update_time,order_no

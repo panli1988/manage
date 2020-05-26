@@ -3,14 +3,19 @@ package com.lp.framework.manage.controller.system;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.lp.framework.manage.model.Role;
+import com.lp.framework.manage.service.RoleMenuService;
 import com.lp.framework.manage.service.RoleService;
 import com.lp.framework.manage.utils.CommonUtils;
 import com.lp.framework.manage.utils.JsonResult;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.ServletRequest;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +25,9 @@ public class RoleController {
 
     @Autowired
     private RoleService roleService;
+
+    @Autowired
+    private RoleMenuService roleMenuService;
 
     @GetMapping("/index")
     public String index(){
@@ -91,6 +99,39 @@ public class RoleController {
             e.printStackTrace();
             jsonResult.setSuccess(false);
             jsonResult.setMsg("删除失败");
+        }
+        return jsonResult;
+    }
+
+    @GetMapping("/getMenus")
+    @ResponseBody
+    public List<Map<String,Object>> getMenus(ServletRequest request){
+        Map<String, Object> params = CommonUtils.getParametersMap(request);
+        List<Map<String,Object>> returnList = new ArrayList<>();
+        List<Map<String, Object>> menuList = roleMenuService.selectMenusByPCode(params);
+        for(Map<String,Object> map:menuList){
+            params.put("pCode",map.get("menuCode"));
+            List<Map<String, Object>> list = roleMenuService.selectMenusByPCode(params);
+            if(ObjectUtils.isNotEmpty(list)){
+                map.put("menus",list);
+            }
+            returnList.add(map);
+        }
+        return returnList;
+    }
+
+    @PostMapping("/updateRoleMenu")
+    @ResponseBody
+    public JsonResult updateRoleMenu(@RequestBody Map<String,Object> params){
+        JsonResult jsonResult = new JsonResult();
+        try {
+            roleMenuService.updateRoleMenu(params);
+            jsonResult.setSuccess(true);
+            jsonResult.setMsg("操作成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            jsonResult.setSuccess(false);
+            jsonResult.setMsg("操作失败");
         }
         return jsonResult;
     }

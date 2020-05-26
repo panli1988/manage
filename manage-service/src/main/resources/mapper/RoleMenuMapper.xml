@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lp.framework.manage.mapper.RoleMenuMapper">
+    <resultMap id="BaseResultMap" type="com.lp.framework.manage.model.RoleMenu">
+        <result column="role_code" jdbcType="VARCHAR" property="roleCode" />
+        <result column="menu_code" jdbcType="VARCHAR" property="menuCode" />
+    </resultMap>
+    <insert id="insert" parameterType="com.lp.framework.manage.model.RoleMenu">
+        insert into d_role_menu (role_code, menu_code)
+        values (#{roleCode,jdbcType=VARCHAR}, #{menuCode,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertRoleMenu" parameterType="hashmap">
+        insert into d_role_menu (role_code, menu_code)
+        values (#{roleCode,jdbcType=VARCHAR}, #{menuCode,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="com.lp.framework.manage.model.RoleMenu">
+        insert into d_role_menu
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+          <if test="roleCode != null">
+            role_code,
+          </if>
+          <if test="menuCode != null">
+            menu_code,
+          </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+          <if test="roleCode != null">
+            #{roleCode,jdbcType=VARCHAR},
+          </if>
+          <if test="menuCode != null">
+            #{menuCode,jdbcType=VARCHAR},
+          </if>
+        </trim>
+    </insert>
+    <select id="selectMenusByPCode" resultType="hashmap">
+        SELECT
+            m.menu_id AS menuId,
+            m.menu_code AS menuCode,
+            m.menu_name AS menuName,
+            m.p_code AS pCode,
+            m.icon_cls AS iconCls,
+            m.`status` AS status,
+            m.type AS type,
+            m.url AS url,
+            m.authority AS authority,
+            m.create_time AS createTime,
+            m.update_time AS updateTime,
+            m.order_no AS orderNo,
+            rm.role_code AS roleCode
+        FROM
+            d_menu m
+            LEFT JOIN d_role_menu rm ON m.menu_code = rm.menu_code
+            AND rm.role_code = #{roleCode,jdbcType=VARCHAR}
+        WHERE
+            m.p_code = #{pCode,jdbcType=VARCHAR}
+          AND m.status = '1'
+        ORDER BY
+            m.order_no
+    </select>
+    <delete id="deleteRoleMenu" parameterType="hashmap">
+        DELETE
+        FROM
+            d_role_menu
+        WHERE
+            role_code = #{roleCode,jdbcType=VARCHAR}
+            AND menu_code = #{menuCode,jdbcType=VARCHAR}
+    </delete>
+</mapper>
