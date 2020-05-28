@@ -6,6 +6,9 @@ import com.lp.framework.manage.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -45,5 +48,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public int updateByPrimaryKey(User record) {
         return userMapper.updateByPrimaryKey(record);
+    }
+
+    @Override
+    public List<User> selectByPage(Map<String, Object> params) {
+        return userMapper.selectByPage(params);
+    }
+
+    @Override
+    public int updatePwdByPrimaryKey(User user) {
+        return userMapper.updatePwdByPrimaryKey(user);
     }
 }

@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <th:block th:insert="common/common_header::header"></th:block>
+</head>
+<body>
+<div id="app">
+    <div class="container-box">
+        <div style="width: 100%;padding: 10px 0px;">
+            <el-row :gutter="20" style="width: 100%;">
+                <el-col :span="5">
+                    <el-input v-model="query.userCode" size="small" placeholder="用户编码" style="width: 200px" clearable></el-input>
+                </el-col>
+                <el-col :span="5">
+                    <el-input v-model="query.userName" size="small" placeholder="用户名称" style="width: 200px" clearable></el-input>
+                </el-col>
+                <el-col :span="6">
+                    <el-button type="primary" size="small" @click="openAdd">新增</el-button>
+                    <el-button type="primary" size="small" @click="openMenu">配置菜单</el-button>
+                    <el-button type="primary" size="small" @click="handQuery">查询</el-button>
+                </el-col>
+            </el-row>
+        </div>
+        <el-table
+                :data="tableData"
+                stripe
+                max-height="430"
+                border
+                :cell-style="{padding:'2px'}"
+                highlight-current-row
+                header-cell-class-name="table-header"
+                @current-change="handleCurrentRowChange"
+                :default-checked-keys="checkedkeys"
+                style="width: 100%">
+            <el-table-column label="选择" width="50">
+                <template slot-scope="scope">
+                    <el-radio v-model="singleSelection" :label="scope.row" style="padding-left: 6px;">&nbsp;</el-radio>
+                </template>
+            </el-table-column>
+            <el-table-column
+                    type="index"
+                    label="序号"
+                    width="60">
+                <template scope="scope"><span>{{scope.$index+(page.currentPage - 1) * page.pageSize + 1}} </span></template>
+            </el-table-column>
+            <el-table-column
+                    prop="userCode"
+                    label="用户编码">
+            </el-table-column>
+            <el-table-column
+                    prop="userName"
+                    label="用户名称">
+            </el-table-column>
+            <el-table-column
+                    prop="status"
+                    label="状态"
+                    :formatter="statusFormatter">
+            </el-table-column>
+            <el-table-column
+                    fixed="right"
+                    label="操作">
+                <template slot-scope="scope">
+                    <el-button type="primary" size="small" @click="openEdit(scope.$index, scope.row)">编辑</el-button>
+                    <el-button type="primary" size="small" @click="openReset(scope.$index, scope.row)">重置密码</el-button>
+                    <el-button type="danger" size="small" @click="handleDel(scope.$index, scope.row)">删除</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+        <div class="block">
+            <el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page="page.currentPage"
+                    :page-sizes="page.pageSizes"
+                    :page-size="page.pageSize"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="page.total"
+                    @prev-click="prevClick"
+                    @next-click="nextClick"
+            >
+            </el-pagination>
+        </div>
+        <el-dialog title="新增" :visible.sync="dialogAddFormVisible" :width="formWidth">
+            <el-form :model="addForm">
+                <el-form-item label="用户编码" :label-width="formLabelWidth">
+                    <el-input v-model="addForm.userCode" size="small" autocomplete="off" style="width: 200px"></el-input>
+                </el-form-item>
+                <el-form-item label="用户名称" :label-width="formLabelWidth">
+                    <el-input v-model="addForm.userName" size="small" autocomplete="off" style="width: 200px"></el-input>
+                </el-form-item>
+                <el-form-item label="状态" :label-width="formLabelWidth">
+                    <el-select v-model="addForm.status" placeholder="请选择" size="small" style="width: 200px">
+                        <el-option
+                                v-for="item in select.statusOptions"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button size="small" @click="dialogAddFormVisible = false">取 消</el-button>
+                <el-button type="primary" size="small" @click="saveAdd">确 定</el-button>
+            </div>
+        </el-dialog>
+        <el-dialog title="编辑" :visible.sync="dialogEditFormVisible" :width="formWidth">
+            <el-form :model="editForm">
+                <el-input v-model="editForm.userId" type="hidden"></el-input>
+                <el-form-item label="用户编码" :label-width="formLabelWidth">
+                    <el-input v-model="editForm.userCode" size="small" autocomplete="off" style="width: 200px" readOnly="true"></el-input>
+                </el-form-item>
+                <el-form-item label="用户名称" :label-width="formLabelWidth">
+                    <el-input v-model="editForm.userName" size="small" autocomplete="off" style="width: 200px"></el-input>
+                </el-form-item>
+                <el-form-item label="状态" :label-width="formLabelWidth">
+                    <el-select v-model="editForm.status" placeholder="请选择" size="small" style="width: 200px">
+                        <el-option
+                                v-for="item in select.statusOptions"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button size="small" @click="dialogEditFormVisible = false">取 消</el-button>
+                <el-button type="primary" size="small" @click="saveEdit">确 定</el-button>
+            </div>
+        </el-dialog>
+        <el-dialog title="重置密码" :visible.sync="dialogResetFormVisible" :width="formWidth">
+            <el-form :model="editForm">
+                <el-input v-model="resetForm.userId" type="hidden"></el-input>
+                <el-input v-model="resetForm.userCode" type="hidden"></el-input>
+                <el-form-item label="新密码" :label-width="formLabelWidth">
+                    <el-input type="password" v-model="resetForm.pwd" size="small" autocomplete="off" style="width: 200px"></el-input>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button size="small" @click="dialogResetFormVisible = false">取 消</el-button>
+                <el-button type="primary" size="small" @click="saveReset">确 定</el-button>
+            </div>
+        </el-dialog>
+        <el-dialog title="菜单" :visible.sync="dialogMenuVisible" :width="treeWidth" top="2%">
+            <div style="height: 230px;overflow: auto;">
+                <el-tree
+                        :data="treeData"
+                        show-checkbox
+                        node-key="menuCode"
+                        ref="tree"
+                        :props="defaultProps"
+                        :default-checked-keys="checkedkeys">
+                </el-tree>
+            </div>
+
+            <div slot="footer" class="dialog-footer">
+                <el-button size="small" @click="dialogMenuVisible = false">取 消</el-button>
+                <el-button size="small" type="primary" @click="saveRoleMenu">确 定</el-button>
+            </div>
+        </el-dialog>
+    </div>
+</div>
+<th:block th:replace="common/common_footer::footer">
+</th:block>
+</body>
+<script>
+    new Vue({
+        el: '#app',
+        data: function() {
+            return {
+                query:{
+                    menuCode:'',
+                    menuName:''
+                },
+                tableData:[],
+                page:{
+                    currentPage: 1,
+                    pageSize: 10,
+                    total: 0,
+                    pageSizes:[10, 20, 30, 50]
+                },
+                dialogAddFormVisible: false,
+                dialogEditFormVisible: false,
+                dialogResetFormVisible: false,
+                dialogMenuVisible: false,
+                addForm: {
+                    userCode:'',
+                    userName:'',
+                    status:'1'
+                },
+                editForm: {
+                    userId:'',
+                    userCode:'',
+                    userName:'',
+                    status:''
+                },
+                resetForm:{
+                    userId:'',
+                    userCode:'',
+                    pwd:''
+                },
+                formLabelWidth: '120px',
+                formWidth: '40%',
+                currentRow: null,
+                singleSelection: null, //table单选
+                treeData: [],
+                checkedkeys:[],
+                originCheckedkeys:[],
+                oldArr:[],
+                newArr:[],
+                defaultProps: {
+                    children: 'menus',
+                    label: 'menuName'
+                },
+                treeWidth: '30%',
+                select:{
+                    statusOptions:[
+                        {
+                            label:"启用",
+                            value:"1"
+                        },{
+                            label:"停用",
+                            value:"0"
+                        }
+                    ]
+                },
+            }
+        },
+        components:{
+        },
+        created() {
+
+        },
+        methods: {
+            handleSizeChange(val) {
+                this.page.pageSize = val;
+                this.page.currentPage = 1;
+                this.queryData(this.page);
+            },
+            handleCurrentChange(val) {
+                this.page.currentPage = val;
+                this.queryData(this.page);
+            },
+            prevClick(){
+                this.currentPage = this.currentPage-1;
+            },
+            nextClick(){
+                this.currentPage = this.currentPage+1;
+            },
+            queryData(page){
+                var params = {};
+                params.userName = this.query.userName;
+                params.userCode = this.query.userCode;
+                params.pageSize = page.pageSize;
+                params.pageNum = page.currentPage;
+                axios
+                    .get(context+'user/queryPage',{
+                        params: params
+                    })
+                    .then(response => {
+                        if(response.data && response.data.success){
+                            this.tableData = response.data.list;
+                            this.total = response.data.total;
+                        }else{
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: 'error'
+                            });
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            //行变化
+            handleCurrentRowChange(currentRow, oldCurrentRow) {
+                this.currentRow = currentRow;
+                //this.tableRadio = currentRow.roleId;
+            },
+            //查询
+            handQuery(){
+                this.queryData(this.page);
+            },
+            //打开新增
+            openAdd(index, row) {
+                this.addForm = {
+                    status:'1'
+                };
+                this.dialogAddFormVisible = true;
+            },
+            //保存编辑
+            saveAdd() {
+                this.dialogAddFormVisible = false;
+                var that = this;
+                axios.post(context+'user/insert',{
+                    userCode: this.addForm.userCode,
+                    userName: this.addForm.userName,
+                    status: this.addForm.status
+                }).then(response => {
+                        if(response.data && response.data.success){
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: 'success'
+                            });
+                            this.queryData(this.page);
+                        }else{
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: 'error'
+                            });
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        that.$message({
+                            showClose: true,
+                            message: "操作失败",
+                            type: 'error'
+                        });
+                    });
+            },
+            //打开编辑
+            openEdit(index, row) {
+                this.editForm = row;
+                this.dialogEditFormVisible = true;
+            },
+            //保存编辑
+            saveEdit() {
+                this.dialogEditFormVisible = false;
+                var that = this;
+                axios.post(context+'user/update',{
+                        userId: this.editForm.userId,
+                        userCode: this.editForm.userCode,
+                        userName: this.editForm.userName,
+                        status: this.editForm.status
+                    })
+                    .then(response => {
+                        if(response.data && response.data.success){
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: 'success'
+                            });
+                            this.queryData(this.page);
+                        }else{
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: 'error'
+                            });
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        that.$message({
+                            showClose: true,
+                            message: "操作失败",
+                            type: 'error'
+                        });
+                    });
+            },
+            openReset(index, row) {
+                this.resetForm = {
+                    userId:row.userId,
+                    userCode:row.userCode
+                };
+                this.dialogResetFormVisible = true;
+            },
+            saveReset() {
+                this.dialogResetFormVisible = false;
+                var that = this;
+                axios.post(context+'user/resetPwd',{
+                    userId: this.resetForm.userId,
+                    userCode: this.resetForm.userCode,
+                    pwd: this.resetForm.pwd
+                })
+                    .then(response => {
+                        if(response.data && response.data.success){
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: 'success'
+                            });
+                            this.queryData(this.page);
+                        }else{
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: 'error'
+                            });
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        that.$message({
+                            showClose: true,
+                            message: "操作失败",
+                            type: 'error'
+                        });
+                    });
+            },
+            handleClick(row) {
+                console.log(row);
+            },
+            handleDel(index, row){
+                axios.get(context+'role/deleteById',{
+                        params: {
+                            roleId: row.roleId,
+                        }
+                    })
+                    .then(response => {
+                        if(response.data && response.data.success){
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: 'success'
+                            });
+                            this.queryData(this.page);
+                        }else{
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: 'error'
+                            });
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            openMenu(row, column, event){
+                if(this.singleSelection==null){
+                    this.$message({
+                        showClose: true,
+                        message: "请选择一条记录",
+                        type: 'warning'
+                    });
+                    return;
+                }
+                this.dialogMenuVisible = true;
+                this.loadMenuData();
+            },
+            loadMenuData(){
+                this.checkedkeys = [];
+                axios.get(context+'role/getMenus?pCode=m_00&roleCode='+this.singleSelection.roleCode).then(response => {
+                        this.treeData = response.data;
+                        this.getMenus(response.data);
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    })
+            },
+            getMenus(dataArr){
+                for(var i=0;i<dataArr.length;i++){
+                    var dd = dataArr[i];
+                    if(dd.roleCode!=undefined && dd.roleCode!='' && dd.roleCode!=null){
+                        this.originCheckedkeys.push(dd.menuCode);
+                        if(dd.menus && dd.menus.length>0){
+                            var flag = true;
+                            for(var y=0;y<dd.menus.length;y++){
+                                if(dd.menus[y].roleCode==undefined || dd.menus[y].roleCode=='' || dd.menus[y].roleCode==null){
+                                    flag = false;
+                                    break;
+                                }
+                            }
+                            if(flag){
+                                this.checkedkeys.push(dd.menuCode);
+                            }
+                        }else{
+                            this.originCheckedkeys.push(dd.menuCode);
+                            this.checkedkeys.push(dd.menuCode);
+                        }
+                    }
+                    if(dd.menus && dd.menus.length>0){
+                        this.getMenus(dd.menus);
+                    }
+                }
+            },
+            saveRoleMenu(){
+                var newCheckedkeys = [];
+                var addArr = [];
+                var delArr = [];
+                var checkedNodes = this.$refs.tree.getCheckedNodes(false,true);
+                for(var k=0;k<checkedNodes.length;k++){
+                    newCheckedkeys.push(checkedNodes[k].menuCode);
+                }
+                for(var i=0;i<this.originCheckedkeys.length;i++){
+                    if(!newCheckedkeys.includes(this.originCheckedkeys[i])){
+                        delArr.push(this.originCheckedkeys[i]);
+                    }
+                }
+                for(var j=0;j<newCheckedkeys.length;j++){
+                    if(!this.originCheckedkeys.includes(newCheckedkeys[j])){
+                        addArr.push(newCheckedkeys[j]);
+                    }
+                }
+                if(addArr.length==0 && delArr.length==0){
+                    this.$message({
+                        showClose: true,
+                        message: "数据无变化",
+                        type: 'warning'
+                    });
+                    return;
+                }
+                this.dialogMenuVisible = false;
+                axios.post(context+'role/updateRoleMenu',{
+                    roleCode:this.singleSelection.roleCode,
+                    addArr: addArr,
+                    delArr: delArr
+                }).then(response => {
+                    if(response.data && response.data.success){
+                        this.$message({
+                            showClose: true,
+                            message: response.data.msg,
+                            type: 'success'
+                        });
+                    }else{
+                        this.$message({
+                            showClose: true,
+                            message: response.data.msg,
+                            type: 'error'
+                        });
+                    }
+                }).catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+
+            },
+            statusFormatter(row, column, cellValue, index){
+                if("1"==cellValue){
+                    return "启用";
+                }else{
+                    return "停用";
+                }
+            }
+        },
+        mounted(){
+            this.queryData(this.page)
+        }
+    })
+</script>
+</html>

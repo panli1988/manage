@@ -1,7 +1,7 @@
 package com.lp.framework.manage.model;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * d_user
@@ -16,9 +16,11 @@ public class User implements Serializable {
 
     private String pwd;
 
-    private Integer age;
+    private String status;
 
-    private Date createDate;
+    private LocalDateTime createTime;
+
+    private LocalDateTime updateTime;
 
     private static final long serialVersionUID = 1L;
 
@@ -54,19 +56,27 @@ public class User implements Serializable {
         this.pwd = pwd;
     }
 
-    public Integer getAge() {
-        return age;
+    public String getStatus() {
+        return status;
     }
 
-    public void setAge(Integer age) {
-        this.age = age;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
-    public Date getCreateDate() {
-        return createDate;
+    public LocalDateTime getCreateTime() {
+        return createTime;
     }
 
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
+    }
+
+    public LocalDateTime getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(LocalDateTime updateTime) {
+        this.updateTime = updateTime;
     }
 }

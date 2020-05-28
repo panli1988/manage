@@ -61,9 +61,7 @@ public class CustomerSecurityRealm extends AuthorizingRealm implements Serializa
 		String realmName = getName();
 		
 		Object principal = userName;
-		User record = new User();
-		record.setUserName(userName);
-		User user = userSerive.selectByPrimaryKey(1);
+		User user = userSerive.selectByUserCode(userName);
 		Object hashedCredentials = user.getPwd();
 		//ByteSource credentialsSalt = ByteSource.Util.bytes(userName);
 		//重写

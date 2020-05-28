@@ -2,6 +2,9 @@ package com.lp.framework.manage.service;
 
 import com.lp.framework.manage.model.User;
 
+import java.util.List;
+import java.util.Map;
+
 public interface UserService {
     int deleteByPrimaryKey(Integer userId);
 
@@ -16,5 +19,9 @@ public interface UserService {
     int updateByPrimaryKeySelective(User record);
 
     int updateByPrimaryKey(User record);
+
+    List<User> selectByPage(Map<String,Object> params);
+
+    int updatePwdByPrimaryKey(User user);
 
 }

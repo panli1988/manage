@@ -1,9 +1,20 @@
 package com.lp.framework.manage.controller.system;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.lp.framework.manage.model.Role;
+import com.lp.framework.manage.model.User;
 import com.lp.framework.manage.service.UserService;
+import com.lp.framework.manage.utils.CommonUtils;
+import com.lp.framework.manage.utils.JsonResult;
+import com.lp.framework.manage.utils.ShiroUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.ServletRequest;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/user")
@@ -11,4 +22,80 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @GetMapping("/index")
+    public String index(){
+        return "system/user/userIndex";
+    }
+
+    @GetMapping("/queryPage")
+    @ResponseBody
+    public JsonResult queryPage(ServletRequest request){
+        Map<String, Object> params = CommonUtils.getParametersMap(request);
+        JsonResult jsonResult = new JsonResult();
+        try {
+            int pageNum = Integer.parseInt((String) params.get("pageNum"));
+            int pageSize = Integer.parseInt((String) params.get("pageSize"));
+            PageHelper.startPage(pageNum,pageSize);
+            List<User> userList = userService.selectByPage(params);
+            PageInfo<User> pageInfo = new PageInfo<User>(userList);
+            jsonResult = new JsonResult(pageInfo);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            jsonResult.setSuccess(false);
+            jsonResult.setMsg("查询失败");
+        }
+        return jsonResult;
+    }
+
+    @PostMapping("/insert")
+    @ResponseBody
+    public JsonResult insert(ServletRequest request,@RequestBody User user){
+        JsonResult jsonResult = new JsonResult();
+        String pwd = ShiroUtils.encrypt("123456",user.getUserCode());
+        user.setPwd(pwd);
+        try {
+            userService.insert(user);
+            jsonResult.setSuccess(true);
+            jsonResult.setMsg("操作成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            jsonResult.setSuccess(false);
+            jsonResult.setMsg("操作失败");
+        }
+        return jsonResult;
+    }
+
+    @PostMapping("/update")
+    @ResponseBody
+    public JsonResult update(@RequestBody User user){
+        JsonResult jsonResult = new JsonResult();
+        try {
+            userService.updateByPrimaryKeySelective(user);
+            jsonResult.setSuccess(true);
+            jsonResult.setMsg("操作成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            jsonResult.setSuccess(false);
+            jsonResult.setMsg("操作失败");
+        }
+        return jsonResult;
+    }
+    @PostMapping("/resetPwd")
+    @ResponseBody
+    public JsonResult resetPwd(@RequestBody User user){
+        JsonResult jsonResult = new JsonResult();
+        String pwd = ShiroUtils.encrypt(user.getPwd(),user.getUserCode());
+        user.setPwd(pwd);
+        try {
+            userService.updatePwdByPrimaryKey(user);
+            jsonResult.setSuccess(true);
+            jsonResult.setMsg("操作成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            jsonResult.setSuccess(false);
+            jsonResult.setMsg("操作失败");
+        }
+        return jsonResult;
+    }
 }
