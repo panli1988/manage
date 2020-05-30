@@ -279,27 +279,19 @@
                     roleName: this.addForm.roleName,
                     remark: this.addForm.remark
                 }).then(response => {
-                        if(response.data && response.data.success){
+                        if(response.data){
                             this.$message({
                                 showClose: true,
                                 message: response.data.msg,
-                                type: 'success'
+                                type: response.data.success?'success':'error'
                             });
-                            this.queryData(this.page);
-                        }else{
-                            this.$message({
-                                showClose: true,
-                                message: response.data.msg,
-                                type: 'error'
-                            });
+                            if(response.data.success){
+                                this.queryData(this.page);
+                            }
                         }
                     })
                     .catch(function (error) { // 请求失败处理
-                        that.$message({
-                            showClose: true,
-                            message: "操作失败",
-                            type: 'error'
-                        });
+                        console.log(error)
                     });
             },
             //打开编辑
@@ -318,27 +310,19 @@
                         remark: this.editForm.remark
                     })
                     .then(response => {
-                        if(response.data && response.data.success){
+                        if(response.data){
                             this.$message({
                                 showClose: true,
                                 message: response.data.msg,
-                                type: 'success'
+                                type: response.data.success?'success':'error'
                             });
-                            this.queryData(this.page);
-                        }else{
-                            this.$message({
-                                showClose: true,
-                                message: response.data.msg,
-                                type: 'error'
-                            });
+                            if(response.data.success){
+                                this.queryData(this.page);
+                            }
                         }
                     })
                     .catch(function (error) { // 请求失败处理
-                        that.$message({
-                            showClose: true,
-                            message: "操作失败",
-                            type: 'error'
-                        });
+                        console.log(error);
                     });
             },
             handleClick(row) {
@@ -351,19 +335,15 @@
                         }
                     })
                     .then(response => {
-                        if(response.data && response.data.success){
+                        if(response.data){
                             this.$message({
                                 showClose: true,
                                 message: response.data.msg,
-                                type: 'success'
+                                type: response.data.success?'success':'error'
                             });
-                            this.queryData(this.page);
-                        }else{
-                            this.$message({
-                                showClose: true,
-                                message: response.data.msg,
-                                type: 'error'
-                            });
+                            if(response.data.success){
+                                this.queryData(this.page);
+                            }
                         }
                     })
                     .catch(function (error) { // 请求失败处理
@@ -455,17 +435,11 @@
                     addArr: addArr,
                     delArr: delArr
                 }).then(response => {
-                    if(response.data && response.data.success){
+                    if(response.data){
                         this.$message({
                             showClose: true,
                             message: response.data.msg,
-                            type: 'success'
-                        });
-                    }else{
-                        this.$message({
-                            showClose: true,
-                            message: response.data.msg,
-                            type: 'error'
+                            type: response.data.success?'success':'error'
                         });
                     }
                 }).catch(function (error) { // 请求失败处理
