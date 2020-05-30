@@ -46,7 +46,6 @@
                 highlight-current-row
                 header-cell-class-name="table-header"
                 @current-change="handleCurrentRowChange"
-                :default-checked-keys="checkedkeys"
                 style="width: 100%">
             <el-table-column label="选择" width="50">
                 <template slot-scope="scope">
@@ -385,7 +384,7 @@
             },
             loadMenuData(){
                 this.checkedkeys = [];
-                axios.get(context+'role/getMenus?pCode=m_00&roleCode='+this.singleSelection.roleCode).then(response => {
+                axios.get(context+'role/getRoleMenus?pCode=m_00&roleCode='+this.singleSelection.roleCode).then(response => {
                         this.treeData = response.data;
                         this.getMenus(response.data);
                     })

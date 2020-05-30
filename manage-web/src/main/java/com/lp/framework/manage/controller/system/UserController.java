@@ -4,6 +4,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.lp.framework.manage.model.Role;
 import com.lp.framework.manage.model.User;
+import com.lp.framework.manage.service.UserRoleService;
 import com.lp.framework.manage.service.UserService;
 import com.lp.framework.manage.utils.CommonUtils;
 import com.lp.framework.manage.utils.JsonResult;
@@ -22,6 +23,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UserRoleService userRoleService;
 
     @GetMapping("/index")
     public String index(){
@@ -89,6 +93,29 @@ public class UserController {
         user.setPwd(pwd);
         try {
             userService.updatePwdByPrimaryKey(user);
+            jsonResult.setSuccess(true);
+            jsonResult.setMsg("操作成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            jsonResult.setSuccess(false);
+            jsonResult.setMsg("操作失败");
+        }
+        return jsonResult;
+    }
+
+    @GetMapping("/getUserRoles")
+    @ResponseBody
+    public List<Map<String,Object>> getUserRoles(ServletRequest request){
+        Map<String, Object> params = CommonUtils.getParametersMap(request);
+        return userRoleService.selectUserRoles(params);
+    }
+
+    @PostMapping("/updateUserRoles")
+    @ResponseBody
+    public JsonResult updateUserRoles(@RequestBody Map<String,Object> params){
+        JsonResult jsonResult = new JsonResult();
+        try {
+            userRoleService.updateUserRoles(params);
             jsonResult.setSuccess(true);
             jsonResult.setMsg("操作成功");
         } catch (Exception e) {

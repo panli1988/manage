@@ -18,7 +18,7 @@
                 </el-col>
                 <el-col :span="6">
                     <el-button type="primary" size="small" @click="openAdd">新增</el-button>
-                    <el-button type="primary" size="small" @click="openMenu">配置菜单</el-button>
+                    <el-button type="primary" size="small" @click="openRole">配置角色</el-button>
                     <el-button type="primary" size="small" @click="handQuery">查询</el-button>
                 </el-col>
             </el-row>
@@ -32,7 +32,6 @@
                 highlight-current-row
                 header-cell-class-name="table-header"
                 @current-change="handleCurrentRowChange"
-                :default-checked-keys="checkedkeys"
                 style="width: 100%">
             <el-table-column label="选择" width="50">
                 <template slot-scope="scope">
@@ -144,21 +143,11 @@
                 <el-button type="primary" size="small" @click="saveReset">确 定</el-button>
             </div>
         </el-dialog>
-        <el-dialog title="菜单" :visible.sync="dialogMenuVisible" :width="treeWidth" top="2%">
-            <div style="height: 230px;overflow: auto;">
-                <el-tree
-                        :data="treeData"
-                        show-checkbox
-                        node-key="menuCode"
-                        ref="tree"
-                        :props="defaultProps"
-                        :default-checked-keys="checkedkeys">
-                </el-tree>
-            </div>
-
+        <el-dialog title="角色" :visible.sync="dialogRoleVisible" width="60%" top="2%">
+            <el-transfer v-model="checkedRoles" :data="roleData" :left-default-checked="leftDefaultChecked" :right-default-checked="rightDefaultChecked"></el-transfer>
             <div slot="footer" class="dialog-footer">
-                <el-button size="small" @click="dialogMenuVisible = false">取 消</el-button>
-                <el-button size="small" type="primary" @click="saveRoleMenu">确 定</el-button>
+                <el-button size="small" @click="dialogRoleVisible = false">取 消</el-button>
+                <el-button type="primary" size="small" @click="saveUserRole">确 定</el-button>
             </div>
         </el-dialog>
     </div>
@@ -185,7 +174,7 @@
                 dialogAddFormVisible: false,
                 dialogEditFormVisible: false,
                 dialogResetFormVisible: false,
-                dialogMenuVisible: false,
+                dialogRoleVisible: false,
                 addForm: {
                     userCode:'',
                     userName:'',
@@ -206,16 +195,11 @@
                 formWidth: '40%',
                 currentRow: null,
                 singleSelection: null, //table单选
-                treeData: [],
-                checkedkeys:[],
-                originCheckedkeys:[],
-                oldArr:[],
-                newArr:[],
-                defaultProps: {
-                    children: 'menus',
-                    label: 'menuName'
-                },
-                treeWidth: '30%',
+                roleData:[],//所有的角色数据
+                checkedRoles:[],//选中的角色编码
+                originCheckRoles:[],//初始选中的角色编码
+                leftDefaultChecked:[],
+                rightDefaultChecked:[],
                 select:{
                     statusOptions:[
                         {
@@ -402,6 +386,82 @@
                         });
                     });
             },
+            openRole(index, row) {
+                if(this.singleSelection==null){
+                    this.$message({
+                        showClose: true,
+                        message: "请选择一条记录",
+                        type: 'warning'
+                    });
+                    return;
+                }
+                this.dialogRoleVisible = true;
+                this.loadRoleData();
+            },
+            loadRoleData(){
+                this.roleData = [];
+                this.leftDefaultChecked = [];
+                this.rightDefaultChecked = [];
+                this.checkedRoles = [];
+                axios.get(context+'user/getUserRoles?userCode='+this.singleSelection.userCode).then(response => {
+                        for(var i=0;i<response.data.length;i++){
+                            this.roleData.push({
+                                key:response.data[i].roleCode,
+                                label:response.data[i].roleName
+                            });
+                            if(response.data[i].userCode!=""&&response.data[i].userCode!=null&&response.data[i].userCode!=undefined){
+                                // this.originCheckRoles.push(response.data[i].roleCode);
+                                this.checkedRoles.push(response.data[i].roleCode);
+                                this.rightDefaultChecked.push(response.data[i].roleCode);
+                            }else{
+                                this.leftDefaultChecked.push(response.data[i].roleCode);
+                            }
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    })
+            },
+            saveUserRole(){
+                var addArr = [];
+                var delArr = [];
+                //选中的key原始右侧选中的key数组中，说明是新增
+                for(var i=0;i<this.checkedRoles.length;i++){
+                    if(!this.rightDefaultChecked.includes(this.checkedRoles[i])){
+                        addArr.push(this.checkedRoles[i]);
+                    }
+                }
+                //右侧选中的key选中的key数组中，说明是删除
+                for(var j=0;j<this.rightDefaultChecked.length;j++){
+                    if(!this.checkedRoles.includes(this.rightDefaultChecked[j])){
+                        delArr.push(this.rightDefaultChecked[j]);
+                    }
+                }
+                if(addArr.length==0 && delArr.length==0){
+                    this.$message({
+                        showClose: true,
+                        message: "数据无变化",
+                        type: 'warning'
+                    });
+                    return;
+                }
+                this.dialogRoleVisible = false;
+                axios.post(context+'user/updateUserRoles',{
+                    userCode:this.singleSelection.userCode,
+                    addArr: addArr,
+                    delArr: delArr
+                }).then(response => {
+                    if(response.data && response.data.success){
+                        this.$message({
+                            showClose: true,
+                            message: response.data.msg,
+                            type: response.data.success?'success':'error'
+                        });
+                    }
+                }).catch(function (error) { // 请求失败处理
+                    console.log(error);
+                });
+            },
             handleClick(row) {
                 console.log(row);
             },
@@ -430,104 +490,6 @@
                     .catch(function (error) { // 请求失败处理
                         console.log(error);
                     });
-            },
-            openMenu(row, column, event){
-                if(this.singleSelection==null){
-                    this.$message({
-                        showClose: true,
-                        message: "请选择一条记录",
-                        type: 'warning'
-                    });
-                    return;
-                }
-                this.dialogMenuVisible = true;
-                this.loadMenuData();
-            },
-            loadMenuData(){
-                this.checkedkeys = [];
-                axios.get(context+'role/getMenus?pCode=m_00&roleCode='+this.singleSelection.roleCode).then(response => {
-                        this.treeData = response.data;
-                        this.getMenus(response.data);
-                    })
-                    .catch(function (error) { // 请求失败处理
-                        console.log(error);
-                    })
-            },
-            getMenus(dataArr){
-                for(var i=0;i<dataArr.length;i++){
-                    var dd = dataArr[i];
-                    if(dd.roleCode!=undefined && dd.roleCode!='' && dd.roleCode!=null){
-                        this.originCheckedkeys.push(dd.menuCode);
-                        if(dd.menus && dd.menus.length>0){
-                            var flag = true;
-                            for(var y=0;y<dd.menus.length;y++){
-                                if(dd.menus[y].roleCode==undefined || dd.menus[y].roleCode=='' || dd.menus[y].roleCode==null){
-                                    flag = false;
-                                    break;
-                                }
-                            }
-                            if(flag){
-                                this.checkedkeys.push(dd.menuCode);
-                            }
-                        }else{
-                            this.originCheckedkeys.push(dd.menuCode);
-                            this.checkedkeys.push(dd.menuCode);
-                        }
-                    }
-                    if(dd.menus && dd.menus.length>0){
-                        this.getMenus(dd.menus);
-                    }
-                }
-            },
-            saveRoleMenu(){
-                var newCheckedkeys = [];
-                var addArr = [];
-                var delArr = [];
-                var checkedNodes = this.$refs.tree.getCheckedNodes(false,true);
-                for(var k=0;k<checkedNodes.length;k++){
-                    newCheckedkeys.push(checkedNodes[k].menuCode);
-                }
-                for(var i=0;i<this.originCheckedkeys.length;i++){
-                    if(!newCheckedkeys.includes(this.originCheckedkeys[i])){
-                        delArr.push(this.originCheckedkeys[i]);
-                    }
-                }
-                for(var j=0;j<newCheckedkeys.length;j++){
-                    if(!this.originCheckedkeys.includes(newCheckedkeys[j])){
-                        addArr.push(newCheckedkeys[j]);
-                    }
-                }
-                if(addArr.length==0 && delArr.length==0){
-                    this.$message({
-                        showClose: true,
-                        message: "数据无变化",
-                        type: 'warning'
-                    });
-                    return;
-                }
-                this.dialogMenuVisible = false;
-                axios.post(context+'role/updateRoleMenu',{
-                    roleCode:this.singleSelection.roleCode,
-                    addArr: addArr,
-                    delArr: delArr
-                }).then(response => {
-                    if(response.data && response.data.success){
-                        this.$message({
-                            showClose: true,
-                            message: response.data.msg,
-                            type: 'success'
-                        });
-                    }else{
-                        this.$message({
-                            showClose: true,
-                            message: response.data.msg,
-                            type: 'error'
-                        });
-                    }
-                }).catch(function (error) { // 请求失败处理
-                        console.log(error);
-                    });
-
             },
             statusFormatter(row, column, cellValue, index){
                 if("1"==cellValue){

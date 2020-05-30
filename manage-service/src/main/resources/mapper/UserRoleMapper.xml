@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lp.framework.manage.mapper.UserRoleMapper">
+    <resultMap id="BaseResultMap" type="com.lp.framework.manage.model.UserRole">
+        <result column="user_code" jdbcType="VARCHAR" property="userCode"/>
+        <result column="role_code" jdbcType="VARCHAR" property="roleCode"/>
+    </resultMap>
+    <insert id="insert" parameterType="com.lp.framework.manage.model.UserRole">
+        insert into d_user_role (user_code, role_code)
+        values (#{userCode,jdbcType=VARCHAR}, #{roleCode,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="com.lp.framework.manage.model.UserRole">
+        insert into d_user_role
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userCode != null">
+                user_code,
+            </if>
+            <if test="roleCode != null">
+                role_code,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userCode != null">
+                #{userCode,jdbcType=VARCHAR},
+            </if>
+            <if test="roleCode != null">
+                #{roleCode,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <delete id="deleteUserRole" parameterType="com.lp.framework.manage.model.UserRole">
+        DELETE
+        FROM
+            d_user_role
+        WHERE
+            user_code = #{userCode,jdbcType=VARCHAR}
+            AND role_code = #{roleCode,jdbcType=VARCHAR}
+    </delete>
+    <select id="selectUserRoles" resultType="hashmap">
+        SELECT
+            r.role_code AS "roleCode",
+            r.role_name AS "roleName",
+            ur.user_code AS "userCode"
+        FROM
+            d_role r
+            LEFT JOIN d_user_role ur ON r.role_code = ur.role_code
+            AND ur.user_code = #{userCode,jdbcType=VARCHAR}
+    </select>
+</mapper>

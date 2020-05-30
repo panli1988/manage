@@ -101,9 +101,9 @@ public class RoleController {
         return jsonResult;
     }
 
-    @GetMapping("/getMenus")
+    @GetMapping("/getRoleMenus")
     @ResponseBody
-    public List<Map<String,Object>> getMenus(ServletRequest request){
+    public List<Map<String,Object>> getRoleMenus(ServletRequest request){
         Map<String, Object> params = CommonUtils.getParametersMap(request);
         List<Map<String,Object>> returnList = new ArrayList<>();
         List<Map<String, Object>> menuList = roleMenuService.selectMenusByPCode(params);
