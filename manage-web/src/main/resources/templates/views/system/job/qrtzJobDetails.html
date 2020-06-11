@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <th:block th:insert="common/common_header::header"></th:block>
+</head>
+<body>
+<div id="app">
+    <div class="container-box">
+        <div style="width: 100%;padding: 10px 0px;">
+            <el-row :gutter="20" style="width: 100%;">
+                <el-col :span="5">
+                    <el-input v-model="query.jobName" size="small" placeholder="JOB名称" style="width: 200px" clearable></el-input>
+                </el-col>
+                <el-col :span="5">
+                    <el-input v-model="query.description" size="small" placeholder="描述" style="width: 200px" clearable></el-input>
+                </el-col>
+                <el-col :span="6">
+                    <el-button type="primary" size="small" @click="openAdd">新增</el-button>
+                    <el-button type="primary" size="small" @click="handQuery">查询</el-button>
+                    <el-button type="primary" size="small" @click="openTrigger">触发器</el-button>
+                </el-col>
+            </el-row>
+        </div>
+        <el-table
+                :data="tableData"
+                stripe
+                max-height="430"
+                border
+                :cell-style="{padding:'2px'}"
+                highlight-current-row
+                header-cell-class-name="table-header"
+                @current-change="handleCurrentRowChange"
+                style="width: 100%">
+            <el-table-column label="选择" width="50">
+                <template slot-scope="scope">
+                    <el-radio v-model="singleSelection" :label="scope.row" style="padding-left: 6px;">&nbsp;</el-radio>
+                </template>
+            </el-table-column>
+            <el-table-column
+                    type="index"
+                    label="序号"
+                    width="60">
+                <template scope="scope"><span>{{scope.$index+(page.currentPage - 1) * page.pageSize + 1}} </span></template>
+            </el-table-column>
+            <el-table-column
+                    prop="jobName"
+                    label="JOB名称"
+                    width="100">
+            </el-table-column>
+            <el-table-column
+                    prop="description"
+                    label="描述"
+                    width="100">
+            </el-table-column>
+            <el-table-column
+                    prop="jobClassName"
+                    label="JOB类"
+                    width="360">
+            </el-table-column>
+            <el-table-column
+                    prop="state"
+                    label="状态"
+                    width="100"
+                    :formatter="stateFormatter">
+            </el-table-column>
+            <el-table-column
+                    fixed="right"
+                    label="操作"
+                    width="520">
+                <template slot-scope="scope">
+                    <el-button type="primary" size="small" @click="openEdit(scope.$index, scope.row)">编辑</el-button>
+                    <el-button type="danger" size="small" @click="delete(scope.row)">删除</el-button>
+                    <el-button type="primary" size="small" @click="pause(scope.row)">暂停</el-button>
+                    <el-button type="primary" size="small" @click="resume(scope.row)">重启</el-button>
+                    <el-button type="primary" size="small" @click="trigger(scope.row)">立即执行</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+        <div class="block">
+            <el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page="page.currentPage"
+                    :page-sizes="page.pageSizes"
+                    :page-size="page.pageSize"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="page.total"
+                    @prev-click="prevClick"
+                    @next-click="nextClick"
+            >
+            </el-pagination>
+        </div>
+        <el-dialog title="新增" :visible.sync="dialogAddFormVisible" :width="formWidth">
+            <el-form :model="addForm">
+                <el-form-item label="JOB名称" :label-width="formLabelWidth">
+                    <el-input v-model="addForm.jobName" size="small" autocomplete="off" style="width: 300px"></el-input>
+                </el-form-item>
+                <el-form-item label="描述" :label-width="formLabelWidth">
+                    <el-input v-model="addForm.description" size="small" autocomplete="off" style="width: 300px"></el-input>
+                </el-form-item>
+                <el-form-item label="JOB类" :label-width="formLabelWidth">
+                    <el-input v-model="addForm.jobClassName" size="small" autocomplete="off" style="width: 300px"></el-input>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button size="small" @click="dialogAddFormVisible = false">取 消</el-button>
+                <el-button type="primary" size="small" @click="saveAdd">确 定</el-button>
+            </div>
+        </el-dialog>
+        <el-dialog title="编辑" :visible.sync="dialogEditFormVisible" :width="formWidth">
+            <el-form :model="editForm">
+                <el-form-item label="JOB名称" :label-width="formLabelWidth">
+                    <el-input v-model="editForm.jobName" size="small" autocomplete="off" style="width: 300px" readOnly="true"></el-input>
+                </el-form-item>
+                <el-form-item label="描述" :label-width="formLabelWidth">
+                    <el-input v-model="editForm.description" size="small" autocomplete="off" style="width: 300px"></el-input>
+                </el-form-item>
+                <el-form-item label="JOB类" :label-width="formLabelWidth">
+                    <el-input v-model="editForm.jobClassName" size="small" autocomplete="off" style="width: 300px" readOnly="true"></el-input>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button size="small" @click="dialogEditFormVisible = false">取 消</el-button>
+                <el-button type="primary" size="small" @click="saveEdit">确 定</el-button>
+            </div>
+        </el-dialog>
+        <el-dialog title="触发器" :visible.sync="dialogTriggerVisible" width="78%" top="2%">
+            <div style="width: 100%;padding: 10px 0px;">
+                <el-row :gutter="20" style="width: 100%;">
+                    <el-col :span="12">
+                        <el-button type="primary" size="small" @click="openTriggerAdd">新增</el-button>
+                        <el-button type="danger" size="small" @click="deleteTrigger">删除</el-button>
+                    </el-col>
+                </el-row>
+            </div>
+            <el-table
+                    :data="triggerTableData"
+                    stripe
+                    max-height="300"
+                    border
+                    :cell-style="{padding:'2px'}"
+                    highlight-current-row
+                    header-cell-class-name="table-header"
+                    style="width: 100%">
+                <el-table-column label="选择" width="50">
+                    <template slot-scope="scope">
+                        <el-radio v-model="singleTriggerSelection" :label="scope.row" style="padding-left: 6px;">&nbsp;</el-radio>
+                    </template>
+                </el-table-column>
+                <el-table-column
+                        type="index"
+                        label="序号"
+                        width="60">
+                    <template scope="scope"><span>{{scope.$index+1}} </span></template>
+                </el-table-column>
+                <el-table-column
+                        prop="triggerName"
+                        label="触发器名称"
+                        width="100">
+                </el-table-column>
+                <el-table-column
+                        prop="description"
+                        label="描述"
+                        width="100">
+                </el-table-column>
+                <el-table-column
+                        prop="cronExpression"
+                        label="cron表达式"
+                        width="100">
+                </el-table-column>
+                <el-table-column
+                        prop="startTime"
+                        label="开始时间"
+                        width="180">
+                </el-table-column>
+                <el-table-column
+                        prop="endTime"
+                        label="结束时间"
+                        width="180">
+                </el-table-column>
+                <el-table-column
+                        prop="prevFireTime"
+                        label="上次触发时间"
+                        width="180">
+                </el-table-column>
+                <el-table-column
+                        prop="nextFireTime"
+                        label="下次触发时间"
+                        width="180">
+                </el-table-column>
+            </el-table>
+            <div slot="footer" class="dialog-footer">
+            </div>
+        </el-dialog>
+        <el-dialog title="新增触发器" :visible.sync="dialogAddTriggerVisible" :width="formWidth" top="2%">
+            <el-form :model="addTrigger">
+                <el-form-item label="触发器名称" :label-width="formLabelWidth">
+                    <el-input v-model="addTrigger.triggerName" size="small" autocomplete="off" style="width: 300px"></el-input>
+                </el-form-item>
+                <el-form-item label="描述" :label-width="formLabelWidth">
+                    <el-input v-model="addTrigger.description" size="small" autocomplete="off" style="width: 300px"></el-input>
+                </el-form-item>
+                <el-form-item label="cron表达式" :label-width="formLabelWidth">
+<!--                    <el-input v-model="addTrigger.cronExpress" size="small" autocomplete="off" style="width: 300px"></el-input>-->
+                    <el-input v-model="addTrigger.cronExpress" id="cron" size="small" autocomplete="off" style="width: 300px" readOnly="true" @focus="cronVisible = true"></el-input>
+                    <div style="position: absolute;padding: 0px 5px 5px 5px;background-color: white;z-index: 500;top: 38px;left: -165px;" :style="{'display':(cronVisible?'block':'none')}">
+                        <div style="text-align: center;line-height: 10px;"><i class="el-icon-caret-top"></i></div>
+                        <lz-cron ref="lzCron" style="width: 600px;height: 450px;"></lz-cron>
+                        <div style="text-align: right; margin: 0;">
+                            <el-button size="mini" type="text" @click="cronVisible = false">取消</el-button>
+                            <el-button type="primary" size="mini" @click="setCronExpress">确定</el-button>
+                        </div>
+                    </div>
+                    </el-popover>
+                </el-form-item>
+                <el-form-item label="开始时间" :label-width="formLabelWidth">
+                    <el-date-picker
+                            v-model="addTrigger.startTime"
+                            type="datetime"
+                            format="yyyy-MM-dd HH:mm:ss"
+                            value-format="yyyy-MM-dd HH:mm:ss"
+                            size="small"
+                            style="width: 300px"
+                            placeholder="开始时间">
+                    </el-date-picker>
+                </el-form-item>
+                <el-form-item label="结束时间" :label-width="formLabelWidth">
+                    <el-date-picker
+                            v-model="addTrigger.endTime"
+                            type="datetime"
+                            format="yyyy-MM-dd HH:mm:ss"
+                            value-format="yyyy-MM-dd HH:mm:ss"
+                            size="small"
+                            style="width: 300px"
+                            placeholder="结束时间">
+                    </el-date-picker>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button size="small" @click="dialogAddTriggerVisible = false">取 消</el-button>
+                <el-button type="primary" size="small" @click="saveAddTrigger">确 定</el-button>
+            </div>
+        </el-dialog>
+    </div>
+</div>
+<th:block th:replace="common/common_footer::footer">
+</th:block>
+</body>
+<script>
+    new Vue({
+        el: '#app',
+        data: function() {
+            return {
+                query:{
+                    jobName:'',
+                    description:''
+                },
+                tableData:[],
+                triggerTableData:[],
+                page:{
+                    currentPage: 1,
+                    pageSize: 10,
+                    total: 0,
+                    pageSizes:[10, 20, 30, 50]
+                },
+                dialogAddFormVisible: false,
+                dialogEditFormVisible: false,
+                dialogTriggerVisible: false,
+                dialogAddTriggerVisible: false,
+                cronVisible: false,
+                addForm: {
+                    jobName:'',
+                    description:'',
+                    jobClassName:''
+                },
+                editForm: {
+                    roleId:'',
+                    roleCode:'',
+                    roleName:'',
+                    remark:''
+                },
+                addTrigger: {
+                    triggerName:'',
+                    description:'',
+                    cronExpress:'',
+                    startTime:'',
+                    endTime:''
+                },
+                formLabelWidth: '120px',
+                formWidth: '50%',
+                currentRow: null,
+                singleSelection: null, //table单选
+                singleTriggerSelection:null
+            }
+        },
+        components:{
+        },
+        created() {
+
+        },
+        methods: {
+            handleSizeChange(val) {
+                this.page.pageSize = val;
+                this.page.currentPage = 1;
+                this.queryData(this.page);
+            },
+            handleCurrentChange(val) {
+                this.page.currentPage = val;
+                this.queryData(this.page);
+            },
+            prevClick(){
+                this.currentPage = this.currentPage-1;
+            },
+            nextClick(){
+                this.currentPage = this.currentPage+1;
+            },
+            queryData(page){
+                var params = {};
+                params.jobName = this.query.jobName;
+                params.description = this.query.description;
+                params.pageSize = page.pageSize;
+                params.pageNum = page.currentPage;
+                this.singleSelection = null;
+                axios
+                    .get(context+'qrtzJobDetails/queryPage',{
+                        params: params,
+                        headers: {
+                            'Content-Type': 'application/json '
+                        }
+                    },)
+                    .then(response => {
+                        if(response.data && response.data.success){
+                            this.tableData = response.data.list;
+                            this.page.total = response.data.total;
+                        }else{
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: 'error'
+                            });
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            queryTriggerData(){
+                var params = {};
+                params.jobName = this.singleSelection.jobName;
+                axios
+                    .get(context+'qrtzJobDetails/queryQrtzTriggers',{
+                        params: params,
+                        headers: {
+                            'Content-Type': 'application/json '
+                        }
+                    },)
+                    .then(response => {
+                        if(response.data && response.data.success){
+                            this.triggerTableData = response.data.list;
+                        }else{
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: 'error'
+                            });
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            //行变化
+            handleCurrentRowChange(currentRow, oldCurrentRow) {
+                this.currentRow = currentRow;
+                //this.tableRadio = currentRow.roleId;
+            },
+            //查询
+            handQuery(){
+                this.queryData(this.page);
+            },
+            //打开新增
+            openAdd(index, row) {
+                this.addForm = {};
+                this.dialogAddFormVisible = true;
+            },
+            //保存编辑
+            saveAdd() {
+                this.dialogAddFormVisible = false;
+                axios.post(context+'qrtzJobDetails/insert',{
+                    jobName: this.addForm.jobName,
+                    description: this.addForm.description,
+                    jobClassName: this.addForm.jobClassName
+                }).then(response => {
+                        if(response.data){
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: response.data.success?'success':'error'
+                            });
+                            if(response.data.success){
+                                this.queryData(this.page);
+                            }
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error)
+                    });
+            },
+            //打开编辑
+            openEdit(index, row) {
+                this.editForm = row;
+                this.dialogEditFormVisible = true;
+            },
+            //保存编辑
+            saveEdit() {
+                this.dialogEditFormVisible = false;
+                axios.post(context+'qrtzJobDetails/update',{
+                        jobName: this.editForm.jobName,
+                        description: this.editForm.description
+                    })
+                    .then(response => {
+                        if(response.data){
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: response.data.success?'success':'error'
+                            });
+                            if(response.data.success){
+                                this.queryData(this.page);
+                            }
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            pause(row) {
+                axios.post(context+'qrtzJobDetails/pauseJob',{
+                        jobName: row.jobName
+                    })
+                    .then(response => {
+                        if(response.data){
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: response.data.success?'success':'error'
+                            });
+                            if(response.data.success){
+                                this.queryData(this.page);
+                            }
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            resume(row) {
+                axios.post(context+'qrtzJobDetails/resumeJob',{
+                        jobName: row.jobName
+                    })
+                    .then(response => {
+                        if(response.data){
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: response.data.success?'success':'error'
+                            });
+                            if(response.data.success){
+                                this.queryData(this.page);
+                            }
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            delete(row) {
+                axios.post(context+'qrtzJobDetails/deleteJob',{
+                        jobName: row.jobName
+                    })
+                    .then(response => {
+                        if(response.data){
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: response.data.success?'success':'error'
+                            });
+                            if(response.data.success){
+                                this.queryData(this.page);
+                            }
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            trigger(row) {
+                axios.post(context+'qrtzJobDetails/triggerJob',{
+                        jobName: row.jobName
+                    })
+                    .then(response => {
+                        if(response.data){
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: response.data.success?'success':'error'
+                            });
+                            if(response.data.success){
+                                this.queryData(this.page);
+                            }
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            openTrigger(){
+                if(this.singleSelection==null){
+                    this.$message({
+                        showClose: true,
+                        message: "请选择一条记录",
+                        type: 'warning'
+                    });
+                    return;
+                }
+                this.dialogTriggerVisible = true;
+                this.triggerTableData = [];
+                this.queryTriggerData();
+
+            },
+            //打开新增
+            openTriggerAdd(index, row) {
+                this.addTrigger = {};
+                this.dialogAddTriggerVisible = true;
+            },
+            handleClick(row) {
+                console.log(row);
+            },
+            setCronExpress(){
+                this.addTrigger.cronExpress = this.$refs.lzCron.cron.expression;
+                this.cronVisible = false;
+            },
+            saveAddTrigger() {
+                axios.post(context+'qrtzJobDetails/insertTrigger',{
+                    triggerName: this.addTrigger.triggerName,
+                    description: this.addTrigger.description,
+                    cronExpress: this.addTrigger.cronExpress,
+                    startTime: this.addTrigger.startTime,
+                    endTime: this.addTrigger.endTime,
+                    jobName: this.singleSelection.jobName
+                }).then(response => {
+                    if(response.data){
+                        this.$message({
+                            showClose: true,
+                            message: response.data.msg,
+                            type: response.data.success?'success':'error'
+                        });
+                        if(response.data.success){
+                            this.queryTriggerData();
+                            this.dialogAddTriggerVisible = false;
+                        }
+                    }
+                }).catch(function (error) { // 请求失败处理
+                        console.log(error)
+                    });
+            },
+            deleteTrigger(){
+                axios.post(context+'qrtzJobDetails/deleteTrigger',{
+                        triggerName: this.singleTriggerSelection.triggerName
+                    })
+                    .then(response => {
+                        if(response.data){
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: response.data.success?'success':'error'
+                            });
+                            if(response.data.success){
+                                this.queryTriggerData();
+                            }
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            stateFormatter(row, column, cellValue, index){
+                if("NONE"==cellValue){
+                    return "未配置";
+                } else if("NORMAL"==cellValue){
+                    return "正常";
+                } else if("NONE"==cellValue){
+                    return "NORMAL";
+                } else if("PAUSED"==cellValue){
+                    return "暂停";
+                } else if("COMPLETE"==cellValue){
+                    return "完成";
+                } else if("ERROR"==cellValue){
+                    return "异常";
+                } else if("BLOCKED"==cellValue){
+                    return "阻塞";
+                }
+            },
+        },
+        mounted(){
+            this.queryData(this.page)
+        }
+    })
+</script>
+</html>

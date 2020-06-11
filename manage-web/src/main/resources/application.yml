@@ -39,6 +39,36 @@ spring:
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
+  quartz:
+    auto-startup: true
+    job-store-type: jdbc
+    wait-for-jobs-to-complete-on-shutdown: true
+    startup-delay: 30
+    overwrite-existing-jobs: true
+    scheduler-name: quartzScheduler
+    properties:
+      org:
+        quartz:
+          # scheduler相关
+          scheduler:
+            # scheduler的实例名
+            instanceName: scheduler
+            instanceId: AUTO
+          # 持久化相关
+          jobStore:
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            # 表示数据库中相关表是QRTZ_开头的
+            tablePrefix: QRTZ_
+            useProperties: false
+          # 线程池相关
+          threadPool:
+            class: org.quartz.simpl.SimpleThreadPool
+            # 线程数
+            threadCount: 10
+            # 线程优先级
+            threadPriority: 5
+            threadsInheritContextClassLoaderOfInitializingThread: true
 #  redis:
 #    host: localhost
 #    password:

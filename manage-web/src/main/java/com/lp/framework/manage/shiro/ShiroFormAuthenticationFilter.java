@@ -2,12 +2,16 @@ package com.lp.framework.manage.shiro;
 
 import com.alibaba.fastjson.JSONObject;
 import com.lp.framework.manage.utils.JsonResult;
+import org.apache.catalina.connector.RequestFacade;
 import org.apache.shiro.web.filter.authc.FormAuthenticationFilter;
+import org.apache.shiro.web.servlet.ShiroHttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import java.util.Enumeration;
 
 public class ShiroFormAuthenticationFilter extends FormAuthenticationFilter {
 
@@ -50,7 +54,10 @@ public class ShiroFormAuthenticationFilter extends FormAuthenticationFilter {
 
     private boolean isJson(ServletRequest request){
         String contentType = request.getContentType();
-        if(contentType!=null&&contentType.contains("application/json")){
+        ShiroHttpServletRequest shiroHttpServletRequest = (ShiroHttpServletRequest) request;
+        RequestFacade requestFacade = (RequestFacade) shiroHttpServletRequest.getRequest();
+        String accept = requestFacade.getHeader("accept");
+        if((contentType!=null&&contentType.contains("application/json"))||(accept!=null&&accept.contains("application/json"))){
             return true;
         }else{
             return false;

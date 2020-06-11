@@ -176,3 +176,7 @@ html,body{
     padding-top: 6px;
     padding-bottom: 6px;
 }
+
+.el-dialog__body {
+    padding: 10px 20px;
+}

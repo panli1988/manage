@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lp.framework.manage.mapper.QrtzJobDetailsMapper">
+    <resultMap id="BaseResultMap" type="com.lp.framework.manage.model.QrtzJobDetails">
+        <id column="SCHED_NAME" jdbcType="VARCHAR" property="schedName"/>
+        <id column="JOB_NAME" jdbcType="VARCHAR" property="jobName"/>
+        <id column="JOB_GROUP" jdbcType="VARCHAR" property="jobGroup"/>
+        <result column="DESCRIPTION" jdbcType="VARCHAR" property="description"/>
+        <result column="JOB_CLASS_NAME" jdbcType="VARCHAR" property="jobClassName"/>
+        <result column="IS_DURABLE" jdbcType="VARCHAR" property="isDurable"/>
+        <result column="IS_NONCONCURRENT" jdbcType="VARCHAR" property="isNonconcurrent"/>
+        <result column="IS_UPDATE_DATA" jdbcType="VARCHAR" property="isUpdateData"/>
+        <result column="REQUESTS_RECOVERY" jdbcType="VARCHAR" property="requestsRecovery"/>
+    </resultMap>
+    <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.lp.framework.manage.model.QrtzJobDetails">
+        <result column="JOB_DATA" jdbcType="BLOB" property="jobData"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+      SCHED_NAME, JOB_NAME, JOB_GROUP, DESCRIPTION, JOB_CLASS_NAME, IS_DURABLE, IS_NONCONCURRENT,
+      IS_UPDATE_DATA, REQUESTS_RECOVERY
+    </sql>
+    <sql id="Blob_Column_List">
+      JOB_DATA
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="com.lp.framework.manage.model.QrtzJobDetailsKey"
+            resultMap="ResultMapWithBLOBs">
+        select
+        <include refid="Base_Column_List"/>
+        ,
+        <include refid="Blob_Column_List"/>
+        from qrtz_job_details
+        where SCHED_NAME = #{schedName,jdbcType=VARCHAR}
+        and JOB_NAME = #{jobName,jdbcType=VARCHAR}
+        and JOB_GROUP = #{jobGroup,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectByPage" resultMap="BaseResultMap">
+      select
+      <include refid="Base_Column_List"/>
+      from qrtz_job_details
+      where 1=1
+        <if test="jobName != null and jobName != ''">
+            AND JOB_NAME like CONCAT('%',#{jobName},'%')
+        </if>
+        <if test="description != null and description != ''">
+            AND DESCRIPTION like CONCAT('%',#{description},'%')
+        </if>
+    </select>
+
+
+</mapper>

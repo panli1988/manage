@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <th:block th:insert="common/common_header::header"></th:block>
+</head>
+<body>
+<div id="app">
+    <div class="container-box">
+        <el-button type="primary" size="small" @click="addJob">新增job</el-button>
+        <el-button type="primary" size="small" @click="addJob2">新增job（不立即执行）</el-button>
+        <el-button type="primary" size="small" @click="deleteJob">删除job</el-button>
+        <el-button type="primary" size="small" @click="pauseJob">暂停job</el-button>
+        <el-button type="primary" size="small" @click="resumeJob">重新启动job</el-button>
+        <el-button type="primary" size="small" @click="executeJob">立即执行job</el-button>
+    </div>
+</div>
+<th:block th:replace="common/common_footer::footer">
+</th:block>
+</body>
+<script>
+    new Vue({
+        el: '#app',
+        data: function() {
+            return {
+            }
+        },
+        components:{
+        },
+        created() {
+
+        },
+        methods: {
+            addJob(){
+                axios
+                    .get(context+'task/addJob')
+                    .then(response => {
+                        if(response.data){
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: response.data.success?'success':'error'
+                            });
+                            if(response.data.success){
+                                this.queryData(this.page);
+                            }
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            addJob2(){
+                axios
+                    .get(context+'task/addJob2')
+                    .then(response => {
+                        if(response.data){
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: response.data.success?'success':'error'
+                            });
+                            if(response.data.success){
+                                this.queryData(this.page);
+                            }
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            deleteJob(){
+                axios
+                    .get(context+'task/deleteJob')
+                    .then(response => {
+                        if(response.data){
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: response.data.success?'success':'error'
+                            });
+                            if(response.data.success){
+                                this.queryData(this.page);
+                            }
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            pauseJob(){
+                axios
+                    .get(context+'task/pauseJob')
+                    .then(response => {
+                        if(response.data){
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: response.data.success?'success':'error'
+                            });
+                            if(response.data.success){
+                                this.queryData(this.page);
+                            }
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            resumeJob(){
+                axios
+                    .get(context+'task/resumeJob')
+                    .then(response => {
+                        if(response.data){
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: response.data.success?'success':'error'
+                            });
+                            if(response.data.success){
+                                this.queryData(this.page);
+                            }
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            executeJob(){
+                axios
+                    .get(context+'task/executeJob')
+                    .then(response => {
+                        if(response.data){
+                            this.$message({
+                                showClose: true,
+                                message: response.data.msg,
+                                type: response.data.success?'success':'error'
+                            });
+                            if(response.data.success){
+                                this.queryData(this.page);
+                            }
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            }
+        },
+        mounted(){
+        }
+    })
+</script>
+</html>
