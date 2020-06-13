@@ -168,27 +168,30 @@
         不能设置为INHERITED或者同义词NULL。默认是DEBUG
         可以包含零个或多个元素，标识这个appender将会添加到这个logger。
     -->
-    <logger name="com.lp.framework.manage.mapper" level="debug"/>
     <!--开发环境:打印控制台-->
-<!--    <springProfile name="dev">-->
-<!--    </springProfile>-->
-    <root level="info">
-        <appender-ref ref="CONSOLE" />
-<!--        <appender-ref ref="DEBUG_FILE" />-->
-        <appender-ref ref="INFO_FILE" />
-        <appender-ref ref="WARN_FILE" />
-        <appender-ref ref="ERROR_FILE" />
-    </root>
+    <springProfile name="dev">
+        <root level="info">
+            <appender-ref ref="CONSOLE" />
+            <!--        <appender-ref ref="DEBUG_FILE" />-->
+            <appender-ref ref="INFO_FILE" />
+            <appender-ref ref="WARN_FILE" />
+            <appender-ref ref="ERROR_FILE" />
+        </root>
+        <logger name="com.lp.framework.manage.mapper" level="debug"/>
+    </springProfile>
 
     <!--生产环境:输出到文件-->
-    <!--<springProfile name="pro">-->
-    <!--<root level="info">-->
-    <!--<appender-ref ref="CONSOLE" />-->
-    <!--<appender-ref ref="DEBUG_FILE" />-->
-    <!--<appender-ref ref="INFO_FILE" />-->
-    <!--<appender-ref ref="ERROR_FILE" />-->
-    <!--<appender-ref ref="WARN_FILE" />-->
-    <!--</root>-->
-    <!--</springProfile>-->
+    <springProfile name="test">
+        <root level="info">
+            <appender-ref ref="CONSOLE" />
+            <!--        <appender-ref ref="DEBUG_FILE" />-->
+            <appender-ref ref="INFO_FILE" />
+            <appender-ref ref="WARN_FILE" />
+            <appender-ref ref="ERROR_FILE" />
+        </root>
+        <logger name="com.lp.framework.manage.mapper" level="debug">
+            <appender-ref ref="CONSOLE" />
+        </logger>
+    </springProfile>
 
 </configuration>
