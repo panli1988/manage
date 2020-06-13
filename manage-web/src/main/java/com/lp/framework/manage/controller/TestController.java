@@ -21,7 +21,6 @@ public class TestController {
     @GetMapping("/test")
     @ResponseBody
     public String test(){
-        System.out.println(schedulerFactoryBean.getClass().getName());
         return "success";
     }
 
