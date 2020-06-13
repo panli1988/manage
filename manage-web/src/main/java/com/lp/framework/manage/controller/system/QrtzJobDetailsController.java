@@ -8,11 +8,11 @@ import com.lp.framework.manage.quartz.manager.SchedulerManager;
 import com.lp.framework.manage.service.QrtzJobDetailsService;
 import com.lp.framework.manage.utils.CommonUtils;
 import com.lp.framework.manage.utils.JsonResult;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.quartz.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +27,8 @@ import java.util.*;
 @RequestMapping("/qrtzJobDetails")
 @Controller
 public class QrtzJobDetailsController {
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private QrtzJobDetailsService qrtzJobDetailsService;
@@ -151,7 +153,7 @@ public class QrtzJobDetailsController {
             jsonResult.setSuccess(true);
             jsonResult.setMsg("操作成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("新增触发器失败：",e);
             jsonResult.setSuccess(false);
             jsonResult.setMsg("操作失败");
         }

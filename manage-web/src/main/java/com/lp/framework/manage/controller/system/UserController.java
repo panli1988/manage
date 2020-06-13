@@ -2,13 +2,14 @@ package com.lp.framework.manage.controller.system;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.lp.framework.manage.model.Role;
 import com.lp.framework.manage.model.User;
 import com.lp.framework.manage.service.UserRoleService;
 import com.lp.framework.manage.service.UserService;
 import com.lp.framework.manage.utils.CommonUtils;
 import com.lp.framework.manage.utils.JsonResult;
 import com.lp.framework.manage.utils.ShiroUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,8 @@ import java.util.Map;
 @Controller
 @RequestMapping("/user")
 public class UserController {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private UserService userService;
@@ -35,6 +38,7 @@ public class UserController {
     @GetMapping("/queryPage")
     @ResponseBody
     public JsonResult queryPage(ServletRequest request){
+        logger.info("测试日志==================={}","test");
         Map<String, Object> params = CommonUtils.getParametersMap(request);
         JsonResult jsonResult = new JsonResult();
         try {
@@ -45,7 +49,7 @@ public class UserController {
             PageInfo<User> pageInfo = new PageInfo<User>(userList);
             jsonResult = new JsonResult(pageInfo);
         } catch (NumberFormatException e) {
-            e.printStackTrace();
+            logger.error("用户查询失败：",e);
             jsonResult.setSuccess(false);
             jsonResult.setMsg("查询失败");
         }
@@ -63,7 +67,7 @@ public class UserController {
             jsonResult.setSuccess(true);
             jsonResult.setMsg("操作成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("新增用户失败：",e);
             jsonResult.setSuccess(false);
             jsonResult.setMsg("操作失败");
         }
@@ -79,7 +83,7 @@ public class UserController {
             jsonResult.setSuccess(true);
             jsonResult.setMsg("操作成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("更新用户失败：",e);
             jsonResult.setSuccess(false);
             jsonResult.setMsg("操作失败");
         }
@@ -96,7 +100,7 @@ public class UserController {
             jsonResult.setSuccess(true);
             jsonResult.setMsg("操作成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("重置密码失败：",e);
             jsonResult.setSuccess(false);
             jsonResult.setMsg("操作失败");
         }
@@ -119,7 +123,7 @@ public class UserController {
             jsonResult.setSuccess(true);
             jsonResult.setMsg("操作成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("配置用户角色失败：",e);
             jsonResult.setSuccess(false);
             jsonResult.setMsg("操作失败");
         }

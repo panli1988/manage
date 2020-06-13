@@ -235,6 +235,7 @@
                 this.currentPage = this.currentPage+1;
             },
             queryData(page){
+                this.singleSelection = null;
                 var params = {};
                 params.userName = this.query.userName;
                 params.userCode = this.query.userCode;

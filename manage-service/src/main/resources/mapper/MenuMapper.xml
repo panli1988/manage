@@ -28,10 +28,6 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
     <result column="order_no" jdbcType="INTEGER" property="orderNo" />
-    <collection property="roleMenuList" javaType="com.lp.framework.manage.model.RoleMenu">
-      <result column="menu_code" property="menuCode"/>
-      <result column="role_code" property="roleCode"/>
-    </collection>
   </resultMap>
   <sql id="Base_Column_List">
     menu_id, menu_code, menu_name, p_code, icon_cls, `status`, `type`, url, authority, 
@@ -49,6 +45,7 @@
     from d_menu
     where p_code = #{pCode,jdbcType=VARCHAR}
         AND `type`&lt;&gt;'2'
+        AND `status`='1'
         order by order_no
   </select>
   <select id="selectByPage" resultMap="BaseResultMap">

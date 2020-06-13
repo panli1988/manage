@@ -227,6 +227,7 @@
                 this.currentPage = this.currentPage+1;
             },
             queryData(page){
+                this.singleSelection = null;
                 var params = {};
                 if(this.query.createDate!=''&&this.query.createDate!=null&&this.query.createDate.length>0){
                     params.createDateStart = this.query.createDate[0];
