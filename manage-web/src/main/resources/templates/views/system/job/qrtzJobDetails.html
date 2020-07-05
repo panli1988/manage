@@ -8,99 +8,107 @@
 <body>
 <div id="app">
     <div class="container-box">
-        <div style="width: 100%;padding: 10px 0px;">
+        <div style="width: 100%;padding: 5px 0px 0px 0px;">
+            <el-row :gutter="20" style="width: 100%;padding-bottom: 3px;">
+                <el-col :span="24">
+                    <el-button type="primary" size="small" @click="openAdd">新增</el-button>
+                    <el-button type="primary" size="small" @click="handQuery">查询</el-button>
+                    <el-button type="primary" size="small" @click="openTrigger">触发器</el-button>
+                    <el-button type="primary" size="small" @click="openEdit">编辑</el-button>
+                    <el-button type="primary" size="small" @click="pause">暂停</el-button>
+                    <el-button type="primary" size="small" @click="resume">重启</el-button>
+                    <el-button type="primary" size="small" @click="trigger">立即执行</el-button>
+                    <el-button type="danger" size="small" @click="handleDel">删除</el-button>
+                </el-col>
+            </el-row>
             <el-row :gutter="20" style="width: 100%;">
                 <el-col :span="5">
-                    <el-input v-model="query.jobName" size="small" placeholder="JOB名称" style="width: 200px" clearable></el-input>
+                    <el-input v-model="query.jobName" size="small" placeholder="job名称" style="width: 200px" clearable></el-input>
                 </el-col>
                 <el-col :span="5">
                     <el-input v-model="query.description" size="small" placeholder="描述" style="width: 200px" clearable></el-input>
                 </el-col>
-                <el-col :span="6">
-                    <el-button type="primary" size="small" @click="openAdd">新增</el-button>
-                    <el-button type="primary" size="small" @click="handQuery">查询</el-button>
-                    <el-button type="primary" size="small" @click="openTrigger">触发器</el-button>
-                </el-col>
             </el-row>
+            <lz-table :url="url" :head="head" :select-type="selectType" ref="lzTable"></lz-table>
         </div>
-        <el-table
-                :data="tableData"
-                stripe
-                max-height="430"
-                border
-                :cell-style="{padding:'2px'}"
-                highlight-current-row
-                header-cell-class-name="table-header"
-                @current-change="handleCurrentRowChange"
-                style="width: 100%">
-            <el-table-column label="选择" width="50">
-                <template slot-scope="scope">
-                    <el-radio v-model="singleSelection" :label="scope.row" style="padding-left: 6px;">&nbsp;</el-radio>
-                </template>
-            </el-table-column>
-            <el-table-column
-                    type="index"
-                    label="序号"
-                    width="60">
-                <template scope="scope"><span>{{scope.$index+(page.currentPage - 1) * page.pageSize + 1}} </span></template>
-            </el-table-column>
-            <el-table-column
-                    prop="jobName"
-                    label="JOB名称"
-                    width="100">
-            </el-table-column>
-            <el-table-column
-                    prop="description"
-                    label="描述"
-                    width="100">
-            </el-table-column>
-            <el-table-column
-                    prop="jobClassName"
-                    label="JOB类"
-                    width="360">
-            </el-table-column>
-            <el-table-column
-                    prop="state"
-                    label="状态"
-                    width="100"
-                    :formatter="stateFormatter">
-            </el-table-column>
-            <el-table-column
-                    fixed="right"
-                    label="操作"
-                    width="520">
-                <template slot-scope="scope">
-                    <el-button type="primary" size="small" @click="openEdit(scope.$index, scope.row)">编辑</el-button>
-                    <el-button type="danger" size="small" @click="delete(scope.row)">删除</el-button>
-                    <el-button type="primary" size="small" @click="pause(scope.row)">暂停</el-button>
-                    <el-button type="primary" size="small" @click="resume(scope.row)">重启</el-button>
-                    <el-button type="primary" size="small" @click="trigger(scope.row)">立即执行</el-button>
-                </template>
-            </el-table-column>
-        </el-table>
-        <div class="block">
-            <el-pagination
-                    @size-change="handleSizeChange"
-                    @current-change="handleCurrentChange"
-                    :current-page="page.currentPage"
-                    :page-sizes="page.pageSizes"
-                    :page-size="page.pageSize"
-                    layout="total, sizes, prev, pager, next, jumper"
-                    :total="page.total"
-                    @prev-click="prevClick"
-                    @next-click="nextClick"
-            >
-            </el-pagination>
-        </div>
+<!--            <el-table-->
+<!--                :data="tableData"-->
+<!--                stripe-->
+<!--                max-height="430"-->
+<!--                border-->
+<!--                :cell-style="{padding:'2px'}"-->
+<!--                highlight-current-row-->
+<!--                header-cell-class-name="table-header"-->
+<!--                @current-change="handleCurrentRowChange"-->
+<!--                style="width: 100%">-->
+<!--            <el-table-column label="选择" width="50">-->
+<!--                <template slot-scope="scope">-->
+<!--                    <el-radio v-model="singleSelection" :label="scope.row" style="padding-left: 6px;">&nbsp;</el-radio>-->
+<!--                </template>-->
+<!--            </el-table-column>-->
+<!--            <el-table-column-->
+<!--                    type="index"-->
+<!--                    label="序号"-->
+<!--                    width="60">-->
+<!--                <template scope="scope"><span>{{scope.$index+(page.currentPage - 1) * page.pageSize + 1}} </span></template>-->
+<!--            </el-table-column>-->
+<!--            <el-table-column-->
+<!--                    prop="jobName"-->
+<!--                    label="job名称"-->
+<!--                    width="100">-->
+<!--            </el-table-column>-->
+<!--            <el-table-column-->
+<!--                    prop="description"-->
+<!--                    label="描述"-->
+<!--                    width="100">-->
+<!--            </el-table-column>-->
+<!--            <el-table-column-->
+<!--                    prop="jobClassName"-->
+<!--                    label="job类"-->
+<!--                    width="360">-->
+<!--            </el-table-column>-->
+<!--            <el-table-column-->
+<!--                    prop="state"-->
+<!--                    label="状态"-->
+<!--                    width="100"-->
+<!--                    :formatter="stateFormatter">-->
+<!--            </el-table-column>-->
+<!--            <el-table-column-->
+<!--                    fixed="right"-->
+<!--                    label="操作"-->
+<!--                    width="520">-->
+<!--                <template slot-scope="scope">-->
+<!--                    <el-button type="primary" size="small" @click="openEdit(scope.$index, scope.row)">编辑</el-button>-->
+<!--                    <el-button type="danger" size="small" @click="delete(scope.row)">删除</el-button>-->
+<!--                    <el-button type="primary" size="small" @click="pause(scope.row)">暂停</el-button>-->
+<!--                    <el-button type="primary" size="small" @click="resume(scope.row)">重启</el-button>-->
+<!--                    <el-button type="primary" size="small" @click="trigger(scope.row)">立即执行</el-button>-->
+<!--                </template>-->
+<!--            </el-table-column>-->
+<!--        </el-table>-->
+<!--        <div class="block">-->
+<!--            <el-pagination-->
+<!--                    @size-change="handleSizeChange"-->
+<!--                    @current-change="handleCurrentChange"-->
+<!--                    :current-page="page.currentPage"-->
+<!--                    :page-sizes="page.pageSizes"-->
+<!--                    :page-size="page.pageSize"-->
+<!--                    layout="total, sizes, prev, pager, next, jumper"-->
+<!--                    :total="page.total"-->
+<!--                    @prev-click="prevClick"-->
+<!--                    @next-click="nextClick"-->
+<!--            >-->
+<!--            </el-pagination>-->
+<!--        </div>-->
         <el-dialog title="新增" :visible.sync="dialogAddFormVisible" :width="formWidth">
             <el-form :model="addForm">
-                <el-form-item label="JOB名称" :label-width="formLabelWidth">
+                <el-form-item label="job名称" :label-width="formLabelWidth">
                     <el-input v-model="addForm.jobName" size="small" autocomplete="off" style="width: 300px"></el-input>
                 </el-form-item>
                 <el-form-item label="描述" :label-width="formLabelWidth">
                     <el-input v-model="addForm.description" size="small" autocomplete="off" style="width: 300px"></el-input>
                 </el-form-item>
-                <el-form-item label="JOB类" :label-width="formLabelWidth">
+                <el-form-item label="job类" :label-width="formLabelWidth">
                     <el-input v-model="addForm.jobClassName" size="small" autocomplete="off" style="width: 300px"></el-input>
                 </el-form-item>
             </el-form>
@@ -111,13 +119,13 @@
         </el-dialog>
         <el-dialog title="编辑" :visible.sync="dialogEditFormVisible" :width="formWidth">
             <el-form :model="editForm">
-                <el-form-item label="JOB名称" :label-width="formLabelWidth">
+                <el-form-item label="job名称" :label-width="formLabelWidth">
                     <el-input v-model="editForm.jobName" size="small" autocomplete="off" style="width: 300px" readOnly="true"></el-input>
                 </el-form-item>
                 <el-form-item label="描述" :label-width="formLabelWidth">
                     <el-input v-model="editForm.description" size="small" autocomplete="off" style="width: 300px"></el-input>
                 </el-form-item>
-                <el-form-item label="JOB类" :label-width="formLabelWidth">
+                <el-form-item label="job类" :label-width="formLabelWidth">
                     <el-input v-model="editForm.jobClassName" size="small" autocomplete="off" style="width: 300px" readOnly="true"></el-input>
                 </el-form-item>
             </el-form>
@@ -253,6 +261,38 @@
         el: '#app',
         data: function() {
             return {
+                url:context+'qrtzJobDetails/queryPage',
+                head:[{
+                    prop:'jobName',
+                    label:'job名称'
+                },{
+                    prop:'description',
+                    label:'描述'
+                },{
+                    prop:'jobClassName',
+                    label:'job类'
+                },{
+                    prop:'state',
+                    label:'状态',
+                    formatter:function(row, column, cellValue, index){
+                        if("NONE"==cellValue){
+                            return "未配置";
+                        } else if("NORMAL"==cellValue){
+                            return "正常";
+                        } else if("NONE"==cellValue){
+                            return "NORMAL";
+                        } else if("PAUSED"==cellValue){
+                            return "暂停";
+                        } else if("COMPLETE"==cellValue){
+                            return "完成";
+                        } else if("ERROR"==cellValue){
+                            return "异常";
+                        } else if("BLOCKED"==cellValue){
+                            return "阻塞";
+                        }
+                    }
+                }],
+                selectType:"radio",
                 query:{
                     jobName:'',
                     description:''
@@ -262,8 +302,7 @@
                 page:{
                     currentPage: 1,
                     pageSize: 10,
-                    total: 0,
-                    pageSizes:[10, 20, 30, 50]
+                    total: 0
                 },
                 dialogAddFormVisible: false,
                 dialogEditFormVisible: false,
@@ -301,59 +340,33 @@
 
         },
         methods: {
-            handleSizeChange(val) {
-                this.page.pageSize = val;
-                this.page.currentPage = 1;
-                this.queryData(this.page);
-            },
-            handleCurrentChange(val) {
-                this.page.currentPage = val;
-                this.queryData(this.page);
-            },
-            prevClick(){
-                this.currentPage = this.currentPage-1;
-            },
-            nextClick(){
-                this.currentPage = this.currentPage+1;
-            },
-            queryData(page){
+            queryData(){
                 var params = {};
                 params.jobName = this.query.jobName;
                 params.description = this.query.description;
-                params.pageSize = page.pageSize;
-                params.pageNum = page.currentPage;
-                this.singleSelection = null;
-                axios
-                    .get(context+'qrtzJobDetails/queryPage',{
-                        params: params,
-                        headers: {
-                            'Content-Type': 'application/json '
-                        }
-                    },)
-                    .then(response => {
-                        if(response.data && response.data.success){
-                            this.tableData = response.data.list;
-                            this.page.total = response.data.total;
-                        }else{
-                            this.$message({
-                                showClose: true,
-                                message: response.data.msg,
-                                type: 'error'
-                            });
-                        }
-                    })
-                    .catch(function (error) { // 请求失败处理
-                        console.log(error);
+                this.$refs.lzTable.queryParams = params;
+                this.$refs.lzTable.queryData();
+            },
+            checkSelect(){
+                if(this.$refs.lzTable.singleSelection==null){
+                    this.$message({
+                        showClose: true,
+                        message: "请选择一条记录",
+                        type: 'warning'
                     });
+                    return;
+                }else{
+                    this.singleSelection=this.$refs.lzTable.singleSelection;
+                }
             },
             queryTriggerData(){
                 var params = {};
                 params.jobName = this.singleSelection.jobName;
                 axios
-                    .get(context+'qrtzJobDetails/queryQrtzTriggers',{
+                    .get(context+'qrtzjobDetails/queryQrtzTriggers',{
                         params: params,
                         headers: {
-                            'Content-Type': 'application/json '
+                            'Content-Type': 'joblication/json '
                         }
                     },)
                     .then(response => {
@@ -378,7 +391,7 @@
             },
             //查询
             handQuery(){
-                this.queryData(this.page);
+                this.queryData();
             },
             //打开新增
             openAdd(index, row) {
@@ -388,7 +401,7 @@
             //保存编辑
             saveAdd() {
                 this.dialogAddFormVisible = false;
-                axios.post(context+'qrtzJobDetails/insert',{
+                axios.post(context+'qrtzjobDetails/insert',{
                     jobName: this.addForm.jobName,
                     description: this.addForm.description,
                     jobClassName: this.addForm.jobClassName
@@ -400,7 +413,7 @@
                                 type: response.data.success?'success':'error'
                             });
                             if(response.data.success){
-                                this.queryData(this.page);
+                                this.queryData();
                             }
                         }
                     })
@@ -409,14 +422,15 @@
                     });
             },
             //打开编辑
-            openEdit(index, row) {
-                this.editForm = row;
+            openEdit() {
+                this.checkSelect();
+                this.editForm = this.singleSelection;
                 this.dialogEditFormVisible = true;
             },
             //保存编辑
             saveEdit() {
                 this.dialogEditFormVisible = false;
-                axios.post(context+'qrtzJobDetails/update',{
+                axios.post(context+'qrtzjobDetails/update',{
                         jobName: this.editForm.jobName,
                         description: this.editForm.description
                     })
@@ -428,7 +442,7 @@
                                 type: response.data.success?'success':'error'
                             });
                             if(response.data.success){
-                                this.queryData(this.page);
+                                this.queryData();
                             }
                         }
                     })
@@ -436,8 +450,10 @@
                         console.log(error);
                     });
             },
-            pause(row) {
-                axios.post(context+'qrtzJobDetails/pauseJob',{
+            pause() {
+                this.checkSelect();
+                var row = this.singleSelection;
+                axios.post(context+'qrtzjobDetails/pausejob',{
                         jobName: row.jobName
                     })
                     .then(response => {
@@ -448,7 +464,7 @@
                                 type: response.data.success?'success':'error'
                             });
                             if(response.data.success){
-                                this.queryData(this.page);
+                                this.queryData();
                             }
                         }
                     })
@@ -456,8 +472,10 @@
                         console.log(error);
                     });
             },
-            resume(row) {
-                axios.post(context+'qrtzJobDetails/resumeJob',{
+            resume() {
+                this.checkSelect();
+                var row = this.singleSelection;
+                axios.post(context+'qrtzjobDetails/resumejob',{
                         jobName: row.jobName
                     })
                     .then(response => {
@@ -468,7 +486,7 @@
                                 type: response.data.success?'success':'error'
                             });
                             if(response.data.success){
-                                this.queryData(this.page);
+                                this.queryData();
                             }
                         }
                     })
@@ -476,8 +494,10 @@
                         console.log(error);
                     });
             },
-            delete(row) {
-                axios.post(context+'qrtzJobDetails/deleteJob',{
+            handleDel() {
+                this.checkSelect();
+                var row = this.singleSelection;
+                axios.post(context+'qrtzjobDetails/deletejob',{
                         jobName: row.jobName
                     })
                     .then(response => {
@@ -488,7 +508,7 @@
                                 type: response.data.success?'success':'error'
                             });
                             if(response.data.success){
-                                this.queryData(this.page);
+                                this.queryData();
                             }
                         }
                     })
@@ -496,8 +516,10 @@
                         console.log(error);
                     });
             },
-            trigger(row) {
-                axios.post(context+'qrtzJobDetails/triggerJob',{
+            trigger() {
+                this.checkSelect();
+                var row = this.singleSelection;
+                axios.post(context+'qrtzjobDetails/triggerjob',{
                         jobName: row.jobName
                     })
                     .then(response => {
@@ -508,7 +530,7 @@
                                 type: response.data.success?'success':'error'
                             });
                             if(response.data.success){
-                                this.queryData(this.page);
+                                this.queryData();
                             }
                         }
                     })
@@ -517,21 +539,15 @@
                     });
             },
             openTrigger(){
-                if(this.singleSelection==null){
-                    this.$message({
-                        showClose: true,
-                        message: "请选择一条记录",
-                        type: 'warning'
-                    });
-                    return;
-                }
+                this.checkSelect();
+                var row = this.singleSelection;
                 this.dialogTriggerVisible = true;
                 this.triggerTableData = [];
                 this.queryTriggerData();
 
             },
             //打开新增
-            openTriggerAdd(index, row) {
+            openTriggerAdd() {
                 this.addTrigger = {};
                 this.dialogAddTriggerVisible = true;
             },
@@ -543,7 +559,7 @@
                 this.cronVisible = false;
             },
             saveAddTrigger() {
-                axios.post(context+'qrtzJobDetails/insertTrigger',{
+                axios.post(context+'qrtzjobDetails/insertTrigger',{
                     triggerName: this.addTrigger.triggerName,
                     description: this.addTrigger.description,
                     cronExpress: this.addTrigger.cronExpress,
@@ -567,7 +583,7 @@
                     });
             },
             deleteTrigger(){
-                axios.post(context+'qrtzJobDetails/deleteTrigger',{
+                axios.post(context+'qrtzjobDetails/deleteTrigger',{
                         triggerName: this.singleTriggerSelection.triggerName
                     })
                     .then(response => {
@@ -585,27 +601,10 @@
                     .catch(function (error) { // 请求失败处理
                         console.log(error);
                     });
-            },
-            stateFormatter(row, column, cellValue, index){
-                if("NONE"==cellValue){
-                    return "未配置";
-                } else if("NORMAL"==cellValue){
-                    return "正常";
-                } else if("NONE"==cellValue){
-                    return "NORMAL";
-                } else if("PAUSED"==cellValue){
-                    return "暂停";
-                } else if("COMPLETE"==cellValue){
-                    return "完成";
-                } else if("ERROR"==cellValue){
-                    return "异常";
-                } else if("BLOCKED"==cellValue){
-                    return "阻塞";
-                }
-            },
+            }
         },
         mounted(){
-            this.queryData(this.page)
+            this.queryData()
         }
     })
 </script>
