@@ -8,8 +8,17 @@
 <body>
 <div id="app">
     <div class="container-box">
-        <div style="width: 100%;padding: 10px 0px;">
-            <el-row :gutter="20" style="width: 100%;">
+        <div style="width: 100%;padding: 5px 0px 0px 0px;">
+            <el-row :gutter="20" style="width: 100%;padding-bottom: 3px;">
+                <el-col :span="24">
+                    <el-button type="primary" size="small" @click="handQuery">查询</el-button>
+                    <el-button type="primary" size="small" @click="openAdd">新增</el-button>
+                    <el-button type="primary" size="small" @click="openEdit">编辑</el-button>
+                    <el-button type="primary" size="small" @click="openMenu">配置菜单</el-button>
+                    <el-button type="danger" size="small" @click="handleDel">删除</el-button>
+                </el-col>
+            </el-row>
+            <el-row :gutter="20" style="width: 100%;padding-bottom: 3px;">
                 <el-col :span="5">
                     <el-input v-model="query.roleCode" size="small" placeholder="角色编码" style="width: 200px" clearable></el-input>
                 </el-col>
@@ -31,73 +40,65 @@
                     </el-date-picker>
                 </el-col>
                 <el-col :span="6">
-                    <el-button type="primary" size="small" @click="openMenu">配置菜单</el-button>
-                    <el-button type="primary" size="small" @click="openAdd">新增</el-button>
-                    <el-button type="primary" size="small" @click="handQuery">查询</el-button>
                 </el-col>
             </el-row>
+            <lz-table :url="url" :head="head" :select-type="selectType" ref="lzTable"></lz-table>
         </div>
-        <el-table
-                :data="tableData"
-                stripe
-                max-height="430"
-                border
-                :cell-style="{padding:'2px'}"
-                highlight-current-row
-                header-cell-class-name="table-header"
-                @current-change="handleCurrentRowChange"
-                style="width: 100%">
-            <el-table-column label="选择" width="50">
-                <template slot-scope="scope">
-                    <el-radio v-model="singleSelection" :label="scope.row" style="padding-left: 6px;">&nbsp;</el-radio>
-                </template>
-            </el-table-column>
-            <el-table-column
-                    type="index"
-                    label="序号"
-                    width="60">
-                <template scope="scope"><span>{{scope.$index+(page.currentPage - 1) * page.pageSize + 1}} </span></template>
-            </el-table-column>
-            <el-table-column
-                    prop="roleCode"
-                    label="角色编码"
-                    width="100">
-            </el-table-column>
-            <el-table-column
-                    prop="roleName"
-                    label="角色名称">
-            </el-table-column>
-            <el-table-column
-                    prop="remark"
-                    label="备注">
-            </el-table-column>
-            <el-table-column
-                    prop="createTime"
-                    label="创建时间">
-            </el-table-column>
-            <el-table-column
-                    fixed="right"
-                    label="操作">
-                <template slot-scope="scope">
-                    <el-button type="primary" size="small" @click="openEdit(scope.$index, scope.row)">编辑</el-button>
-                    <el-button type="danger" size="small" @click="handleDel(scope.$index, scope.row)">删除</el-button>
-                </template>
-            </el-table-column>
-        </el-table>
-        <div class="block">
-            <el-pagination
-                    @size-change="handleSizeChange"
-                    @current-change="handleCurrentChange"
-                    :current-page="page.currentPage"
-                    :page-sizes="page.pageSizes"
-                    :page-size="page.pageSize"
-                    layout="total, sizes, prev, pager, next, jumper"
-                    :total="page.total"
-                    @prev-click="prevClick"
-                    @next-click="nextClick"
-            >
-            </el-pagination>
-        </div>
+<!--        <el-table-->
+<!--                :data="tableData"-->
+<!--                stripe-->
+<!--                max-height="430"-->
+<!--                border-->
+<!--                :cell-style="{padding:'2px'}"-->
+<!--                highlight-current-row-->
+<!--                header-cell-class-name="table-header"-->
+<!--                @current-change="handleCurrentRowChange"-->
+<!--                style="width: 100%">-->
+<!--            <el-table-column label="选择" width="50">-->
+<!--                <template slot-scope="scope">-->
+<!--                    <el-radio v-model="singleSelection" :label="scope.row" style="padding-left: 6px;">&nbsp;</el-radio>-->
+<!--                </template>-->
+<!--            </el-table-column>-->
+<!--            <el-table-column-->
+<!--                    type="index"-->
+<!--                    label="序号"-->
+<!--                    width="60">-->
+<!--                <template scope="scope"><span>{{scope.$index+(page.currentPage - 1) * page.pageSize + 1}} </span></template>-->
+<!--            </el-table-column>-->
+<!--            <el-table-column-->
+<!--                    prop="roleCode"-->
+<!--                    label="角色编码"-->
+<!--                    width="100">-->
+<!--            </el-table-column>-->
+<!--            <el-table-column-->
+<!--                    prop="roleName"-->
+<!--                    label="角色名称">-->
+<!--            </el-table-column>-->
+<!--            <el-table-column-->
+<!--                    prop="remark"-->
+<!--                    label="备注">-->
+<!--            </el-table-column>-->
+<!--            <el-table-column-->
+<!--                    prop="createTime"-->
+<!--                    label="创建时间">-->
+<!--            </el-table-column>-->
+<!--        </el-table>-->
+<!--        <div class="block">-->
+<!--            <el-pagination-->
+<!--                    @size-change="handleSizeChange"-->
+<!--                    @current-change="handleCurrentChange"-->
+<!--                    :current-page="page.currentPage"-->
+<!--                    :page-sizes="page.pageSizes"-->
+<!--                    :page-size="page.pageSize"-->
+<!--                    layout="total, sizes, prev, pager, next, jumper"-->
+<!--                    :total="page.total"-->
+<!--                    @prev-click="prevClick"-->
+<!--                    @next-click="nextClick"-->
+<!--            >-->
+<!--            </el-pagination>-->
+<!--        </div>-->
+
+
         <el-dialog title="新增" :visible.sync="dialogAddFormVisible" :width="formWidth">
             <el-form :model="addForm">
                 <el-form-item label="角色编码" :label-width="formLabelWidth">
@@ -162,6 +163,21 @@
         el: '#app',
         data: function() {
             return {
+                url:context+'role/queryPage',
+                head:[{
+                    prop:'roleCode',
+                    label:'角色编码'
+                },{
+                    prop:'roleName',
+                    label:'角色名称'
+                },{
+                    prop:'remark',
+                    label:'备注'
+                },{
+                    prop:'createTime',
+                    label:'创建时间'
+                }],
+                selectType:"radio",
                 query:{
                     roleCode:'',
                     roleName:'',
@@ -171,8 +187,7 @@
                 page:{
                     currentPage: 1,
                     pageSize: 10,
-                    total: 0,
-                    pageSizes:[10, 20, 30, 50]
+                    total: 0
                 },
                 dialogAddFormVisible: false,
                 dialogEditFormVisible: false,
@@ -211,22 +226,7 @@
 
         },
         methods: {
-            handleSizeChange(val) {
-                this.page.pageSize = val;
-                this.page.currentPage = 1;
-                this.queryData(this.page);
-            },
-            handleCurrentChange(val) {
-                this.page.currentPage = val;
-                this.queryData(this.page);
-            },
-            prevClick(){
-                this.currentPage = this.currentPage-1;
-            },
-            nextClick(){
-                this.currentPage = this.currentPage+1;
-            },
-            queryData(page){
+            queryData(){
                 this.singleSelection = null;
                 var params = {};
                 if(this.query.createDate!=''&&this.query.createDate!=null&&this.query.createDate.length>0){
@@ -235,27 +235,20 @@
                 }
                 params.roleName = this.query.roleName;
                 params.roleCode = this.query.roleCode;
-                params.pageSize = page.pageSize;
-                params.pageNum = page.currentPage;
-                axios
-                    .get(context+'role/queryPage',{
-                        params: params
-                    })
-                    .then(response => {
-                        if(response.data && response.data.success){
-                            this.tableData = response.data.list;
-                            this.total = response.data.total;
-                        }else{
-                            this.$message({
-                                showClose: true,
-                                message: response.data.msg,
-                                type: 'error'
-                            });
-                        }
-                    })
-                    .catch(function (error) { // 请求失败处理
-                        console.log(error);
+                this.$refs.lzTable.queryParams = params;
+                this.$refs.lzTable.queryData();
+            },
+            checkSelect(){
+                if(this.$refs.lzTable.singleSelection==null){
+                    this.$message({
+                        showClose: true,
+                        message: "请选择一条记录",
+                        type: 'warning'
                     });
+                    return;
+                }else{
+                    this.singleSelection=this.$refs.lzTable.singleSelection;
+                }
             },
             //行变化
             handleCurrentRowChange(currentRow, oldCurrentRow) {
@@ -264,17 +257,16 @@
             },
             //查询
             handQuery(){
-                this.queryData(this.page);
+                this.queryData();
             },
             //打开新增
             openAdd(index, row) {
                 this.addForm = {};
                 this.dialogAddFormVisible = true;
             },
-            //保存编辑
+            //保存
             saveAdd() {
                 this.dialogAddFormVisible = false;
-                var that = this;
                 axios.post(context+'role/insert',{
                     roleCode: this.addForm.roleCode,
                     roleName: this.addForm.roleName,
@@ -296,8 +288,9 @@
                     });
             },
             //打开编辑
-            openEdit(index, row) {
-                this.editForm = row;
+            openEdit() {
+                this.checkSelect();
+                this.editForm = this.singleSelection;
                 this.dialogEditFormVisible = true;
             },
             //保存编辑
@@ -329,7 +322,9 @@
             handleClick(row) {
                 console.log(row);
             },
-            handleDel(index, row){
+            handleDel(){
+                this.checkSelect();
+                var row = this.singleSelection;
                 axios.get(context+'role/deleteById',{
                         params: {
                             roleId: row.roleId,
@@ -352,14 +347,7 @@
                     });
             },
             openMenu(row, column, event){
-                if(this.singleSelection==null){
-                    this.$message({
-                        showClose: true,
-                        message: "请选择一条记录",
-                        type: 'warning'
-                    });
-                    return;
-                }
+                this.checkSelect();
                 this.dialogMenuVisible = true;
                 this.loadMenuData();
             },
@@ -450,7 +438,7 @@
             }
         },
         mounted(){
-            this.queryData(this.page)
+            this.queryData();
         }
     })
 </script>

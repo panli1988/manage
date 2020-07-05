@@ -8,7 +8,17 @@
 <body>
 <div id="app">
     <div class="container-box">
-        <div style="width: 100%;padding: 10px 0px;">
+        <div style="width: 100%;padding: 5px 0px 0px 0px;">
+            <el-row :gutter="20" style="width: 100%;padding-bottom: 3px;">
+                <el-col :span="24">
+                    <el-button type="primary" size="small" @click="openAdd">新增</el-button>
+                    <el-button type="primary" size="small" @click="openRole">配置角色</el-button>
+                    <el-button type="primary" size="small" @click="handQuery">查询</el-button>
+                    <el-button type="primary" size="small" @click="openEdit">编辑</el-button>
+                    <el-button type="primary" size="small" @click="openReset">重置密码</el-button>
+                    <el-button type="danger" size="small" @click="handleDel">删除</el-button>
+                </el-col>
+            </el-row>
             <el-row :gutter="20" style="width: 100%;">
                 <el-col :span="5">
                     <el-input v-model="query.userCode" size="small" placeholder="用户编码" style="width: 200px" clearable></el-input>
@@ -16,71 +26,67 @@
                 <el-col :span="5">
                     <el-input v-model="query.userName" size="small" placeholder="用户名称" style="width: 200px" clearable></el-input>
                 </el-col>
-                <el-col :span="6">
-                    <el-button type="primary" size="small" @click="openAdd">新增</el-button>
-                    <el-button type="primary" size="small" @click="openRole">配置角色</el-button>
-                    <el-button type="primary" size="small" @click="handQuery">查询</el-button>
-                </el-col>
             </el-row>
+            <lz-table :url="url" :head="head" :select-type="selectType" ref="lzTable"></lz-table>
         </div>
-        <el-table
-                :data="tableData"
-                stripe
-                max-height="430"
-                border
-                :cell-style="{padding:'2px'}"
-                highlight-current-row
-                header-cell-class-name="table-header"
-                @current-change="handleCurrentRowChange"
-                style="width: 100%">
-            <el-table-column label="选择" width="50">
-                <template slot-scope="scope">
-                    <el-radio v-model="singleSelection" :label="scope.row" style="padding-left: 6px;">&nbsp;</el-radio>
-                </template>
-            </el-table-column>
-            <el-table-column
-                    type="index"
-                    label="序号"
-                    width="60">
-                <template scope="scope"><span>{{scope.$index+(page.currentPage - 1) * page.pageSize + 1}} </span></template>
-            </el-table-column>
-            <el-table-column
-                    prop="userCode"
-                    label="用户编码">
-            </el-table-column>
-            <el-table-column
-                    prop="userName"
-                    label="用户名称">
-            </el-table-column>
-            <el-table-column
-                    prop="status"
-                    label="状态"
-                    :formatter="statusFormatter">
-            </el-table-column>
-            <el-table-column
-                    fixed="right"
-                    label="操作">
-                <template slot-scope="scope">
-                    <el-button type="primary" size="small" @click="openEdit(scope.$index, scope.row)">编辑</el-button>
-                    <el-button type="primary" size="small" @click="openReset(scope.$index, scope.row)">重置密码</el-button>
-                    <el-button type="danger" size="small" @click="handleDel(scope.$index, scope.row)">删除</el-button>
-                </template>
-            </el-table-column>
-        </el-table>
-        <div class="block">
-            <el-pagination
-                    @size-change="handleSizeChange"
-                    @current-change="handleCurrentChange"
-                    :current-page="page.currentPage"
-                    :page-sizes="page.pageSizes"
-                    :page-size="page.pageSize"
-                    layout="total, sizes, prev, pager, next, jumper"
-                    :total="page.total"
-                    @prev-click="prevClick"
-                    @next-click="nextClick"
-            >
-            </el-pagination>
-        </div>
+<!--        <el-table-->
+<!--                :data="tableData"-->
+<!--                stripe-->
+<!--                max-height="430"-->
+<!--                border-->
+<!--                :cell-style="{padding:'2px'}"-->
+<!--                highlight-current-row-->
+<!--                header-cell-class-name="table-header"-->
+<!--                @current-change="handleCurrentRowChange"-->
+<!--                style="width: 100%">-->
+<!--            <el-table-column label="选择" width="50">-->
+<!--                <template slot-scope="scope">-->
+<!--                    <el-radio v-model="singleSelection" :label="scope.row" style="padding-left: 6px;">&nbsp;</el-radio>-->
+<!--                </template>-->
+<!--            </el-table-column>-->
+<!--            <el-table-column-->
+<!--                    type="index"-->
+<!--                    label="序号"-->
+<!--                    width="60">-->
+<!--                <template scope="scope"><span>{{scope.$index+(page.currentPage - 1) * page.pageSize + 1}} </span></template>-->
+<!--            </el-table-column>-->
+<!--            <el-table-column-->
+<!--                    prop="userCode"-->
+<!--                    label="用户编码">-->
+<!--            </el-table-column>-->
+<!--            <el-table-column-->
+<!--                    prop="userName"-->
+<!--                    label="用户名称">-->
+<!--            </el-table-column>-->
+<!--            <el-table-column-->
+<!--                    prop="status"-->
+<!--                    label="状态"-->
+<!--                    :formatter="statusFormatter">-->
+<!--            </el-table-column>-->
+<!--            <el-table-column-->
+<!--                    fixed="right"-->
+<!--                    label="操作">-->
+<!--                <template slot-scope="scope">-->
+<!--                    <el-button type="primary" size="small" @click="openEdit(scope.$index, scope.row)">编辑</el-button>-->
+<!--                    <el-button type="primary" size="small" @click="openReset(scope.$index, scope.row)">重置密码</el-button>-->
+<!--                    <el-button type="danger" size="small" @click="handleDel(scope.$index, scope.row)">删除</el-button>-->
+<!--                </template>-->
+<!--            </el-table-column>-->
+<!--        </el-table>-->
+<!--        <div class="block">-->
+<!--            <el-pagination-->
+<!--                    @size-change="handleSizeChange"-->
+<!--                    @current-change="handleCurrentChange"-->
+<!--                    :current-page="page.currentPage"-->
+<!--                    :page-sizes="page.pageSizes"-->
+<!--                    :page-size="page.pageSize"-->
+<!--                    layout="total, sizes, prev, pager, next, jumper"-->
+<!--                    :total="page.total"-->
+<!--                    @prev-click="prevClick"-->
+<!--                    @next-click="nextClick"-->
+<!--            >-->
+<!--            </el-pagination>-->
+<!--        </div>-->
         <el-dialog title="新增" :visible.sync="dialogAddFormVisible" :width="formWidth">
             <el-form :model="addForm">
                 <el-form-item label="用户编码" :label-width="formLabelWidth">
@@ -160,6 +166,36 @@
         el: '#app',
         data: function() {
             return {
+                url:context+'user/queryPage',
+                head:[{
+                    prop:'userCode',
+                    label:'用户编码'
+                },{
+                    prop:'userName',
+                    label:'用户名称'
+                },{
+                    prop:'status',
+                    label:'状态',
+                    formatter:function(row, column, cellValue, index){
+                                if("1"==cellValue){
+                                    return "启用";
+                                }else{
+                                    return "停用";
+                                }
+                            }
+                }],
+                selectType:"radio",
+                query:{
+                    roleCode:'',
+                    roleName:'',
+                    createDate:''
+                },
+                tableData:[],
+                page:{
+                    currentPage: 1,
+                    pageSize: 10,
+                    total: 0
+                },
                 query:{
                     menuCode:'',
                     menuName:''
@@ -168,8 +204,7 @@
                 page:{
                     currentPage: 1,
                     pageSize: 10,
-                    total: 0,
-                    pageSizes:[10, 20, 30, 50]
+                    total: 0
                 },
                 dialogAddFormVisible: false,
                 dialogEditFormVisible: false,
@@ -219,56 +254,33 @@
 
         },
         methods: {
-            handleSizeChange(val) {
-                this.page.pageSize = val;
-                this.page.currentPage = 1;
-                this.queryData(this.page);
-            },
-            handleCurrentChange(val) {
-                this.page.currentPage = val;
-                this.queryData(this.page);
-            },
-            prevClick(){
-                this.currentPage = this.currentPage-1;
-            },
-            nextClick(){
-                this.currentPage = this.currentPage+1;
-            },
-            queryData(page){
+            queryData(){
                 this.singleSelection = null;
                 var params = {};
                 params.userName = this.query.userName;
                 params.userCode = this.query.userCode;
-                params.pageSize = page.pageSize;
-                params.pageNum = page.currentPage;
-                axios
-                    .get(context+'user/queryPage',{
-                        params: params
-                    })
-                    .then(response => {
-                        if(response.data && response.data.success){
-                            this.tableData = response.data.list;
-                            this.total = response.data.total;
-                        }else{
-                            this.$message({
-                                showClose: true,
-                                message: response.data.msg,
-                                type: 'error'
-                            });
-                        }
-                    })
-                    .catch(function (error) { // 请求失败处理
-                        console.log(error);
+                this.$refs.lzTable.queryParams = params;
+                this.$refs.lzTable.queryData();
+            },
+            checkSelect(){
+                if(this.$refs.lzTable.singleSelection==null){
+                    this.$message({
+                        showClose: true,
+                        message: "请选择一条记录",
+                        type: 'warning'
                     });
+                    return;
+                }else{
+                    this.singleSelection=this.$refs.lzTable.singleSelection;
+                }
             },
             //行变化
             handleCurrentRowChange(currentRow, oldCurrentRow) {
                 this.currentRow = currentRow;
-                //this.tableRadio = currentRow.roleId;
             },
             //查询
             handQuery(){
-                this.queryData(this.page);
+                this.queryData();
             },
             //打开新增
             openAdd(index, row) {
@@ -307,13 +319,13 @@
             },
             //打开编辑
             openEdit(index, row) {
-                this.editForm = row;
+                this.checkSelect();
+                this.editForm = this.singleSelection;
                 this.dialogEditFormVisible = true;
             },
             //保存编辑
             saveEdit() {
                 this.dialogEditFormVisible = false;
-                var that = this;
                 axios.post(context+'user/update',{
                         userId: this.editForm.userId,
                         userCode: this.editForm.userCode,
@@ -333,14 +345,12 @@
                         }
                     })
                     .catch(function (error) { // 请求失败处理
-                        that.$message({
-                            showClose: true,
-                            message: "操作失败",
-                            type: 'error'
-                        });
+                        console.log(error);
                     });
             },
-            openReset(index, row) {
+            openReset() {
+                this.checkSelect();
+                var row = this.singleSelection;
                 this.resetForm = {
                     userId:row.userId,
                     userCode:row.userCode
@@ -371,7 +381,8 @@
                         console.log(error);
                     });
             },
-            openRole(index, row) {
+            openRole() {
+                this.checkSelect();
                 if(this.singleSelection==null){
                     this.$message({
                         showClose: true,
@@ -450,6 +461,8 @@
                 console.log(row);
             },
             handleDel(index, row){
+                this.checkSelect();
+                var row = this.singleSelection;
                 axios.get(context+'role/deleteById',{
                         params: {
                             roleId: row.roleId,
@@ -470,17 +483,10 @@
                     .catch(function (error) { // 请求失败处理
                         console.log(error);
                     });
-            },
-            statusFormatter(row, column, cellValue, index){
-                if("1"==cellValue){
-                    return "启用";
-                }else{
-                    return "停用";
-                }
             }
         },
         mounted(){
-            this.queryData(this.page)
+            this.queryData();
         }
     })
 </script>
