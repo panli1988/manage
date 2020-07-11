@@ -19,6 +19,12 @@
 <th:block th:replace="common/common_footer::footer">
 </th:block>
 </body>
+<script th:inline="javascript">
+    var access = [[${accsess}]];
+    if(true==access){
+        window.parent.showModal(true,location);
+    }
+</script>
 <script>
     new Vue({
         el: '#app',
