@@ -18,7 +18,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/menu")
-public class MenuController {
+public class MenuController extends BaseController{
 
     @Autowired
     private MenuService menuService;
@@ -46,7 +46,7 @@ public class MenuController {
             PageInfo<Menu> pageInfo = new PageInfo<Menu>(menuList);
             jsonResult = new JsonResult(pageInfo);
         } catch (NumberFormatException e) {
-            e.printStackTrace();
+            logger.error("菜单查询失败",e);
             jsonResult.setSuccess(false);
             jsonResult.setMsg("查询失败");
         }
@@ -58,7 +58,7 @@ public class MenuController {
     public List<Menu> queryByPCode(String pCode){
         Map<String,Object> params = new HashMap<>();
         params.put("pCode",pCode);
-        params.put("type","2");
+        //params.put("type","2");
         return menuService.selectMenusByPCode(params);
     }
 
@@ -71,7 +71,7 @@ public class MenuController {
             jsonResult.setSuccess(true);
             jsonResult.setMsg("操作成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("新增菜单失败",e);
             jsonResult.setSuccess(false);
             jsonResult.setMsg("操作失败");
         }
@@ -87,7 +87,7 @@ public class MenuController {
             jsonResult.setSuccess(true);
             jsonResult.setMsg("操作成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("更新菜单失败",e);
             jsonResult.setSuccess(false);
             jsonResult.setMsg("操作失败");
         }
@@ -111,7 +111,7 @@ public class MenuController {
             jsonResult.setSuccess(true);
             jsonResult.setMsg("删除成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("删除菜单失败",e);
             jsonResult.setSuccess(false);
             jsonResult.setMsg("删除失败");
         }

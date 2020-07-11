@@ -26,9 +26,7 @@ import java.util.*;
 
 @RequestMapping("/qrtzJobDetails")
 @Controller
-public class QrtzJobDetailsController {
-
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+public class QrtzJobDetailsController extends BaseController{
 
     @Autowired
     private QrtzJobDetailsService qrtzJobDetailsService;
@@ -68,7 +66,7 @@ public class QrtzJobDetailsController {
             }
             jsonResult = new JsonResult(pageInfo);
         } catch (NumberFormatException | SchedulerException e) {
-            e.printStackTrace();
+            logger.error("job查询失败",e);
             jsonResult.setSuccess(false);
             jsonResult.setMsg("查询失败");
         }
@@ -85,7 +83,7 @@ public class QrtzJobDetailsController {
             jsonResult.setSuccess(true);
             jsonResult.setMsg("操作成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("新增JOB失败",e);
             jsonResult.setSuccess(false);
             jsonResult.setMsg("操作失败");
         }
@@ -104,7 +102,7 @@ public class QrtzJobDetailsController {
             jsonResult.setSuccess(true);
             jsonResult.setMsg("操作成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("更新JOB失败",e);
             jsonResult.setSuccess(false);
             jsonResult.setMsg("操作失败");
         }
@@ -128,6 +126,7 @@ public class QrtzJobDetailsController {
             jsonResult.setSuccess(true);
             jsonResult.setList(list);
         } catch (SchedulerException e) {
+            logger.error("触发器查询失败",e);
             jsonResult.setSuccess(false);
             jsonResult.setMsg("查询失败");
         }
@@ -171,7 +170,7 @@ public class QrtzJobDetailsController {
             jsonResult.setSuccess(true);
             jsonResult.setMsg("操作成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("暂停JOB失败",e);
             jsonResult.setSuccess(false);
             jsonResult.setMsg("操作失败");
         }
@@ -189,7 +188,7 @@ public class QrtzJobDetailsController {
             jsonResult.setSuccess(true);
             jsonResult.setMsg("操作成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("重启JOB失败",e);
             jsonResult.setSuccess(false);
             jsonResult.setMsg("操作失败");
         }
@@ -208,7 +207,7 @@ public class QrtzJobDetailsController {
             jsonResult.setSuccess(true);
             jsonResult.setMsg("操作成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("删除JOB失败",e);
             jsonResult.setSuccess(false);
             jsonResult.setMsg("操作失败");
         }
@@ -226,7 +225,7 @@ public class QrtzJobDetailsController {
             jsonResult.setSuccess(true);
             jsonResult.setMsg("操作成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("执行JOB失败",e);
             jsonResult.setSuccess(false);
             jsonResult.setMsg("操作失败");
         }
@@ -244,7 +243,7 @@ public class QrtzJobDetailsController {
             jsonResult.setSuccess(true);
             jsonResult.setMsg("操作成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("删除触发器失败",e);
             jsonResult.setSuccess(false);
             jsonResult.setMsg("操作失败");
         }

@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-public class IndexController {
+public class IndexController extends BaseController{
 
     @Autowired
     private MenuService menuService;
@@ -66,7 +66,6 @@ public class IndexController {
         Subject currentUser = SecurityUtils.getSubject();
         User user = userService.selectByUserCode(username);
         if(null==user) {
-            //throw new UnknownAccountException("用户不存在");
             model.addFlashAttribute("msg","用户名或密码错误");
             return "redirect:/toLogin";
         }
@@ -75,7 +74,7 @@ public class IndexController {
                 UsernamePasswordToken token = new UsernamePasswordToken(username, password);
                 currentUser.login(token);
             } catch (AuthenticationException e) {
-                //e.printStackTrace();
+                logger.error("登录失败",e);
                 model.addFlashAttribute("msg","用户名或密码错误");
                 return "redirect:/toLogin";
             }
@@ -103,6 +102,7 @@ public class IndexController {
                 UsernamePasswordToken token = new UsernamePasswordToken(username, password);
                 currentUser.login(token);
             } catch (AuthenticationException e) {
+                logger.error("登录失败",e);
                 json.setSuccess(false);
                 json.setMsg("用户名或密码错误");
                 return json;
@@ -126,8 +126,4 @@ public class IndexController {
         return menuService.selectUserMenusByPCode(params);
     }
 
-    @GetMapping("/icons")
-    public String icons(){
-        return "common/icons";
-    }
 }

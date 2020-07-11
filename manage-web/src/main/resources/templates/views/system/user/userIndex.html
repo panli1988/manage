@@ -192,8 +192,8 @@
                 }],
                 selectType:"radio",
                 query:{
-                    roleCode:'',
-                    roleName:'',
+                    userCode:'',
+                    userName:'',
                     createDate:''
                 },
                 tableData:[],
@@ -203,8 +203,8 @@
                     total: 0
                 },
                 query:{
-                    menuCode:'',
-                    menuName:''
+                    userCode:'',
+                    userName:''
                 },
                 tableData:[],
                 page:{
@@ -469,9 +469,9 @@
             handleDel(index, row){
                 this.checkSelect();
                 var row = this.singleSelection;
-                axios.get(context+'role/deleteById',{
+                axios.get(context+'user/deleteById',{
                         params: {
-                            roleId: row.roleId,
+                            userId: row.userId,
                         }
                     })
                     .then(response => {

@@ -20,9 +20,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/user")
-public class UserController {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+public class UserController extends BaseController{
 
     @Autowired
     private UserService userService;
@@ -126,6 +124,23 @@ public class UserController {
             logger.error("配置用户角色失败：",e);
             jsonResult.setSuccess(false);
             jsonResult.setMsg("操作失败");
+        }
+        return jsonResult;
+    }
+
+    @GetMapping("/deleteById")
+    @ResponseBody
+    public JsonResult deleteById(Integer userId){
+        JsonResult jsonResult = new JsonResult();
+        try {
+            //TODO 用户角色待处理
+            userService.deleteByPrimaryKey(userId);
+            jsonResult.setSuccess(true);
+            jsonResult.setMsg("删除成功");
+        } catch (Exception e) {
+            logger.error("删除角色失败",e);
+            jsonResult.setSuccess(false);
+            jsonResult.setMsg("删除失败");
         }
         return jsonResult;
     }

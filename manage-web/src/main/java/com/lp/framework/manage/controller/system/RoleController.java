@@ -19,7 +19,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/role")
-public class RoleController {
+public class RoleController extends BaseController{
 
     @Autowired
     private RoleService roleService;
@@ -46,7 +46,7 @@ public class RoleController {
             PageInfo<Role> pageInfo = new PageInfo<Role>(roleList);
             jsonResult = new JsonResult(pageInfo);
         } catch (NumberFormatException e) {
-            e.printStackTrace();
+            logger.error("角色查询失败",e);
             jsonResult.setSuccess(false);
             jsonResult.setMsg("查询失败");
         }
@@ -62,7 +62,7 @@ public class RoleController {
             jsonResult.setSuccess(true);
             jsonResult.setMsg("操作成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("新增角色失败",e);
             jsonResult.setSuccess(false);
             jsonResult.setMsg("操作失败");
         }
@@ -78,7 +78,7 @@ public class RoleController {
             jsonResult.setSuccess(true);
             jsonResult.setMsg("操作成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("更新角色失败",e);
             jsonResult.setSuccess(false);
             jsonResult.setMsg("操作失败");
         }
@@ -90,11 +90,12 @@ public class RoleController {
     public JsonResult deleteById(Integer roleId){
         JsonResult jsonResult = new JsonResult();
         try {
+            //TODO 角色菜单 用户角色待处理
             roleService.deleteByPrimaryKey(roleId);
             jsonResult.setSuccess(true);
             jsonResult.setMsg("删除成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("删除角色失败",e);
             jsonResult.setSuccess(false);
             jsonResult.setMsg("删除失败");
         }
@@ -127,7 +128,7 @@ public class RoleController {
             jsonResult.setSuccess(true);
             jsonResult.setMsg("操作成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("角色配置菜单失败",e);
             jsonResult.setSuccess(false);
             jsonResult.setMsg("操作失败");
         }
