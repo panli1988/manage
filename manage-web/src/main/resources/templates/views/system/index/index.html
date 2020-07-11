@@ -121,6 +121,35 @@
         <div class="content-box" :class="{'content-collapse':collapse}">
             <lz-tabs :tabs="tabList" :active="active" @update-tabs="updateTabs" @update-active="updateActive" ref="tabs"></lz-tabs>
         </div>
+        <div class="v-modal2" :style="{'display':(modalDisplay?'block':'none')}">
+            <div class="login-wrap2">
+                <div class="ms-login2" style="z-index: 2005;">
+                    <div class="ms-title">后台管理系统</div>
+                    <el-form :model="param" label-width="0px" class="ms-content">
+                        <el-form-item prop="username">
+                            <el-input v-model="param.username" placeholder="username" name="username">
+                                <el-button slot="prepend" icon="el-icon-user"></el-button>
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item prop="password">
+                            <el-input
+                                    type="password"
+                                    placeholder="password"
+                                    v-model="param.password"
+                                    name = "password"
+                            >
+                                <el-button slot="prepend" icon="el-icon-unlock"></el-button>
+                            </el-input>
+                        </el-form-item>
+                        <div class="login-btn">
+                            <el-button type="primary" @click="login">登录</el-button>
+                        </div>
+                        <p class="login-tips">Tips : 用户名和密码随便填。</p>
+                        <span v-if="show" th:text="${msg}" style="color: red;"></span>
+                    </el-form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 </body>
@@ -133,6 +162,7 @@
     var context = [[@{/}]];
 </script>
 <script>
+    var subLocation;
     const bus = new Vue();
     const vHead = {
         template: "#head",
@@ -224,7 +254,6 @@
                 }
             },
             handClick(item) {
-                console.info(item);
                 this.$emit("add-tab",item);
             },
             setActive(active){
@@ -259,7 +288,15 @@
                     name:'首页',
                     url:context+"main"
                 }],
-                active:'first1'
+                active:'first1',
+                dialogLoginFormVisible: false,
+                msg:'',
+                show:false,
+                param: {
+                    username: '',
+                    password: '',
+                },
+                modalDisplay:false
             }
         },
         components:{
@@ -294,9 +331,21 @@
                     allowClose:true
                 });
             },
-            aa(){
-                console.log(this.$refs.tabs)
-            }
+            login() {
+                axios.post(context+'loginAjax',{
+                    username: this.param.username,
+                    password: this.param.password
+                })
+                .then(response => {
+                        if(response.data.success){
+                            modalDisplay(false);
+                            subLocation.href=subLocation.href;
+                        }
+                    })
+                 .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
         },
         created() {
             this.initItems();
@@ -305,6 +354,14 @@
             });
         }
     });
+
+    function showModal(val,l){
+        subLocation = l;
+        vm.modalDisplay = val;
+    }
+    function modalDisplay(val){
+        vm.modalDisplay = val;
+    }
 
 </script>
 </html>

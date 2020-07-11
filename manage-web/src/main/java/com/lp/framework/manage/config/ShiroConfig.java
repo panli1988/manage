@@ -52,6 +52,7 @@ public class ShiroConfig {
 		chainDefinition.put("/public/**", "anon");
 		//登录不校验
 		chainDefinition.put("/login", "anon");
+		chainDefinition.put("/loginAjax", "anon");
 		chainDefinition.put("/actuator/**", "anon");
 		//登出
 		chainDefinition.put("/logout", "logout");
@@ -61,7 +62,7 @@ public class ShiroConfig {
 		// 当 用户身份失效时重定向到 loginUrl
 		shiroFilter.setLoginUrl("/toLogin");
 		// 用户登录后默认重定向请求
-		shiroFilter.setSuccessUrl("/index");
+		shiroFilter.setSuccessUrl("/indexMain");
 		return shiroFilter;
 	}
 

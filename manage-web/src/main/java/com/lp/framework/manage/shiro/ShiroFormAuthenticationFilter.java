@@ -5,12 +5,14 @@ import com.lp.framework.manage.utils.JsonResult;
 import org.apache.catalina.connector.RequestFacade;
 import org.apache.shiro.web.filter.authc.FormAuthenticationFilter;
 import org.apache.shiro.web.servlet.ShiroHttpServletRequest;
+import org.apache.shiro.web.util.WebUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Enumeration;
 
 public class ShiroFormAuthenticationFilter extends FormAuthenticationFilter {
@@ -30,14 +32,12 @@ public class ShiroFormAuthenticationFilter extends FormAuthenticationFilter {
                 if (log.isTraceEnabled()) {
                     log.trace("Login page view.");
                 }
-
                 return true;
             }
         } else {
             if (log.isTraceEnabled()) {
                 log.trace("Attempting to access a path which requires authentication.  Forwarding to the Authentication url [" + this.getLoginUrl() + "]");
             }
-
             if(isJson(request)){
                 response.setCharacterEncoding("utf-8");
                 JsonResult jsonResult = new JsonResult();
@@ -45,22 +45,32 @@ public class ShiroFormAuthenticationFilter extends FormAuthenticationFilter {
                 jsonResult.setMsg("登录超时，请重新登录！");
                 response.getWriter().print(JSONObject.toJSONString(jsonResult));
             }else{
-                this.saveRequestAndRedirectToLogin(request, response);
+                if(isSuccessRequest(request,response)){
+                    this.saveRequestAndRedirectToLogin(request, response);
+                    return false;
+                }
+                String authc = request.getParameter("authc");
+                if("false".equals(authc)){
+                    request.setAttribute("accsess",true);
+                    return true;
+                }
             }
-
             return false;
         }
     }
 
     private boolean isJson(ServletRequest request){
+        HttpServletRequest httpServletRequest = WebUtils.toHttp(request);
+        String accept = httpServletRequest.getHeader("accept");
         String contentType = request.getContentType();
-        ShiroHttpServletRequest shiroHttpServletRequest = (ShiroHttpServletRequest) request;
-        RequestFacade requestFacade = (RequestFacade) shiroHttpServletRequest.getRequest();
-        String accept = requestFacade.getHeader("accept");
         if((contentType!=null&&contentType.contains("application/json"))||(accept!=null&&accept.contains("application/json"))){
             return true;
         }else{
             return false;
         }
+    }
+
+    protected boolean isSuccessRequest(ServletRequest request, ServletResponse response) {
+        return this.pathsMatch(this.getSuccessUrl(), request);
     }
 }

@@ -5,6 +5,7 @@ import com.lp.framework.manage.model.User;
 import com.lp.framework.manage.service.MenuService;
 import com.lp.framework.manage.service.UserService;
 import com.lp.framework.manage.utils.CommonUtils;
+import com.lp.framework.manage.utils.JsonResult;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -12,6 +13,7 @@ import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
@@ -32,7 +34,7 @@ public class IndexController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/index")
+    @GetMapping("/indexMain")
     public String index(){
         return "system/index/index";
     }
@@ -77,7 +79,37 @@ public class IndexController {
         }
         HttpSession session = request.getSession();
         session.setAttribute("name",user.getUserName());
-        return "redirect:/index";
+        return "redirect:/indexMain";
+    }
+
+    @RequestMapping("/loginAjax")
+    @ResponseBody
+    public JsonResult loginAjax(HttpServletRequest request,@RequestBody Map<String,Object> params) {
+        String username = (String) params.get("username");
+        String password = (String) params.get("password");
+        Subject currentUser = SecurityUtils.getSubject();
+        User user = userService.selectByUserCode(username);
+        JsonResult json = new JsonResult();
+        if(null==user) {
+            json.setSuccess(false);
+            json.setMsg("用户名或密码错误");
+            return json;
+        }
+        if(!currentUser.isAuthenticated()) {
+            try {
+                UsernamePasswordToken token = new UsernamePasswordToken(username, password);
+                currentUser.login(token);
+            } catch (AuthenticationException e) {
+                json.setSuccess(false);
+                json.setMsg("用户名或密码错误");
+                return json;
+            }
+        }
+        json.setSuccess(true);
+        json.setMsg("登录成功");
+        HttpSession session = request.getSession();
+        session.setAttribute("name",user.getUserName());
+        return json;
     }
 
     @GetMapping("/getMenus")
