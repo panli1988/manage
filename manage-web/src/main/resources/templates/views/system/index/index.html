@@ -22,6 +22,9 @@
             height: 100%;
             overflow: auto;
         }
+        [v-cloak]{
+            display: none;
+        }
     </style>
     <template type="x-template" id="head">
         <div class="header">
@@ -114,14 +117,15 @@
     </template>
 </head>
 <body>
-<div id="app">
+<div id="app" v-cloak>
     <div class="wrapper">
         <v-head></v-head>
         <v-sidebar ref="sidebar" @add-tab="addTab"></v-sidebar>
         <div class="content-box" :class="{'content-collapse':collapse}">
             <lz-tabs :tabs="tabList" :active="active" @update-tabs="updateTabs" @update-active="updateActive" ref="tabs"></lz-tabs>
         </div>
-        <div class="v-modal2" :style="{'display':(modalDisplay?'block':'none')}">
+<!--        <div class="v-modal2" :style="{'display':(modalDisplay?'block':'none')}">-->
+        <div class="v-modal2" v-if="modalDisplay">
             <div class="login-wrap2">
                 <div class="ms-login2" style="z-index: 2005;">
                     <div class="ms-title">后台管理系统</div>

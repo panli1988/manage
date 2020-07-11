@@ -444,7 +444,9 @@
             }
         },
         mounted(){
-            //this.queryData();
+            if(!access){
+                this.queryData();
+            }
         }
     })
 </script>
