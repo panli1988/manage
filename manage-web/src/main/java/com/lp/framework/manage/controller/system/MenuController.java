@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.ServletRequest;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -55,7 +56,10 @@ public class MenuController {
     @GetMapping("/queryByPCode")
     @ResponseBody
     public List<Menu> queryByPCode(String pCode){
-        return menuService.selectMenusByPCode(pCode);
+        Map<String,Object> params = new HashMap<>();
+        params.put("pCode",pCode);
+        params.put("type","2");
+        return menuService.selectMenusByPCode(params);
     }
 
     @PostMapping("/insert")
@@ -93,9 +97,11 @@ public class MenuController {
     @GetMapping("/deleteById")
     @ResponseBody
     public JsonResult deleteById(Integer menuId,String pCode){
+        Map<String,Object> params = new HashMap<>();
+        params.put("pCode",pCode);
         JsonResult jsonResult = new JsonResult();
         try {
-            List<Menu> menus = menuService.selectMenusByPCode(pCode);
+            List<Menu> menus = menuService.selectMenusByPCode(params);
             if(menus!=null&&!menus.isEmpty()){
                 jsonResult.setSuccess(false);
                 jsonResult.setMsg("存在子级，请先删除子级");

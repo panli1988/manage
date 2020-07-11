@@ -18,7 +18,7 @@ public interface MenuMapper {
 
     int updateByPrimaryKey(Menu record);
 
-    List<Menu> selectMenusByPCode(String pCode);
+    List<Menu> selectMenusByPCode(Map<String,Object> params);
 
     List<Menu> selectByPage(Map<String,Object> params);
 

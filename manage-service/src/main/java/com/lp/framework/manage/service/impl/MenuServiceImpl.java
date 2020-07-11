@@ -47,12 +47,14 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
-    public List<Menu> selectMenusByPCode(String pCode) {
+    public List<Menu> selectMenusByPCode(Map<String,Object> params) {
         List<Menu> returnList = new ArrayList<Menu>();
-        List<Menu> menuList = menuMapper.selectMenusByPCode(pCode);
+        List<Menu> menuList = menuMapper.selectMenusByPCode(params);
         for (Menu menu : menuList) {
             //采用递归
-            menu.setMenus(this.selectMenusByPCode(menu.getMenuCode()).size()>0?this.selectMenusByPCode(menu.getMenuCode()):null);
+            params.put("pCode", menu.getMenuCode());
+            List<Menu> menus = this.selectMenusByPCode(params);
+            menu.setMenus(menus.size()>0?menus:null);
             returnList.add(menu);
         }
         return returnList;
