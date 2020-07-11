@@ -53,4 +53,9 @@ public class UserRoleServiceImpl implements UserRoleService {
             userRoleMapper.deleteUserRole(userRole);
         }
     }
+
+    @Override
+    public List<String> selectRoles(Map<String, Object> params) {
+        return userRoleMapper.selectRoles(params);
+    }
 }

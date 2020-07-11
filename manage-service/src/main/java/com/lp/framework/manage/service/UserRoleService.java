@@ -16,4 +16,6 @@ public interface UserRoleService {
     List<Map<String,Object>> selectUserRoles(Map<String,Object> params);
 
     void updateUserRoles(Map<String, Object> params);
+
+    List<String> selectRoles(Map<String,Object> params);
 }

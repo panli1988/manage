@@ -10,6 +10,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.web.session.HttpServletSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,8 +21,10 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -115,7 +118,12 @@ public class IndexController {
     @GetMapping("/getMenus")
     @ResponseBody
     public List<Menu> getMenus(String pCode){
-        return menuService.selectMenusByPCode(pCode);
+        Subject subject = SecurityUtils.getSubject();
+        Object principal = subject.getPrincipal();
+        Map<String,Object> params = new HashMap<>();
+        params.put("pCode",pCode);
+        params.put("userCode",principal);
+        return menuService.selectUserMenusByPCode(params);
     }
 
     @GetMapping("/icons")

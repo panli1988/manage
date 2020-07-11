@@ -16,4 +16,6 @@ public interface RoleMenuMapper {
     void deleteRoleMenu(Map<String,Object> params);
 
     void insertRoleMenu(Map<String,Object> params);
+
+    List<String> selectUserMenus(Map<String,Object> params);
 }

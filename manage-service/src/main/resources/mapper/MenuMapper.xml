@@ -48,6 +48,32 @@
         AND `status`='1'
         order by order_no
   </select>
+  <select id="selectUserMenusByPCode" resultMap="BaseResultMap">
+    SELECT
+        m.menu_id,
+        m.menu_code,
+        m.menu_name,
+        m.p_code,
+        m.icon_cls,
+        m.`status`,
+        m.`type`,
+        m.url,
+        m.authority,
+        m.create_time,
+        m.update_time,
+        m.order_no
+    FROM
+        d_menu m,
+        d_role_menu rm,
+        d_user_role ur
+    WHERE
+        m.menu_code = rm.menu_code
+        AND rm.role_code = ur.role_code
+        AND ur.user_code = #{userCode,jdbcType=VARCHAR}
+        AND m.type in ('0','1')
+        AND m.`status`='1'
+        AND m.p_code = #{pCode,jdbcType=VARCHAR}
+  </select>
   <select id="selectByPage" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />

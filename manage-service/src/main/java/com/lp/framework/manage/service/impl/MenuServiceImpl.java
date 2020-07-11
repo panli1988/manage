@@ -62,4 +62,18 @@ public class MenuServiceImpl implements MenuService {
     public List<Menu> selectByPage(Map<String,Object> params) {
         return menuMapper.selectByPage(params);
     }
+
+    @Override
+    public List<Menu> selectUserMenusByPCode(Map<String, Object> params) {
+        List<Menu> returnList = new ArrayList<Menu>();
+        List<Menu> menuList = menuMapper.selectUserMenusByPCode(params);
+        for (Menu menu : menuList) {
+            //采用递归
+            params.put("pCode",menu.getMenuCode());
+            List<Menu> menus = this.selectUserMenusByPCode(params);
+            menu.setMenus(menus.size()>0?menus:null);
+            returnList.add(menu);
+        }
+        return returnList;
+    }
 }

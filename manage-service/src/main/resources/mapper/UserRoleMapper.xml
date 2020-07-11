@@ -46,4 +46,14 @@
             LEFT JOIN d_user_role ur ON r.role_code = ur.role_code
             AND ur.user_code = #{userCode,jdbcType=VARCHAR}
     </select>
+    <select id="selectRoles" resultType="string">
+        SELECT
+            r.role_code AS "roleCode"
+        FROM
+            d_role r,
+            d_user_role ur
+        WHERE
+            r.role_code = ur.role_code
+            AND ur.user_code = #{userCode,jdbcType=VARCHAR}
+    </select>
 </mapper>

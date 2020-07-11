@@ -22,4 +22,6 @@ public interface MenuService {
     List<Menu> selectMenusByPCode(String pCode);
 
     List<Menu> selectByPage(Map<String,Object> params);
+
+    List<Menu> selectUserMenusByPCode(Map<String,Object> params);
 }

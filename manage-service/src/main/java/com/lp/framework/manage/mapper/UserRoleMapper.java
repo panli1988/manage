@@ -14,4 +14,6 @@ public interface UserRoleMapper {
     int deleteUserRole(UserRole record);
 
     List<Map<String,Object>> selectUserRoles(Map<String,Object> params);
+
+    List<String> selectRoles(Map<String,Object> params);
 }

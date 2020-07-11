@@ -59,4 +59,9 @@ public class RoleMenuServiceImpl implements RoleMenuService {
             this.deleteRoleMenu(map);
         }
     }
+
+    @Override
+    public List<String> selectUserMenus(Map<String, Object> params) {
+        return roleMenuMapper.selectUserMenus(params);
+    }
 }

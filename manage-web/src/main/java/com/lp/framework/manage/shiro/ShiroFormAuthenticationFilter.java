@@ -3,6 +3,10 @@ package com.lp.framework.manage.shiro;
 import com.alibaba.fastjson.JSONObject;
 import com.lp.framework.manage.utils.JsonResult;
 import org.apache.catalina.connector.RequestFacade;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.subject.SimplePrincipalCollection;
+import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.authc.FormAuthenticationFilter;
 import org.apache.shiro.web.servlet.ShiroHttpServletRequest;
 import org.apache.shiro.web.util.WebUtils;
@@ -57,6 +61,15 @@ public class ShiroFormAuthenticationFilter extends FormAuthenticationFilter {
             }
             return false;
         }
+    }
+
+    @Override
+    protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
+        Subject subject = SecurityUtils.getSubject();
+        if(subject.hasRole("admin")){
+            return true;
+        }
+        return super.isAccessAllowed(request, response, mappedValue);
     }
 
     private boolean isJson(ServletRequest request){

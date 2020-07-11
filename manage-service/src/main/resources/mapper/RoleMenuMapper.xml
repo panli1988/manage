@@ -65,4 +65,17 @@
             role_code = #{roleCode,jdbcType=VARCHAR}
             AND menu_code = #{menuCode,jdbcType=VARCHAR}
     </delete>
+
+    <select id="selectUserMenus" resultType="string">
+            SELECT
+                m.menu_code AS "menuCode"
+                FROM
+                d_menu m,
+                d_role_menu rm,
+                d_user_role ur
+            WHERE
+                m.menu_code = rm.menu_code
+                AND rm.role_code = ur.role_code
+                AND ur.user_code = #{userCode,jdbcType=VARCHAR}
+    </select>
 </mapper>

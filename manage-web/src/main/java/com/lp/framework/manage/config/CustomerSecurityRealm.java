@@ -3,6 +3,8 @@ package com.lp.framework.manage.config;
 import com.lp.framework.manage.model.Authority;
 import com.lp.framework.manage.model.User;
 import com.lp.framework.manage.service.AuthorityService;
+import com.lp.framework.manage.service.RoleMenuService;
+import com.lp.framework.manage.service.UserRoleService;
 import com.lp.framework.manage.service.UserService;
 import com.lp.framework.manage.utils.ByteSourceUtils;
 import org.apache.shiro.SecurityUtils;
@@ -16,10 +18,7 @@ import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class CustomerSecurityRealm extends AuthorizingRealm implements Serializable {
 
@@ -29,25 +28,26 @@ public class CustomerSecurityRealm extends AuthorizingRealm implements Serializa
 
 	@Autowired
 	private UserService userSerive;
-	
-//	@Autowired
-//	private IJdbcService jdbcServiceImpl;
 
+	@Autowired
+	private UserRoleService userRoleService;
+
+	@Autowired
+	private RoleMenuService roleMenuService;
+	
 	@Override
 	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
 		//1. 从 PrincipalCollection 中来获取登录用户的信息
 		Object principal = principals.getPrimaryPrincipal();
-		
 
 		Set<String> permissions = new HashSet<>();
 		Set<String> roles = new HashSet<String>();
-		System.out.println(principals);
-		
-		List<Authority> authorityList = authorityService.selectByPage(new HashMap<>());
-		for (Authority authority : authorityList) {
-			permissions.add(authority.getAuthorityName());
-		}
-		roles.add("user");
+		Map<String,Object> params = new HashMap<>();
+		params.put("userCode",principal);
+		List<String> userRoles = userRoleService.selectRoles(params);
+		roles.addAll(userRoles);
+		List<String> userMenus = roleMenuService.selectUserMenus(params);
+		permissions.addAll(userMenus);
 		SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
 		info.setStringPermissions(permissions);
 		info.setRoles(roles);
