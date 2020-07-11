@@ -124,7 +124,6 @@
         <div class="content-box" :class="{'content-collapse':collapse}">
             <lz-tabs :tabs="tabList" :active="active" @update-tabs="updateTabs" @update-active="updateActive" ref="tabs"></lz-tabs>
         </div>
-<!--        <div class="v-modal2" :style="{'display':(modalDisplay?'block':'none')}">-->
         <div class="v-modal2" v-if="modalDisplay">
             <div class="login-wrap2">
                 <div class="ms-login2" style="z-index: 2005;">
