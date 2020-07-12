@@ -73,12 +73,14 @@
             </el-table-column>
             <el-table-column
                     prop="pCode"
-                    label="上级菜单">
+                    label="上级菜单"
+                    width="180">
             </el-table-column>
             <el-table-column
                     prop="type"
                     label="类型"
-                    :formatter="typeFormatter">
+                    :formatter="typeFormatter"
+                    width="180">
             </el-table-column>
             <el-table-column
                     prop="url"
@@ -388,9 +390,16 @@
                     .then(response => {
                         var arr = [];
                         if(response.data){
+                            // for(var i=0;i<response.data.length;i++){
+                            //     var obj = response.data[i];
+                            //     if(obj.type=="0"){
+                            //         obj.hasChildren = true;
+                            //     }
+                            //     arr.push(obj);
+                            // }
                             for(var i=0;i<response.data.length;i++){
                                 var obj = response.data[i];
-                                if(obj.type=="0"){
+                                if(obj.menus && obj.menus.length>0){
                                     obj.hasChildren = true;
                                 }
                                 arr.push(obj);
@@ -421,7 +430,7 @@
                         if(response.data && response.data.success){
                             for(var i=0;i<response.data.list.length;i++){
                                 var obj = response.data.list[i];
-                                if(obj.type=="0"){
+                                if(obj.menus && obj.menus.length>0){
                                     obj.hasChildren = true;
                                 }
                                 arr.push(obj);
@@ -461,6 +470,7 @@
                     url: this.addForm.url,
                     pCode: this.addForm.pCode,
                     type: this.addForm.type,
+                    authority: this.addForm.authority,
                     orderNo: this.addForm.orderNo
                 }).then(response => {
                     if(response.data && response.data.success){
@@ -497,6 +507,7 @@
                     url: this.editForm.url,
                     pCode: this.editForm.pCode,
                     type: this.editForm.type,
+                    authority: this.editForm.authority,
                     orderNo: this.editForm.orderNo
                 }).then(response => {
                         if(response.data && response.data.success){

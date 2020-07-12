@@ -45,6 +45,13 @@
     from d_menu
     where menu_code = #{menuCode,jdbcType=INTEGER}
   </select>
+  <select id="selectUserMenus" resultType="string">
+    select
+      authority AS "authority"
+    from d_menu
+    where type='2'
+        and status = '1'
+  </select>
   <select id="selectMenusByPCode" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />

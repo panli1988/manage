@@ -2,10 +2,7 @@ package com.lp.framework.manage.config;
 
 import com.lp.framework.manage.model.Authority;
 import com.lp.framework.manage.model.User;
-import com.lp.framework.manage.service.AuthorityService;
-import com.lp.framework.manage.service.RoleMenuService;
-import com.lp.framework.manage.service.UserRoleService;
-import com.lp.framework.manage.service.UserService;
+import com.lp.framework.manage.service.*;
 import com.lp.framework.manage.utils.ByteSourceUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
@@ -23,8 +20,9 @@ import java.util.*;
 public class CustomerSecurityRealm extends AuthorizingRealm implements Serializable {
 
 	private static final long serialVersionUID = 3437294411962320359L;
+
 	@Autowired
-	private AuthorityService authorityService;
+	private MenuService menuService;
 
 	@Autowired
 	private UserService userSerive;
@@ -39,15 +37,20 @@ public class CustomerSecurityRealm extends AuthorizingRealm implements Serializa
 	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
 		//1. 从 PrincipalCollection 中来获取登录用户的信息
 		Object principal = principals.getPrimaryPrincipal();
-
+		String userCode = (String) principal;
 		Set<String> permissions = new HashSet<>();
 		Set<String> roles = new HashSet<String>();
 		Map<String,Object> params = new HashMap<>();
-		params.put("userCode",principal);
+		params.put("userCode",userCode);
 		List<String> userRoles = userRoleService.selectRoles(params);
 		roles.addAll(userRoles);
-		List<String> userMenus = roleMenuService.selectUserMenus(params);
-		permissions.addAll(userMenus);
+		List<String> authoritys = new ArrayList<>();
+		if(roles.contains("admin")|| "admin".equals(userCode)){
+			authoritys = menuService.selectUserMenus();
+		}else{
+			authoritys = roleMenuService.selectUserMenus(params);
+		}
+		permissions.addAll(authoritys);
 		SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
 		info.setStringPermissions(permissions);
 		info.setRoles(roles);

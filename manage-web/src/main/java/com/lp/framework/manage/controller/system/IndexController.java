@@ -120,8 +120,14 @@ public class IndexController extends BaseController{
     public List<Menu> getMenus(String pCode){
         Subject subject = SecurityUtils.getSubject();
         Object principal = subject.getPrincipal();
+        String userCode = (String) principal;
         Map<String,Object> params = new HashMap<>();
         params.put("pCode",pCode);
+        if(subject.hasRole("admin") || "admin".equals(userCode)){
+            params.put("status","1");
+            params.put("type","2");
+            return menuService.selectMenusByPCode(params);
+        }
         params.put("userCode",principal);
         return menuService.selectUserMenusByPCode(params);
     }

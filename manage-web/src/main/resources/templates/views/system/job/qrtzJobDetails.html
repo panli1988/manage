@@ -11,14 +11,14 @@
         <div style="width: 100%;padding: 5px 0px 0px 0px;">
             <el-row :gutter="20" style="width: 100%;padding-bottom: 3px;">
                 <el-col :span="24">
-                    <el-button type="primary" size="small" @click="openAdd">新增</el-button>
-                    <el-button type="primary" size="small" @click="handQuery">查询</el-button>
-                    <el-button type="primary" size="small" @click="openTrigger">触发器</el-button>
-                    <el-button type="primary" size="small" @click="openEdit">编辑</el-button>
-                    <el-button type="primary" size="small" @click="pause">暂停</el-button>
-                    <el-button type="primary" size="small" @click="resume">重启</el-button>
-                    <el-button type="primary" size="small" @click="trigger">立即执行</el-button>
-                    <el-button type="danger" size="small" @click="handleDel">删除</el-button>
+                    <el-button shiro:hasPermission="job:query" type="primary" size="small" @click="handQuery">查询</el-button>
+                    <el-button shiro:hasPermission="job:add" type="primary" size="small" @click="openAdd">新增</el-button>
+                    <el-button shiro:hasPermission="job:trigger" type="primary" size="small" @click="openTrigger">触发器</el-button>
+                    <el-button shiro:hasPermission="job:edit" type="primary" size="small" @click="openEdit">编辑</el-button>
+                    <el-button shiro:hasPermission="job:pause" type="primary" size="small" @click="pause">暂停</el-button>
+                    <el-button shiro:hasPermission="job:resume" type="primary" size="small" @click="resume">恢复</el-button>
+                    <el-button shiro:hasPermission="job:execute" type="primary" size="small" @click="trigger">立即执行</el-button>
+                    <el-button shiro:hasPermission="job:delete" type="danger" size="small" @click="handleDel">删除</el-button>
                 </el-col>
             </el-row>
             <el-row :gutter="20" style="width: 100%;">

@@ -22,4 +22,7 @@ public interface RoleMenuService {
     List<String> selectUserMenus(Map<String,Object> params);
 
     RoleMenu selectRoleMenuByMenuCode(String menuCode);
+
+    List<Map<String,Object>> selectMenusTreeByPCode(Map<String,Object> params);
+
 }

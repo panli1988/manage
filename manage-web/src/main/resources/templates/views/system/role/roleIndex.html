@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.thymeleaf.org/thymeleaf-extras-shiro">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
@@ -8,14 +9,15 @@
 <body>
 <div id="app">
     <div class="container-box">
+        <a shiro:hasPermission="role:query1" >您有查询用户的权限</a>
         <div style="width: 100%;padding: 5px 0px 0px 0px;">
             <el-row :gutter="20" style="width: 100%;padding-bottom: 3px;">
                 <el-col :span="24">
-                    <el-button type="primary" size="small" @click="handQuery">查询</el-button>
-                    <el-button type="primary" size="small" @click="openAdd">新增</el-button>
-                    <el-button type="primary" size="small" @click="openEdit">编辑</el-button>
-                    <el-button type="primary" size="small" @click="openMenu">配置菜单</el-button>
-                    <el-button type="danger" size="small" @click="handleDel">删除</el-button>
+                    <el-button shiro:hasPermission="role:query" type="primary" size="small" @click="handQuery">查询</el-button>
+                    <el-button shiro:hasPermission="role:add" type="primary" size="small" @click="openAdd">新增</el-button>
+                    <el-button shiro:hasPermission="role:edit" type="primary" size="small" @click="openEdit">编辑</el-button>
+                    <el-button shiro:hasPermission="role:roleMenu" type="primary" size="small" @click="openMenu">配置菜单</el-button>
+                    <el-button shiro:hasPermission="role:delete" type="danger" size="small" @click="handleDel">删除</el-button>
                 </el-col>
             </el-row>
             <el-row :gutter="20" style="width: 100%;padding-bottom: 3px;">
@@ -362,6 +364,8 @@
                 axios.get(context+'role/getRoleMenus?pCode=m_00&roleCode='+this.singleSelection.roleCode).then(response => {
                         this.treeData = response.data;
                         this.getMenus(response.data);
+                        console.log(this.originCheckedkeys);
+                        console.log(this.checkedkeys);
                     })
                     .catch(function (error) { // 请求失败处理
                         console.log(error);
@@ -373,23 +377,34 @@
                     if(dd.roleCode!=undefined && dd.roleCode!='' && dd.roleCode!=null){
                         this.originCheckedkeys.push(dd.menuCode);
                         if(dd.menus && dd.menus.length>0){
-                            var flag = true;
-                            for(var y=0;y<dd.menus.length;y++){
-                                if(dd.menus[y].roleCode==undefined || dd.menus[y].roleCode=='' || dd.menus[y].roleCode==null){
-                                    flag = false;
-                                    break;
-                                }
-                            }
+                            // var flag = true;
+                            // for(var y=0;y<dd.menus.length;y++){
+                            //     if(dd.menus[y].roleCode==undefined || dd.menus[y].roleCode=='' || dd.menus[y].roleCode==null){
+                            //         flag = false;
+                            //         break;
+                            //     }
+                            // }
+                            var flag = this.checkAllFlag(dd.menus);
                             if(flag){
                                 this.checkedkeys.push(dd.menuCode);
                             }
                         }else{
-                            this.originCheckedkeys.push(dd.menuCode);
+                            //this.originCheckedkeys.push(dd.menuCode);
                             this.checkedkeys.push(dd.menuCode);
                         }
                     }
                     if(dd.menus && dd.menus.length>0){
                         this.getMenus(dd.menus);
+                    }
+                }
+            },
+            checkAllFlag(menu){
+                var menus = menu.menus;
+                for(var k=0;k<menus;k++){
+                    if(menus[k].roleCode==undefined || menus[y].roleCode=='' || menus[y].roleCode==null){
+                        return false;
+                    }else{
+                        return this.checkAllFlag(menus[k]);
                     }
                 }
             },

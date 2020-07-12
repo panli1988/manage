@@ -48,6 +48,11 @@ public class MenuController extends BaseController{
                 params.put("pCode","m_00");
             }
             List<Menu> menuList = menuService.selectByPage(params);
+            for(Menu menu:menuList){
+                Map<String,Object> map = new HashMap<>();
+                map.put("pCode",menu.getMenuCode());
+                menu.setMenus(menuService.selectMenusByPCode(map));
+            }
             PageInfo<Menu> pageInfo = new PageInfo<Menu>(menuList);
             jsonResult = new JsonResult(pageInfo);
         } catch (NumberFormatException e) {

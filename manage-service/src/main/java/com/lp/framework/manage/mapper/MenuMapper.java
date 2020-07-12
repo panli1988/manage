@@ -28,5 +28,7 @@ public interface MenuMapper {
 
     Menu selectByMenuCode(String menuCode);
 
+    List<String> selectUserMenus();
+
 
 }

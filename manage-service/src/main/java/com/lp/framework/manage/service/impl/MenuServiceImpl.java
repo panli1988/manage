@@ -88,4 +88,9 @@ public class MenuServiceImpl implements MenuService {
     public Menu selectByMenuCode(String menuCode) {
         return menuMapper.selectByMenuCode(menuCode);
     }
+
+    @Override
+    public List<String> selectUserMenus() {
+        return menuMapper.selectUserMenus();
+    }
 }

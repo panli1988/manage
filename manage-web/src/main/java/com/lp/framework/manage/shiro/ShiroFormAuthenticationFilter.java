@@ -66,7 +66,9 @@ public class ShiroFormAuthenticationFilter extends FormAuthenticationFilter {
     @Override
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
         Subject subject = SecurityUtils.getSubject();
-        if(subject.hasRole("admin")){
+        Object principal = subject.getPrincipal();
+        String userCode = (String) principal;
+        if(subject.hasRole("admin") || "admin".equals(principal)){
             return true;
         }
         return super.isAccessAllowed(request, response, mappedValue);

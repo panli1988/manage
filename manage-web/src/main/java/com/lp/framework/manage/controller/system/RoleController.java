@@ -122,16 +122,17 @@ public class RoleController extends BaseController{
     @ResponseBody
     public List<Map<String,Object>> getRoleMenus(ServletRequest request){
         Map<String, Object> params = CommonUtils.getParametersMap(request);
-        List<Map<String,Object>> returnList = new ArrayList<>();
-        List<Map<String, Object>> menuList = roleMenuService.selectMenusByPCode(params);
-        for(Map<String,Object> map:menuList){
-            params.put("pCode",map.get("menuCode"));
-            List<Map<String, Object>> list = roleMenuService.selectMenusByPCode(params);
-            if(ObjectUtils.isNotEmpty(list)){
-                map.put("menus",list);
-            }
-            returnList.add(map);
-        }
+//        List<Map<String,Object>> returnList = new ArrayList<>();
+//        List<Map<String, Object>> menuList = roleMenuService.selectMenusByPCode(params);
+//        for(Map<String,Object> map:menuList){
+//            params.put("pCode",map.get("menuCode"));
+//            List<Map<String, Object>> list = roleMenuService.selectMenusByPCode(params);
+//            if(ObjectUtils.isNotEmpty(list)){
+//                map.put("menus",list);
+//            }
+//            returnList.add(map);
+//        }
+        List<Map<String,Object>> returnList = roleMenuService.selectMenusTreeByPCode(params);
         return returnList;
     }
 

@@ -28,4 +28,6 @@ public interface MenuService {
     int deleteByMenuCode(String menuCode);
 
     Menu selectByMenuCode(String menuCode);
+
+    List<String> selectUserMenus();
 }

@@ -11,12 +11,12 @@
         <div style="width: 100%;padding: 5px 0px 0px 0px;">
             <el-row :gutter="20" style="width: 100%;padding-bottom: 3px;">
                 <el-col :span="24">
-                    <el-button type="primary" size="small" @click="openAdd">新增</el-button>
-                    <el-button type="primary" size="small" @click="openRole">配置角色</el-button>
-                    <el-button type="primary" size="small" @click="handQuery">查询</el-button>
-                    <el-button type="primary" size="small" @click="openEdit">编辑</el-button>
-                    <el-button type="primary" size="small" @click="openReset">重置密码</el-button>
-                    <el-button type="danger" size="small" @click="handleDel">删除</el-button>
+                    <el-button shiro:hasPermission="user:query" type="primary" size="small" @click="handQuery">查询</el-button>
+                    <el-button shiro:hasPermission="user:add" type="primary" size="small" @click="openAdd">新增</el-button>
+                    <el-button shiro:hasPermission="user:userRole" type="primary" size="small" @click="openRole">配置角色</el-button>
+                    <el-button shiro:hasPermission="user:edit" type="primary" size="small" @click="openEdit">编辑</el-button>
+                    <el-button shiro:hasPermission="user:reset" type="primary" size="small" @click="openReset">重置密码</el-button>
+                    <el-button shiro:hasPermission="user:delete" type="danger" size="small" @click="handleDel">删除</el-button>
                 </el-col>
             </el-row>
             <el-row :gutter="20" style="width: 100%;">

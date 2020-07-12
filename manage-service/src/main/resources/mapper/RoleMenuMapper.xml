@@ -84,7 +84,7 @@
 
     <select id="selectUserMenus" resultType="string">
             SELECT
-                m.menu_code AS "menuCode"
+                m.authority AS "authority"
                 FROM
                 d_menu m,
                 d_role_menu rm,
@@ -92,6 +92,10 @@
             WHERE
                 m.menu_code = rm.menu_code
                 AND rm.role_code = ur.role_code
-                AND ur.user_code = #{userCode,jdbcType=VARCHAR}
+                AND m.type='2'
+                AND m.status='1'
+                <if test="userCode != null">
+                    AND ur.user_code = #{userCode,jdbcType=VARCHAR}
+                </if>
     </select>
 </mapper>
