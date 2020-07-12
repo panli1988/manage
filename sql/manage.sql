@@ -11,7 +11,7 @@
  Target Server Version : 50729
  File Encoding         : 65001
 
- Date: 13/06/2020 22:13:46
+ Date: 12/07/2020 22:26:56
 */
 
 SET NAMES utf8mb4;
@@ -62,14 +62,13 @@ CREATE TABLE `d_menu`  (
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   `order_no` int(8) NULL DEFAULT NULL COMMENT '序号',
   PRIMARY KEY (`menu_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 66 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 88 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of d_menu
 -- ----------------------------
 INSERT INTO `d_menu` VALUES (2, 'm_02', '系统管理', 'm_00', 'el-icon-setting', '1', '0', NULL, NULL, '2020-04-19 11:29:28', '2020-05-23 21:23:03', 2);
 INSERT INTO `d_menu` VALUES (3, 'm_02_01', '菜单管理', 'm_02', 'el-icon-more-outline', '1', '1', 'menu/index', NULL, '2020-04-19 11:29:28', '2020-05-23 21:38:46', 1);
-INSERT INTO `d_menu` VALUES (4, 'm_02_02', '权限管理', 'm_02', 'el-icon-pie-chart', '1', '1', 'authority/index', NULL, '2020-04-19 11:29:28', '2020-05-23 21:38:50', 2);
 INSERT INTO `d_menu` VALUES (5, 'm_02_03', '角色管理', 'm_02', 'el-icon-pie-chart', '1', '1', 'role/index', NULL, '2020-04-19 11:29:28', '2020-05-23 21:38:56', 3);
 INSERT INTO `d_menu` VALUES (7, 'm_04_05', 'BB三生三世', 'm_04', NULL, '1', '1', NULL, NULL, '2020-05-23 21:35:15', '2020-05-23 21:39:28', 1);
 INSERT INTO `d_menu` VALUES (8, 'm_04_06', 'BB三生三世', 'm_04', NULL, '1', '1', NULL, NULL, '2020-05-23 21:35:15', '2020-05-23 21:39:28', 1);
@@ -84,11 +83,30 @@ INSERT INTO `d_menu` VALUES (57, 'm_03_03', '测试03', 'm_03', NULL, '1', '1', 
 INSERT INTO `d_menu` VALUES (58, 'm_04', 'AA', 'm_00', 'el-icon-pie-chart', '1', '0', NULL, NULL, '2020-05-23 21:34:49', '2020-05-23 21:39:15', 4);
 INSERT INTO `d_menu` VALUES (59, 'm_04_01', 'BB', 'm_04', NULL, '1', '1', NULL, NULL, '2020-05-23 21:35:15', '2020-05-23 21:39:28', 1);
 INSERT INTO `d_menu` VALUES (60, 'm_04_02', 'CC', 'm_04', NULL, '1', '1', NULL, NULL, '2020-05-23 21:35:43', '2020-05-23 21:39:33', 2);
-INSERT INTO `d_menu` VALUES (61, 'm_04_03', 'DD', 'm_04', NULL, '1', '1', NULL, NULL, '2020-05-23 21:36:06', '2020-05-23 21:39:40', 3);
 INSERT INTO `d_menu` VALUES (62, 'm_02_04', '图标', 'm_02', NULL, '1', '1', 'icon/index', NULL, '2020-05-23 22:04:32', NULL, 4);
 INSERT INTO `d_menu` VALUES (63, 'm_02_05', '用户管理', 'm_02', NULL, '1', '1', 'user/index', NULL, '2020-05-28 19:47:14', NULL, 5);
 INSERT INTO `d_menu` VALUES (64, 'm_02_06', '调度任务', 'm_02', NULL, '0', '1', 'task/taskIndex', NULL, '2020-06-04 20:25:21', NULL, 6);
 INSERT INTO `d_menu` VALUES (65, 'm_02_07', 'JOB管理', 'm_02', NULL, '1', '1', 'qrtzJobDetails/index', NULL, '2020-06-07 22:19:31', NULL, 7);
+INSERT INTO `d_menu` VALUES (68, 'm_02_03_01', '新增', 'm_02_03', NULL, '1', '2', NULL, 'role:add', '2020-07-12 16:05:47', '2020-07-12 16:22:52', 1);
+INSERT INTO `d_menu` VALUES (69, 'm_02_03_02', '编辑', 'm_02_03', NULL, '1', '2', '', 'role:edit', '2020-07-12 16:23:57', NULL, 2);
+INSERT INTO `d_menu` VALUES (70, 'm_02_03_03', '配置菜单', 'm_02_03', NULL, '1', '2', '', 'role:roleMenu', '2020-07-12 16:24:45', NULL, 3);
+INSERT INTO `d_menu` VALUES (71, 'm_02_03_04', '删除', 'm_02_03', NULL, '1', '2', '', 'role:delete', '2020-07-12 16:25:13', NULL, 4);
+INSERT INTO `d_menu` VALUES (72, 'm_02_05_01', '新增', 'm_02_05', NULL, '1', '2', '', 'user:add', '2020-07-12 16:26:54', NULL, 1);
+INSERT INTO `d_menu` VALUES (73, 'm_02_05_02', '编辑', 'm_02_05', NULL, '1', '2', '', 'user:edit', '2020-07-12 16:27:31', NULL, 2);
+INSERT INTO `d_menu` VALUES (74, 'm_02_05_03', '配置角色', 'm_02_05', NULL, '1', '2', '', 'user:userRole', '2020-07-12 16:28:06', NULL, 3);
+INSERT INTO `d_menu` VALUES (75, 'm_02_05_04', '删除', 'm_02_05', NULL, '1', '2', '', 'user:delete', '2020-07-12 16:28:50', NULL, 4);
+INSERT INTO `d_menu` VALUES (76, 'm_02_05_05', '重置密码', 'm_02_05', NULL, '1', '2', '', 'user:reset', '2020-07-12 16:29:26', NULL, 6);
+INSERT INTO `d_menu` VALUES (77, 'm_02_07_01', '新增', 'm_02_07', NULL, '1', '2', '', 'job:add', '2020-07-12 16:34:35', NULL, 1);
+INSERT INTO `d_menu` VALUES (78, 'm_02_07_02', '编辑', 'm_02_07', NULL, '1', '2', '', 'job:edit', '2020-07-12 16:36:28', NULL, 2);
+INSERT INTO `d_menu` VALUES (79, 'm_02_07_03', '触发器', 'm_02_07', NULL, '1', '2', '', 'job:trigger', '2020-07-12 16:37:05', NULL, 3);
+INSERT INTO `d_menu` VALUES (80, 'm_02_07_04', '暂停', 'm_02_07', NULL, '1', '2', '', 'job:pause', '2020-07-12 16:38:04', NULL, 4);
+INSERT INTO `d_menu` VALUES (81, 'm_02_07_05', '恢复', 'm_02_07', NULL, '1', '2', '', 'job:resume', '2020-07-12 16:38:47', NULL, 5);
+INSERT INTO `d_menu` VALUES (82, 'm_02_07_06', '立即执行', 'm_02_07', NULL, '1', '2', '', 'job:execute', '2020-07-12 16:40:25', NULL, 6);
+INSERT INTO `d_menu` VALUES (83, 'm_02_07_07', '删除', 'm_02_07', NULL, '1', '2', '', 'job:delete', '2020-07-12 16:41:12', NULL, 7);
+INSERT INTO `d_menu` VALUES (84, 'm_04_05_01', '试试', 'm_04_05', NULL, '1', '2', '', 'tt', '2020-07-12 16:43:47', NULL, 1);
+INSERT INTO `d_menu` VALUES (85, 'm_02_03_05', '查询', 'm_02_03', NULL, '1', '2', '', 'role:query', '2020-07-12 17:51:20', NULL, 5);
+INSERT INTO `d_menu` VALUES (86, 'm_02_05_06', '查询', 'm_02_05', NULL, '1', '2', '', 'user:query', '2020-07-12 17:52:04', NULL, 6);
+INSERT INTO `d_menu` VALUES (87, 'm_02_07_08', '查询', 'm_02_07', NULL, '1', '2', '', 'job:query', '2020-07-12 17:52:45', NULL, 8);
 
 -- ----------------------------
 -- Table structure for d_role
@@ -102,24 +120,13 @@ CREATE TABLE `d_role`  (
   `create_time` datetime(0) NULL DEFAULT NULL,
   `update_time` datetime(0) NULL DEFAULT NULL,
   PRIMARY KEY (`role_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 21 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 24 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of d_role
 -- ----------------------------
-INSERT INTO `d_role` VALUES (3, 'aa', '角色BB', '测试BB', '2019-11-21 15:05:43', '2020-05-25 23:13:45');
-INSERT INTO `d_role` VALUES (5, 'BB2', 'BB2', '测试BB2', '2019-11-21 15:12:33', NULL);
-INSERT INTO `d_role` VALUES (6, 'user2', 'user', '普通管理员', '2019-11-24 12:06:33', NULL);
-INSERT INTO `d_role` VALUES (7, 'BB1', 'BB', '测试BB', '2019-12-21 02:55:49', NULL);
-INSERT INTO `d_role` VALUES (9, 'user3', 'user', '普通管理员', NULL, NULL);
-INSERT INTO `d_role` VALUES (10, 'BB3', 'BB', '测试BB', '2019-12-21 03:16:15', NULL);
-INSERT INTO `d_role` VALUES (12, 'user', 'user', '普通管理员', NULL, NULL);
-INSERT INTO `d_role` VALUES (13, 'BB4', 'BB', '测试BB', '2019-12-21 03:22:17', NULL);
-INSERT INTO `d_role` VALUES (15, 'user1', 'user', '普通管理员', NULL, NULL);
-INSERT INTO `d_role` VALUES (16, 'admin222', '管理员', '管理员', NULL, NULL);
-INSERT INTO `d_role` VALUES (17, 'admin', 'sadasa', 'aa', '2020-05-03 09:19:17', NULL);
-INSERT INTO `d_role` VALUES (18, 'AA', 'sdsd', 'ass', '2020-05-16 23:25:14', NULL);
-INSERT INTO `d_role` VALUES (19, 'Test', 'Test', NULL, '2020-05-16 23:26:59', NULL);
+INSERT INTO `d_role` VALUES (21, 'admin', '超级管理员', '管理员', '2020-07-11 16:57:40', '2020-07-12 18:55:24');
+INSERT INTO `d_role` VALUES (22, 'test', '测试', NULL, '2020-07-11 16:59:42', NULL);
 
 -- ----------------------------
 -- Table structure for d_role_authority
@@ -165,15 +172,18 @@ CREATE TABLE `d_role_menu`  (
 -- ----------------------------
 -- Records of d_role_menu
 -- ----------------------------
-INSERT INTO `d_role_menu` VALUES ('aa', 'm_02');
-INSERT INTO `d_role_menu` VALUES ('aa', 'm_02_01');
-INSERT INTO `d_role_menu` VALUES ('aa', 'm_02_02');
-INSERT INTO `d_role_menu` VALUES ('aa', 'm_03');
-INSERT INTO `d_role_menu` VALUES ('aa', 'm_03_01');
-INSERT INTO `d_role_menu` VALUES ('aa', 'm_03_02');
-INSERT INTO `d_role_menu` VALUES ('aa', 'm_03_03');
-INSERT INTO `d_role_menu` VALUES ('aa', 'm_04');
-INSERT INTO `d_role_menu` VALUES ('aa', 'm_04_02');
+INSERT INTO `d_role_menu` VALUES ('test', 'm_02');
+INSERT INTO `d_role_menu` VALUES ('test', 'm_02_01');
+INSERT INTO `d_role_menu` VALUES ('test', 'm_02_02');
+INSERT INTO `d_role_menu` VALUES ('test', 'm_02_03');
+INSERT INTO `d_role_menu` VALUES ('test', 'm_02_04');
+INSERT INTO `d_role_menu` VALUES ('test', 'm_03');
+INSERT INTO `d_role_menu` VALUES ('test', 'm_03_01');
+INSERT INTO `d_role_menu` VALUES ('test', 'm_02_03_05');
+INSERT INTO `d_role_menu` VALUES ('test', 'm_02_05');
+INSERT INTO `d_role_menu` VALUES ('test', 'm_02_05_06');
+INSERT INTO `d_role_menu` VALUES ('test', 'm_02_07');
+INSERT INTO `d_role_menu` VALUES ('test', 'm_02_07_08');
 
 -- ----------------------------
 -- Table structure for d_user
@@ -188,13 +198,15 @@ CREATE TABLE `d_user`  (
   `create_time` datetime(0) NULL DEFAULT NULL,
   `update_time` datetime(0) NULL DEFAULT NULL,
   PRIMARY KEY (`user_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of d_user
 -- ----------------------------
 INSERT INTO `d_user` VALUES (1, 'zs', 'zs', '81ed3986582624ccafad9f914f2863e8', '1', '2019-11-24 12:06:33', NULL);
 INSERT INTO `d_user` VALUES (2, 'ls', '李四2', '9c67b6f71b1c4f7019c44fa38a631fe1', '1', '2020-05-28 20:57:59', '2020-05-28 21:45:07');
+INSERT INTO `d_user` VALUES (4, 'gh', 'hkjkj', '1d5d50fb64a89945fae724d07479b8fb', '1', '2020-07-12 09:11:23', NULL);
+INSERT INTO `d_user` VALUES (5, 'admin', 'admin', 'cf2f84b6b83710fd7442ede509c95012', '1', '2020-07-12 19:11:41', NULL);
 
 -- ----------------------------
 -- Table structure for d_user_role
@@ -210,10 +222,7 @@ CREATE TABLE `d_user_role`  (
 -- ----------------------------
 -- Records of d_user_role
 -- ----------------------------
-INSERT INTO `d_user_role` VALUES ('1', '6');
-INSERT INTO `d_user_role` VALUES ('zs', 'admin222');
-INSERT INTO `d_user_role` VALUES ('zs', 'user2');
-INSERT INTO `d_user_role` VALUES ('zs', 'BB3');
+INSERT INTO `d_user_role` VALUES ('zs', 'test');
 
 -- ----------------------------
 -- Table structure for qrtz_blob_triggers

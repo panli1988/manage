@@ -9,9 +9,14 @@
     <link rel="stylesheet" type="text/css" th:href="@{/public/css/assets/css/color-dark.css}">
     <link rel="stylesheet" type="text/css" th:href="@{/public/css/app/app.css}">
     <link rel="stylesheet" type="text/css" th:href="@{/plugins/element/theme-chalk/index.css}">
+    <style  type="text/css">
+        [v-cloak]{
+            display: none;
+        }
+    </style>
 </head>
 <body>
-<div id="app">
+<div id="app" v-cloak>
     <div class="login-wrap">
         <div class="ms-login">
             <div class="ms-title">后台管理系统</div>
@@ -37,7 +42,7 @@
                 <div class="login-btn">
                     <el-button type="primary" native-type="submit" @click="submitForm($event)">登录</el-button>
                 </div>
-                <p class="login-tips">Tips : 用户名和密码随便填。</p>
+                <p class="login-tips" style="color: #5e6d82">Tips : 用户名admin，密码123456</p>
                 <span v-if="show" th:text="${msg}" style="color: red;"></span>
             </el-form>
         </div>

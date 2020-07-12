@@ -7,7 +7,7 @@
     <th:block th:insert="common/common_header::header"></th:block>
 </head>
 <body>
-<div id="app">
+<div id="app" v-cloak>
     <div class="container-box">
         <a shiro:hasPermission="role:query1" >您有查询用户的权限</a>
         <div style="width: 100%;padding: 5px 0px 0px 0px;">

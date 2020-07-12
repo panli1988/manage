@@ -252,3 +252,7 @@ tbody tr{
     position: absolute;
     z-index: 9999;
 }
+
+[v-cloak]{
+    display: none;
+}
