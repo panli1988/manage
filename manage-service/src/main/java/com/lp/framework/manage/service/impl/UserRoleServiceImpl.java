@@ -58,4 +58,19 @@ public class UserRoleServiceImpl implements UserRoleService {
     public List<String> selectRoles(Map<String, Object> params) {
         return userRoleMapper.selectRoles(params);
     }
+
+    @Override
+    public int deleteByUserCode(String userCode) {
+        return userRoleMapper.deleteByUserCode(userCode);
+    }
+
+    @Override
+    public int deleteByRoleCode(String roleCode) {
+        return userRoleMapper.deleteByRoleCode(roleCode);
+    }
+
+    @Override
+    public UserRole selectByRoleCode(String roleCode) {
+        return userRoleMapper.selectByRoleCode(roleCode);
+    }
 }

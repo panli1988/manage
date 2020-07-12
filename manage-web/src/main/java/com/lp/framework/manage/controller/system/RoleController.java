@@ -3,8 +3,10 @@ package com.lp.framework.manage.controller.system;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.lp.framework.manage.model.Role;
+import com.lp.framework.manage.model.UserRole;
 import com.lp.framework.manage.service.RoleMenuService;
 import com.lp.framework.manage.service.RoleService;
+import com.lp.framework.manage.service.UserRoleService;
 import com.lp.framework.manage.utils.CommonUtils;
 import com.lp.framework.manage.utils.JsonResult;
 import org.apache.commons.lang3.ObjectUtils;
@@ -26,6 +28,9 @@ public class RoleController extends BaseController{
 
     @Autowired
     private RoleMenuService roleMenuService;
+
+    @Autowired
+    private UserRoleService userRoleService;
 
     @GetMapping("/index")
     public String index(){
@@ -58,6 +63,12 @@ public class RoleController extends BaseController{
     public JsonResult insert(ServletRequest request,@RequestBody Role role){
         JsonResult jsonResult = new JsonResult();
         try {
+            Role select = roleService.selectByRoleCode(role.getRoleCode());
+            if(null!=select){
+                jsonResult.setSuccess(false);
+                jsonResult.setMsg("角色编码已存在");
+                return jsonResult;
+            }
             roleService.insert(role);
             jsonResult.setSuccess(true);
             jsonResult.setMsg("操作成功");
@@ -85,13 +96,18 @@ public class RoleController extends BaseController{
         return jsonResult;
     }
 
-    @GetMapping("/deleteById")
+    @GetMapping("/delete")
     @ResponseBody
-    public JsonResult deleteById(Integer roleId){
+    public JsonResult delete(String roleCode){
         JsonResult jsonResult = new JsonResult();
         try {
-            //TODO 角色菜单 用户角色待处理
-            roleService.deleteByPrimaryKey(roleId);
+            UserRole userRole = userRoleService.selectByRoleCode(roleCode);
+            if(null!=userRole){
+                jsonResult.setSuccess(false);
+                jsonResult.setMsg("删除失败，角色已分配给用户");
+                return jsonResult;
+            }
+            roleService.deleteRole(roleCode);
             jsonResult.setSuccess(true);
             jsonResult.setMsg("删除成功");
         } catch (Exception e) {

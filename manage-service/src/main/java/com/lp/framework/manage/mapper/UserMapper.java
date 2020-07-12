@@ -8,6 +8,8 @@ import java.util.Map;
 public interface UserMapper {
     int deleteByPrimaryKey(Integer userId);
 
+    int deleteByUserCode(String userCode);
+
     int insert(User record);
 
     int insertSelective(User record);

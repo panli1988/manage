@@ -24,5 +24,9 @@ public interface MenuMapper {
 
     List<Menu> selectUserMenusByPCode(Map<String,Object> params);
 
+    int deleteByMenuCode(String menuCode);
+
+    Menu selectByMenuCode(String menuCode);
+
 
 }

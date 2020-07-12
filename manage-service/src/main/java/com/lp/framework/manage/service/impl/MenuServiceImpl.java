@@ -78,4 +78,14 @@ public class MenuServiceImpl implements MenuService {
         }
         return returnList;
     }
+
+    @Override
+    public int deleteByMenuCode(String menuCode) {
+        return menuMapper.deleteByMenuCode(menuCode);
+    }
+
+    @Override
+    public Menu selectByMenuCode(String menuCode) {
+        return menuMapper.selectByMenuCode(menuCode);
+    }
 }

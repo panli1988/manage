@@ -20,4 +20,6 @@ public interface RoleMenuService {
     void updateRoleMenu(Map<String, Object> params);
 
     List<String> selectUserMenus(Map<String,Object> params);
+
+    RoleMenu selectRoleMenuByMenuCode(String menuCode);
 }

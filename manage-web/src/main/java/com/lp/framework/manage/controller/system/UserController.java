@@ -61,6 +61,12 @@ public class UserController extends BaseController{
         String pwd = ShiroUtils.encrypt("123456",user.getUserCode());
         user.setPwd(pwd);
         try {
+            User select = userService.selectByUserCode(user.getUserCode());
+            if(null!=select){
+                jsonResult.setSuccess(false);
+                jsonResult.setMsg("用户编码已存在");
+                return jsonResult;
+            }
             userService.insert(user);
             jsonResult.setSuccess(true);
             jsonResult.setMsg("操作成功");
@@ -128,19 +134,18 @@ public class UserController extends BaseController{
         return jsonResult;
     }
 
-    @GetMapping("/deleteById")
+    @GetMapping("/delete")
     @ResponseBody
-    public JsonResult deleteById(Integer userId){
+    public JsonResult delete(String userCode){
         JsonResult jsonResult = new JsonResult();
         try {
-            //TODO 用户角色待处理
-            userService.deleteByPrimaryKey(userId);
+            userService.deleteUser(userCode);
             jsonResult.setSuccess(true);
-            jsonResult.setMsg("删除成功");
+            jsonResult.setMsg("用户删除成功");
         } catch (Exception e) {
-            logger.error("删除角色失败",e);
+            logger.error("删除用户失败",e);
             jsonResult.setSuccess(false);
-            jsonResult.setMsg("删除失败");
+            jsonResult.setMsg("删除用户失败");
         }
         return jsonResult;
     }

@@ -104,8 +104,8 @@
                     label="操作"
                     width="180">
                 <template slot-scope="scope">
-                    <el-button type="primary" size="small" @click="openEdit(scope.$index, scope.row)">编辑</el-button>
-                    <el-button type="danger" size="small" @click="handleDel(scope.$index, scope.row)">删除</el-button>
+                    <el-button type="primary" size="mini" @click="openEdit(scope.$index, scope.row)">编辑</el-button>
+                    <el-button type="danger" size="mini" @click="handleDel(scope.$index, scope.row)">删除</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -283,7 +283,7 @@
     }
 </script>
 <script>
-    new Vue({
+    var vm = new Vue({
         el: '#app',
         data: function() {
             return {
@@ -412,8 +412,8 @@
                 params.menuName = this.query.menuName;
                 params.pageNum = page.currentPage;
                 params.pageSize = page.pageSize;
-                console.log("params",params);
-
+                this.tableData = [];
+                this.page.total = 0;
                 axios.get(context+'menu/queryPage',{
                         params: params
                     }).then(response => {
@@ -429,6 +429,7 @@
                             this.tableData = arr;
                             this.page.total = response.data.total;
                         }
+                        console.log(this.tableData);
                     }).catch(function (error) { // 请求失败处理
                         console.log(error);
                     });
@@ -534,9 +535,9 @@
                 }
             },
             handleDel(index, row){
-                axios.get(context+'menu/deleteById',{
+                axios.get(context+'menu/delete',{
                         params: {
-                            menuId: row.menuId,
+                            menuCode: row.menuCode,
                             pCode: row.menuCode
                         }
                     }).then(response => {

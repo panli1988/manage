@@ -65,6 +65,22 @@
             role_code = #{roleCode,jdbcType=VARCHAR}
             AND menu_code = #{menuCode,jdbcType=VARCHAR}
     </delete>
+    <delete id="deleteRoleMenuByRoleCode">
+        DELETE
+        FROM
+            d_role_menu
+        WHERE
+            role_code = #{roleCode,jdbcType=VARCHAR}
+    </delete>
+    <select id="selectRoleMenuByMenuCode" resultMap="BaseResultMap">
+        SELECT
+            menu_code,
+            role_code
+        FROM
+            d_role_menu
+        WHERE
+            menu_code = #{menuCode,jdbcType=VARCHAR}
+    </select>
 
     <select id="selectUserMenus" resultType="string">
             SELECT

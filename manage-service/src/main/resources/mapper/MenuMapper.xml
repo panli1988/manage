@@ -39,6 +39,12 @@
     from d_menu
     where menu_id = #{menuId,jdbcType=INTEGER}
   </select>
+  <select id="selectByMenuCode" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from d_menu
+    where menu_code = #{menuCode,jdbcType=INTEGER}
+  </select>
   <select id="selectMenusByPCode" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
@@ -103,6 +109,10 @@
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from d_menu
     where menu_id = #{menuId,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByMenuCode">
+    delete from d_menu
+    where menu_code = #{menuCode,jdbcType=VARCHAR}
   </delete>
   <insert id="insert" keyColumn="menu_id" keyProperty="menuId" parameterType="com.lp.framework.manage.model.Menu" useGeneratedKeys="true">
     insert into d_menu (menu_code, menu_name, p_code, 

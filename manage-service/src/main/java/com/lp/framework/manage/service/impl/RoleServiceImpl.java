@@ -1,10 +1,12 @@
 package com.lp.framework.manage.service.impl;
 
 import com.lp.framework.manage.mapper.RoleMapper;
+import com.lp.framework.manage.mapper.RoleMenuMapper;
 import com.lp.framework.manage.model.Role;
 import com.lp.framework.manage.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -14,6 +16,9 @@ public class RoleServiceImpl implements RoleService {
 
     @Autowired
     private RoleMapper roleMapper;
+
+    @Autowired
+    private RoleMenuMapper roleMenuMapper;
 
     @Override
     public int deleteByPrimaryKey(Integer roleId) {
@@ -48,5 +53,17 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public List<Role> selectByPage(Map<String,Object> params) {
         return roleMapper.selectByPage(params);
+    }
+
+    @Transactional
+    @Override
+    public void deleteRole(String roleCode) {
+        roleMapper.deleteByRoleCode(roleCode);
+        roleMenuMapper.deleteRoleMenuByRoleCode(roleCode);
+    }
+
+    @Override
+    public Role selectByRoleCode(String roleCode) {
+        return roleMapper.selectByRoleCode(roleCode);
     }
 }

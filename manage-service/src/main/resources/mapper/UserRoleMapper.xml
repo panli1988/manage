@@ -36,6 +36,29 @@
             user_code = #{userCode,jdbcType=VARCHAR}
             AND role_code = #{roleCode,jdbcType=VARCHAR}
     </delete>
+    <delete id="deleteByUserCode">
+        DELETE
+        FROM
+            d_user_role
+        WHERE
+            user_code = #{userCode,jdbcType=VARCHAR}
+    </delete>
+    <delete id="deleteByRoleCode">
+        DELETE
+        FROM
+            d_user_role
+        WHERE
+             role_code = #{roleCode,jdbcType=VARCHAR}
+    </delete>
+    <select id="selectByRoleCode" resultMap="BaseResultMap">
+        SELECT
+            user_code,
+            role_code
+        FROM
+            d_user_role
+        WHERE
+             role_code = #{roleCode,jdbcType=VARCHAR}
+    </select>
     <select id="selectUserRoles" resultType="hashmap">
         SELECT
             r.role_code AS "roleCode",

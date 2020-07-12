@@ -24,4 +24,7 @@ public interface UserService {
 
     int updatePwdByPrimaryKey(User user);
 
+    int deleteByUserCode(String userCode);
+
+    void deleteUser(String userCode);
 }

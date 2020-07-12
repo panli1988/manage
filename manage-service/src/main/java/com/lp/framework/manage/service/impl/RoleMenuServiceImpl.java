@@ -64,4 +64,9 @@ public class RoleMenuServiceImpl implements RoleMenuService {
     public List<String> selectUserMenus(Map<String, Object> params) {
         return roleMenuMapper.selectUserMenus(params);
     }
+
+    @Override
+    public RoleMenu selectRoleMenuByMenuCode(String menuCode) {
+        return roleMenuMapper.selectRoleMenuByMenuCode(menuCode);
+    }
 }

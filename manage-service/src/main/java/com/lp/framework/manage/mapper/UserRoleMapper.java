@@ -16,4 +16,10 @@ public interface UserRoleMapper {
     List<Map<String,Object>> selectUserRoles(Map<String,Object> params);
 
     List<String> selectRoles(Map<String,Object> params);
+
+    int deleteByUserCode(String userCode);
+
+    int deleteByRoleCode(String roleCode);
+
+    UserRole selectByRoleCode(String roleCode);
 }

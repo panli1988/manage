@@ -3,7 +3,9 @@ package com.lp.framework.manage.controller.system;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.lp.framework.manage.model.Menu;
+import com.lp.framework.manage.model.RoleMenu;
 import com.lp.framework.manage.service.MenuService;
+import com.lp.framework.manage.service.RoleMenuService;
 import com.lp.framework.manage.utils.CommonUtils;
 import com.lp.framework.manage.utils.JsonResult;
 import org.apache.commons.lang3.ObjectUtils;
@@ -22,6 +24,9 @@ public class MenuController extends BaseController{
 
     @Autowired
     private MenuService menuService;
+
+    @Autowired
+    private RoleMenuService roleMenuService;
 
     @GetMapping("/index")
     public String index(){
@@ -67,6 +72,13 @@ public class MenuController extends BaseController{
     public JsonResult insert(ServletRequest request,@RequestBody Menu menu){
         JsonResult jsonResult = new JsonResult();
         try {
+
+            Menu select = menuService.selectByMenuCode(menu.getMenuCode());
+            if(null!=select){
+                jsonResult.setSuccess(false);
+                jsonResult.setMsg("菜单编码已存在");
+                return jsonResult;
+            }
             menuService.insert(menu);
             jsonResult.setSuccess(true);
             jsonResult.setMsg("操作成功");
@@ -94,9 +106,9 @@ public class MenuController extends BaseController{
         return jsonResult;
     }
 
-    @GetMapping("/deleteById")
+    @GetMapping("/delete")
     @ResponseBody
-    public JsonResult deleteById(Integer menuId,String pCode){
+    public JsonResult delete(String menuCode,String pCode){
         Map<String,Object> params = new HashMap<>();
         params.put("pCode",pCode);
         JsonResult jsonResult = new JsonResult();
@@ -107,7 +119,15 @@ public class MenuController extends BaseController{
                 jsonResult.setMsg("存在子级，请先删除子级");
                 return jsonResult;
             }
-            menuService.deleteByPrimaryKey(menuId);
+
+            RoleMenu roleMenu = roleMenuService.selectRoleMenuByMenuCode(menuCode);
+            if(null!=roleMenu){
+                jsonResult.setSuccess(false);
+                jsonResult.setMsg("删除失败，菜单已分配给角色");
+                return jsonResult;
+            }
+
+            menuService.deleteByMenuCode(menuCode);
             jsonResult.setSuccess(true);
             jsonResult.setMsg("删除成功");
         } catch (Exception e) {

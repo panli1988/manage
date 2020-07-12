@@ -1,10 +1,13 @@
 package com.lp.framework.manage.service.impl;
 
 import com.lp.framework.manage.mapper.UserMapper;
+import com.lp.framework.manage.mapper.UserRoleMapper;
 import com.lp.framework.manage.model.User;
+import com.lp.framework.manage.service.UserRoleService;
 import com.lp.framework.manage.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -14,6 +17,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private UserRoleMapper userRoleMapper;
 
     @Override
     public int deleteByPrimaryKey(Integer userId) {
@@ -58,5 +64,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public int updatePwdByPrimaryKey(User user) {
         return userMapper.updatePwdByPrimaryKey(user);
+    }
+
+    @Override
+    public int deleteByUserCode(String userCode) {
+        return userMapper.deleteByUserCode(userCode);
+    }
+
+    @Transactional
+    @Override
+    public void deleteUser(String userCode) {
+        this.deleteByUserCode(userCode);
+        userRoleMapper.deleteByUserCode(userCode);
     }
 }

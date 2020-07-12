@@ -331,9 +331,9 @@
             handleDel(){
                 this.checkSelect();
                 var row = this.singleSelection;
-                axios.get(context+'role/deleteById',{
+                axios.get(context+'role/delete',{
                         params: {
-                            roleId: row.roleId,
+                            roleCode: row.roleCode,
                         }
                     })
                     .then(response => {

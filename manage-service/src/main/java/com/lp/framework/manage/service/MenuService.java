@@ -24,4 +24,8 @@ public interface MenuService {
     List<Menu> selectByPage(Map<String,Object> params);
 
     List<Menu> selectUserMenusByPCode(Map<String,Object> params);
+
+    int deleteByMenuCode(String menuCode);
+
+    Menu selectByMenuCode(String menuCode);
 }

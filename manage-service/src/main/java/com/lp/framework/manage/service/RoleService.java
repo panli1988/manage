@@ -20,4 +20,8 @@ public interface RoleService {
     int updateByPrimaryKey(Role record);
 
     List<Role> selectByPage(Map<String,Object> params);
+
+    void deleteRole(String roleCode);
+
+    Role selectByRoleCode(String roleCode);
 }

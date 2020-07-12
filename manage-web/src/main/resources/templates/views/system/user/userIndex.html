@@ -469,9 +469,9 @@
             handleDel(index, row){
                 this.checkSelect();
                 var row = this.singleSelection;
-                axios.get(context+'user/deleteById',{
+                axios.get(context+'user/delete',{
                         params: {
-                            userId: row.userId,
+                            userCode: row.userCode,
                         }
                     })
                     .then(response => {

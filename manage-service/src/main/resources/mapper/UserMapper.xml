@@ -42,6 +42,10 @@
         delete from d_user
         where user_id = #{userId,jdbcType=INTEGER}
     </delete>
+    <delete id="deleteByUserCode">
+        delete from d_user
+        where user_code = #{userCode,jdbcType=VARCHAR}
+    </delete>
     <insert id="insert" keyColumn="user_id" keyProperty="userId" parameterType="com.lp.framework.manage.model.User"
             useGeneratedKeys="true">
         insert into d_user (user_code, user_name, pwd,
