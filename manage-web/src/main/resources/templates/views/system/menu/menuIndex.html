@@ -125,11 +125,11 @@
             >
             </el-pagination>
         </div>
-        <el-dialog title="新增" :visible.sync="dialogAddFormVisible" :width="formWidth">
-            <el-form :model="addForm">
+        <el-dialog title="新增" :visible.sync="dialogAddFormVisible"  :width="formWidth" >
+            <el-form :model="addForm" ref="addForm">
                 <el-row :gutter="20" style="width: 100%;">
                     <el-col :span="12">
-                        <el-form-item label="上级菜单" :label-width="formLabelWidth">
+                        <el-form-item label="上级菜单" :label-width="formLabelWidth" prop="pCode">
                             <el-input v-model="addForm.pCode" size="small" autocomplete="off" style="width: 200px"></el-input>
                         </el-form-item>
                     </el-col>
@@ -148,12 +148,12 @@
                 </el-row>
                 <el-row :gutter="20" style="width: 100%;">
                     <el-col :span="12">
-                        <el-form-item label="菜单编码" :label-width="formLabelWidth">
+                        <el-form-item label="菜单编码" :label-width="formLabelWidth" prop="menuCode">
                             <el-input v-model="addForm.menuCode" size="small" autocomplete="off" style="width: 200px"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="菜单名称" :label-width="formLabelWidth">
+                        <el-form-item label="菜单名称" :label-width="formLabelWidth" prop="menuName">
                             <el-input v-model="addForm.menuName" size="small" autocomplete="off" style="width: 200px"></el-input>
                         </el-form-item>
                     </el-col>
@@ -179,7 +179,7 @@
                 </el-row>
                 <el-row :gutter="20" style="width: 100%;">
                     <el-col :span="12">
-                        <el-form-item label="序号" :label-width="formLabelWidth">
+                        <el-form-item label="序号" :label-width="formLabelWidth" prop="orderNo">
                             <el-input v-model="addForm.orderNo" size="small" autocomplete="off" style="width: 200px"></el-input>
                         </el-form-item>
                     </el-col>
@@ -196,11 +196,11 @@
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button size="small" @click="dialogAddFormVisible = false">取 消</el-button>
-                <el-button size="small" type="primary" @click="saveAdd">确 定</el-button>
+                <el-button size="small" type="primary" @click="saveAdd($event)">确 定</el-button>
             </div>
         </el-dialog>
-        <el-dialog title="编辑" :visible.sync="dialogEditFormVisible" :width="formWidth">
-            <el-form :model="editForm">
+        <el-dialog title="编辑" :visible.sync="dialogEditFormVisible"  :width="formWidth" >
+            <el-form :model="editForm" :rules="rules" ref="editForm">
                 <el-input v-model="editForm.menuId" type="hidden"></el-input>
                 <el-row :gutter="20" style="width: 100%;">
                     <el-col :span="12">
@@ -224,12 +224,12 @@
                 <el-row :gutter="20" style="width: 100%;">
                     <el-col :span="12">
                         <el-form-item label="菜单编码" :label-width="formLabelWidth">
-                            <el-input v-model="editForm.menuCode" size="small" autocomplete="off" style="width: 200px"  readOnly="true"></el-input>
+                            <el-input v-model="editForm.menuCode" name="menuCode" size="small" autocomplete="off" style="width: 200px"  readOnly="true"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="菜单名称" :label-width="formLabelWidth">
-                            <el-input v-model="editForm.menuName" size="small" autocomplete="off" style="width: 200px"></el-input>
+                        <el-form-item label="菜单名称" :label-width="formLabelWidth" prop="menuName">
+                            <el-input v-model="editForm.menuName" name="menuName" size="small" autocomplete="off" style="width: 200px"></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -254,8 +254,8 @@
                 </el-row>
                 <el-row :gutter="20" style="width: 100%;">
                     <el-col :span="12">
-                        <el-form-item label="序号" :label-width="formLabelWidth">
-                            <el-input v-model="editForm.orderNo" size="small" autocomplete="off" style="width: 200px"></el-input>
+                        <el-form-item label="序号" :label-width="formLabelWidth" prop="orderNo">
+                            <el-input v-model="editForm.orderNo" name="orderNo" size="small" autocomplete="off" style="width: 200px"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
@@ -270,7 +270,7 @@
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button size="small" @click="dialogEditFormVisible = false">取 消</el-button>
-                <el-button size="small" type="primary" @click="saveEdit">确 定</el-button>
+                <el-button size="small" type="primary" @click="saveEdit($event)">确 定</el-button>
             </div>
         </el-dialog>
     </div>
@@ -316,6 +316,20 @@
                     type:'',
                     authority:'',
                     orderNo:null
+                },
+                rules: {
+                    menuCode: [
+                        { required: true, message: '请输入菜单编码', trigger: 'blur' }
+                    ],
+                    menuName: [
+                        { required: true, message: '请输入用户名', trigger: 'blur' }
+                    ],
+                    pCode: [
+                        { required: true, message: '请输入上级菜单', trigger: 'blur' }
+                    ],
+                    orderNo: [
+                        { required: true, message: '请输入序号', trigger: 'blur' }
+                    ],
                 },
                 tableData:[],
                 page:{
@@ -459,74 +473,80 @@
                 };
                 this.dialogAddFormVisible = true;
             },
-            saveAdd(){
-                this.dialogAddFormVisible = false;
-                var that = this;
-                axios.post(context+'menu/insert',{
-                    menuCode: this.addForm.menuCode,
-                    menuName: this.addForm.menuName,
-                    iconCls: this.addForm.iconCls,
-                    status: this.addForm.status,
-                    url: this.addForm.url,
-                    pCode: this.addForm.pCode,
-                    type: this.addForm.type,
-                    authority: this.addForm.authority,
-                    orderNo: this.addForm.orderNo
-                }).then(response => {
-                    if(response.data && response.data.success){
-                        this.$message({
-                            showClose: true,
-                            message: response.data.msg,
-                            type: 'success'
-                        });
-                        this.queryData(this.page);
-                    }else{
-                        this.$message({
-                            showClose: true,
-                            message: response.data.msg,
-                            type: 'error'
+            saveAdd(e){
+                this.$refs['addForm'].validate((valid) => {
+                    if (valid) {
+                        this.dialogAddFormVisible = false;
+                        axios.post(context+'menu/insert',{
+                            menuCode: this.addForm.menuCode,
+                            menuName: this.addForm.menuName,
+                            iconCls: this.addForm.iconCls,
+                            status: this.addForm.status,
+                            url: this.addForm.url,
+                            pCode: this.addForm.pCode,
+                            type: this.addForm.type,
+                            authority: this.addForm.authority,
+                            orderNo: this.addForm.orderNo
+                        }).then(response => {
+                            if(response.data && response.data.success){
+                                this.$message({
+                                    showClose: true,
+                                    message: response.data.msg,
+                                    type: 'success'
+                                });
+                                this.queryData(this.page);
+                            }else{
+                                this.$message({
+                                    showClose: true,
+                                    message: response.data.msg,
+                                    type: 'error'
+                                });
+                            }
+                        }).catch(function (error) { // 请求失败处理
+                            console.log(error);
                         });
                     }
-                }).catch(function (error) { // 请求失败处理
-                        console.log(error);
-                    });
+                });
             },
             openEdit(index, row) {
                 this.editForm = row;
                 this.dialogEditFormVisible = true;
             },
-            saveEdit() {
-                this.dialogEditFormVisible = false;
-                var that = this;
-                axios.post(context+'menu/update',{
-                    menuId: this.editForm.menuId,
-                    menuCode: this.editForm.menuCode,
-                    menuName: this.editForm.menuName,
-                    iconCls: this.editForm.iconCls,
-                    status: this.editForm.status,
-                    url: this.editForm.url,
-                    pCode: this.editForm.pCode,
-                    type: this.editForm.type,
-                    authority: this.editForm.authority,
-                    orderNo: this.editForm.orderNo
-                }).then(response => {
-                        if(response.data && response.data.success){
-                            this.$message({
-                                showClose: true,
-                                message: response.data.msg,
-                                type: 'success'
-                            });
-                            this.queryData(this.page);
-                        }else{
-                            this.$message({
-                                showClose: true,
-                                message: response.data.msg,
-                                type: 'error'
-                            });
-                        }
-                    }).catch(function (error) { // 请求失败处理
-                        console.log(error);
-                    });
+            saveEdit(e) {
+                this.$refs['editForm'].validate((valid) => {
+                    if (valid) {
+                        this.dialogEditFormVisible = false;
+                        axios.post(context+'menu/update',{
+                            menuId: this.editForm.menuId,
+                            menuCode: this.editForm.menuCode,
+                            menuName: this.editForm.menuName,
+                            iconCls: this.editForm.iconCls,
+                            status: this.editForm.status,
+                            url: this.editForm.url,
+                            pCode: this.editForm.pCode,
+                            type: this.editForm.type,
+                            authority: this.editForm.authority,
+                            orderNo: this.editForm.orderNo
+                        }).then(response => {
+                            if(response.data && response.data.success){
+                                this.$message({
+                                    showClose: true,
+                                    message: response.data.msg,
+                                    type: 'success'
+                                });
+                                this.queryData(this.page);
+                            }else{
+                                this.$message({
+                                    showClose: true,
+                                    message: response.data.msg,
+                                    type: 'error'
+                                });
+                            }
+                        }).catch(function (error) { // 请求失败处理
+                            console.log(error);
+                        });
+                    }
+                });
             },
             handleClick(row) {
             },
