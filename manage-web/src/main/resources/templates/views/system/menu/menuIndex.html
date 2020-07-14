@@ -125,8 +125,8 @@
             >
             </el-pagination>
         </div>
-        <el-dialog title="新增" :visible.sync="dialogAddFormVisible"  :width="formWidth" >
-            <el-form :model="addForm" ref="addForm">
+        <el-dialog title="新增" :visible.sync="dialogAddFormVisible" :width="formWidth"  @close="closeDialog('add')">
+            <el-form :model="addForm" :rules="rules" ref="add">
                 <el-row :gutter="20" style="width: 100%;">
                     <el-col :span="12">
                         <el-form-item label="上级菜单" :label-width="formLabelWidth" prop="pCode">
@@ -199,8 +199,8 @@
                 <el-button size="small" type="primary" @click="saveAdd($event)">确 定</el-button>
             </div>
         </el-dialog>
-        <el-dialog title="编辑" :visible.sync="dialogEditFormVisible"  :width="formWidth" >
-            <el-form :model="editForm" :rules="rules" ref="editForm">
+        <el-dialog title="编辑" :visible.sync="dialogEditFormVisible" :width="formWidth"  @close="closeDialog('edit')">
+            <el-form :model="editForm" :rules="rules" ref="edit">
                 <el-input v-model="editForm.menuId" type="hidden"></el-input>
                 <el-row :gutter="20" style="width: 100%;">
                     <el-col :span="12">
@@ -404,13 +404,6 @@
                     .then(response => {
                         var arr = [];
                         if(response.data){
-                            // for(var i=0;i<response.data.length;i++){
-                            //     var obj = response.data[i];
-                            //     if(obj.type=="0"){
-                            //         obj.hasChildren = true;
-                            //     }
-                            //     arr.push(obj);
-                            // }
                             for(var i=0;i<response.data.length;i++){
                                 var obj = response.data[i];
                                 if(obj.menus && obj.menus.length>0){
@@ -474,7 +467,7 @@
                 this.dialogAddFormVisible = true;
             },
             saveAdd(e){
-                this.$refs['addForm'].validate((valid) => {
+                this.$refs['add'].validate((valid) => {
                     if (valid) {
                         this.dialogAddFormVisible = false;
                         axios.post(context+'menu/insert',{
@@ -509,11 +502,11 @@
                 });
             },
             openEdit(index, row) {
-                this.editForm = row;
+                this.editForm = deepClone(row);
                 this.dialogEditFormVisible = true;
             },
             saveEdit(e) {
-                this.$refs['editForm'].validate((valid) => {
+                this.$refs['edit'].validate((valid) => {
                     if (valid) {
                         this.dialogEditFormVisible = false;
                         axios.post(context+'menu/update',{
@@ -607,6 +600,13 @@
                     return "停用";
                 }
             },
+            closeDialog(val){
+                if("add"==val){
+                    this.$refs['add'].clearValidate();
+                }else if("edit"==val){
+                    this.$refs['edit'].clearValidate();
+                }
+            }
         },
         mounted(){
             this.queryData(this.page);

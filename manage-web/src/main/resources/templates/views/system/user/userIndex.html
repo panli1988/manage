@@ -87,12 +87,12 @@
 <!--            >-->
 <!--            </el-pagination>-->
 <!--        </div>-->
-        <el-dialog title="新增" :visible.sync="dialogAddFormVisible" :width="formWidth">
-            <el-form :model="addForm">
-                <el-form-item label="用户编码" :label-width="formLabelWidth">
+        <el-dialog title="新增" :visible.sync="dialogAddFormVisible" :width="formWidth" @close="closeDialog('add')">
+            <el-form :model="addForm" ref="add" :rules="rules">
+                <el-form-item label="用户编码" :label-width="formLabelWidth" prop="userCode">
                     <el-input v-model="addForm.userCode" size="small" autocomplete="off" style="width: 200px"></el-input>
                 </el-form-item>
-                <el-form-item label="用户名称" :label-width="formLabelWidth">
+                <el-form-item label="用户名称" :label-width="formLabelWidth" prop="userName">
                     <el-input v-model="addForm.userName" size="small" autocomplete="off" style="width: 200px"></el-input>
                 </el-form-item>
                 <el-form-item label="状态" :label-width="formLabelWidth">
@@ -111,13 +111,13 @@
                 <el-button type="primary" size="small" @click="saveAdd">确 定</el-button>
             </div>
         </el-dialog>
-        <el-dialog title="编辑" :visible.sync="dialogEditFormVisible" :width="formWidth">
-            <el-form :model="editForm">
+        <el-dialog title="编辑" :visible.sync="dialogEditFormVisible" :width="formWidth" @close="closeDialog('edit')">
+            <el-form :model="editForm" ref="edit" :rules="rules">
                 <el-input v-model="editForm.userId" type="hidden"></el-input>
-                <el-form-item label="用户编码" :label-width="formLabelWidth">
+                <el-form-item label="用户编码" :label-width="formLabelWidth" prop="userCode">
                     <el-input v-model="editForm.userCode" size="small" autocomplete="off" style="width: 200px" readOnly="true"></el-input>
                 </el-form-item>
-                <el-form-item label="用户名称" :label-width="formLabelWidth">
+                <el-form-item label="用户名称" :label-width="formLabelWidth" prop="userName">
                     <el-input v-model="editForm.userName" size="small" autocomplete="off" style="width: 200px"></el-input>
                 </el-form-item>
                 <el-form-item label="状态" :label-width="formLabelWidth">
@@ -227,6 +227,14 @@
                     userName:'',
                     status:''
                 },
+                rules: {
+                    userCode: [
+                        { required: true, message: '请输入用户编码', trigger: 'blur' }
+                    ],
+                    userName: [
+                        { required: true, message: '请输入用户名称', trigger: 'blur' }
+                    ]
+                },
                 resetForm:{
                     userId:'',
                     userCode:'',
@@ -277,7 +285,7 @@
                     });
                     return;
                 }else{
-                    this.singleSelection=this.$refs.lzTable.singleSelection;
+                    this.singleSelection=deepClone(this.$refs.lzTable.singleSelection);
                 }
             },
             //行变化
@@ -297,31 +305,31 @@
             },
             //保存编辑
             saveAdd() {
-                this.dialogAddFormVisible = false;
-                var that = this;
-                axios.post(context+'user/insert',{
-                    userCode: this.addForm.userCode,
-                    userName: this.addForm.userName,
-                    status: this.addForm.status
-                }).then(response => {
-                        if(response.data){
-                            this.$message({
-                                showClose: true,
-                                message: response.data.msg,
-                                type: response.data.success?'success':'error'
-                            });
-                            if(response.data.success){
-                                this.queryData(this.page);
+                this.$refs['add'].validate((valid) => {
+                    if (valid) {
+                        this.dialogAddFormVisible = false;
+                        axios.post(context+'user/insert',{
+                            userCode: this.addForm.userCode,
+                            userName: this.addForm.userName,
+                            status: this.addForm.status
+                        }).then(response => {
+                            if(response.data){
+                                this.$message({
+                                    showClose: true,
+                                    message: response.data.msg,
+                                    type: response.data.success?'success':'error'
+                                });
+                                if(response.data.success){
+                                    this.queryData(this.page);
+                                }
                             }
-                        }
-                    })
-                    .catch(function (error) { // 请求失败处理
-                        that.$message({
-                            showClose: true,
-                            message: "操作失败",
-                            type: 'error'
+                        })
+                        .catch(function (error) { // 请求失败处理
+                            console.log(error);
                         });
-                    });
+                    }
+                });
+
             },
             //打开编辑
             openEdit() {
@@ -331,28 +339,32 @@
             },
             //保存编辑
             saveEdit() {
-                this.dialogEditFormVisible = false;
-                axios.post(context+'user/update',{
-                        userId: this.editForm.userId,
-                        userCode: this.editForm.userCode,
-                        userName: this.editForm.userName,
-                        status: this.editForm.status
-                    })
-                    .then(response => {
-                        if(response.data){
-                            this.$message({
-                                showClose: true,
-                                message: response.data.msg,
-                                type: response.data.success?'success':'error'
-                            });
-                            if(response.data.success){
-                                this.queryData(this.page);
+                this.$refs['edit'].validate((valid) => {
+                    if (valid) {
+                        this.dialogEditFormVisible = false;
+                        axios.post(context+'user/update',{
+                            userId: this.editForm.userId,
+                            userCode: this.editForm.userCode,
+                            userName: this.editForm.userName,
+                            status: this.editForm.status
+                        }).then(response => {
+                            if(response.data){
+                                this.$message({
+                                    showClose: true,
+                                    message: response.data.msg,
+                                    type: response.data.success?'success':'error'
+                                });
+                                if(response.data.success){
+                                    this.queryData(this.page);
+                                }
                             }
-                        }
-                    })
-                    .catch(function (error) { // 请求失败处理
-                        console.log(error);
-                    });
+                        })
+                        .catch(function (error) { // 请求失败处理
+                            console.log(error);
+                        });
+                    }
+                });
+
             },
             openReset() {
                 this.checkSelect();
@@ -370,22 +382,21 @@
                     userId: this.resetForm.userId,
                     userCode: this.resetForm.userCode,
                     pwd: this.resetForm.pwd
-                })
-                    .then(response => {
-                        if(response.data){
-                            this.$message({
-                                showClose: true,
-                                message: response.data.msg,
-                                type: response.data.success?'success':'error'
-                            });
-                            if(response.data.success){
-                                this.queryData(this.page);
-                            }
+                }).then(response => {
+                    if(response.data){
+                        this.$message({
+                            showClose: true,
+                            message: response.data.msg,
+                            type: response.data.success?'success':'error'
+                        });
+                        if(response.data.success){
+                            this.queryData(this.page);
                         }
-                    })
-                    .catch(function (error) { // 请求失败处理
-                        console.log(error);
-                    });
+                    }
+                })
+                .catch(function (error) { // 请求失败处理
+                    console.log(error);
+                });
             },
             openRole() {
                 this.checkSelect();
@@ -489,6 +500,13 @@
                     .catch(function (error) { // 请求失败处理
                         console.log(error);
                     });
+            },
+            closeDialog(val){
+                if("add"==val){
+                    this.$refs['add'].clearValidate();
+                }else if("edit"==val){
+                    this.$refs['edit'].clearValidate();
+                }
             }
         },
         mounted(){

@@ -100,15 +100,15 @@
 <!--            >-->
 <!--            </el-pagination>-->
 <!--        </div>-->
-        <el-dialog title="新增" :visible.sync="dialogAddFormVisible" :width="formWidth">
-            <el-form :model="addForm">
-                <el-form-item label="job名称" :label-width="formLabelWidth">
+        <el-dialog title="新增" :visible.sync="dialogAddFormVisible" :width="formWidth" @close="closeDialog('edit')">
+            <el-form :model="addForm" ref="add" :rules="rules">
+                <el-form-item label="job名称" :label-width="formLabelWidth" prop="jobName">
                     <el-input v-model="addForm.jobName" size="small" autocomplete="off" style="width: 300px"></el-input>
                 </el-form-item>
-                <el-form-item label="描述" :label-width="formLabelWidth">
+                <el-form-item label="描述" :label-width="formLabelWidth" prop="description">
                     <el-input v-model="addForm.description" size="small" autocomplete="off" style="width: 300px"></el-input>
                 </el-form-item>
-                <el-form-item label="job类" :label-width="formLabelWidth">
+                <el-form-item label="job类" :label-width="formLabelWidth" prop="jobClassName">
                     <el-input v-model="addForm.jobClassName" size="small" autocomplete="off" style="width: 300px"></el-input>
                 </el-form-item>
             </el-form>
@@ -117,15 +117,15 @@
                 <el-button type="primary" size="small" @click="saveAdd">确 定</el-button>
             </div>
         </el-dialog>
-        <el-dialog title="编辑" :visible.sync="dialogEditFormVisible" :width="formWidth">
-            <el-form :model="editForm">
-                <el-form-item label="job名称" :label-width="formLabelWidth">
+        <el-dialog title="编辑" :visible.sync="dialogEditFormVisible" :width="formWidth" @close="closeDialog('edit')">
+            <el-form :model="editForm" ref="edit" :rules="rules">
+                <el-form-item label="job名称" :label-width="formLabelWidth" prop="jobName">
                     <el-input v-model="editForm.jobName" size="small" autocomplete="off" style="width: 300px" readOnly="true"></el-input>
                 </el-form-item>
-                <el-form-item label="描述" :label-width="formLabelWidth">
+                <el-form-item label="描述" :label-width="formLabelWidth" prop="description">
                     <el-input v-model="editForm.description" size="small" autocomplete="off" style="width: 300px"></el-input>
                 </el-form-item>
-                <el-form-item label="job类" :label-width="formLabelWidth">
+                <el-form-item label="job类" :label-width="formLabelWidth" prop="jobClassName">
                     <el-input v-model="editForm.jobClassName" size="small" autocomplete="off" style="width: 300px" readOnly="true"></el-input>
                 </el-form-item>
             </el-form>
@@ -321,10 +321,20 @@
                     jobClassName:''
                 },
                 editForm: {
-                    roleId:'',
-                    roleCode:'',
-                    roleName:'',
-                    remark:''
+                    jobName:'',
+                    description:'',
+                    jobClassName:''
+                },
+                rules: {
+                    jobName: [
+                        { required: true, message: '请输入job名称', trigger: 'blur' }
+                    ],
+                    description: [
+                        { required: true, message: '请输入描述', trigger: 'blur' }
+                    ],
+                    jobClassName: [
+                        { required: true, message: '请输入job', trigger: 'blur' }
+                    ]
                 },
                 addTrigger: {
                     triggerName:'',
@@ -362,7 +372,7 @@
                     });
                     return;
                 }else{
-                    this.singleSelection=this.$refs.lzTable.singleSelection;
+                    this.singleSelection=deepClone(this.$refs.lzTable.singleSelection);
                 }
             },
             queryTriggerData(){
@@ -406,26 +416,30 @@
             },
             //保存编辑
             saveAdd() {
-                this.dialogAddFormVisible = false;
-                axios.post(context+'qrtzjobDetails/insert',{
-                    jobName: this.addForm.jobName,
-                    description: this.addForm.description,
-                    jobClassName: this.addForm.jobClassName
-                }).then(response => {
-                        if(response.data){
-                            this.$message({
-                                showClose: true,
-                                message: response.data.msg,
-                                type: response.data.success?'success':'error'
-                            });
-                            if(response.data.success){
-                                this.queryData();
+                this.$refs['add'].validate((valid) => {
+                    if (valid) {
+                        this.dialogAddFormVisible = false;
+                        axios.post(context+'qrtzjobDetails/insert',{
+                            jobName: this.addForm.jobName,
+                            description: this.addForm.description,
+                            jobClassName: this.addForm.jobClassName
+                        }).then(response => {
+                            if(response.data){
+                                this.$message({
+                                    showClose: true,
+                                    message: response.data.msg,
+                                    type: response.data.success?'success':'error'
+                                });
+                                if(response.data.success){
+                                    this.queryData();
+                                }
                             }
-                        }
-                    })
-                    .catch(function (error) { // 请求失败处理
-                        console.log(error)
-                    });
+                        })
+                        .catch(function (error) { // 请求失败处理
+                            console.log(error)
+                        });
+                    }
+                });
             },
             //打开编辑
             openEdit() {
@@ -435,26 +449,30 @@
             },
             //保存编辑
             saveEdit() {
-                this.dialogEditFormVisible = false;
-                axios.post(context+'qrtzjobDetails/update',{
-                        jobName: this.editForm.jobName,
-                        description: this.editForm.description
-                    })
-                    .then(response => {
-                        if(response.data){
-                            this.$message({
-                                showClose: true,
-                                message: response.data.msg,
-                                type: response.data.success?'success':'error'
-                            });
-                            if(response.data.success){
-                                this.queryData();
+                this.$refs['edit'].validate((valid) => {
+                    if (valid) {
+                        this.dialogEditFormVisible = false;
+                        axios.post(context+'qrtzjobDetails/update',{
+                            jobName: this.editForm.jobName,
+                            description: this.editForm.description
+                        })
+                        .then(response => {
+                            if(response.data){
+                                this.$message({
+                                    showClose: true,
+                                    message: response.data.msg,
+                                    type: response.data.success?'success':'error'
+                                });
+                                if(response.data.success){
+                                    this.queryData();
+                                }
                             }
-                        }
-                    })
-                    .catch(function (error) { // 请求失败处理
-                        console.log(error);
-                    });
+                        })
+                        .catch(function (error) { // 请求失败处理
+                            console.log(error);
+                        });
+                    }
+                });
             },
             pause() {
                 this.checkSelect();
@@ -607,6 +625,13 @@
                     .catch(function (error) { // 请求失败处理
                         console.log(error);
                     });
+            },
+            closeDialog(val){
+                if("add"==val){
+                    this.$refs['add'].clearValidate();
+                }else if("edit"==val){
+                    this.$refs['edit'].clearValidate();
+                }
             }
         },
         mounted(){

@@ -101,15 +101,15 @@
 <!--        </div>-->
 
 
-        <el-dialog title="新增" :visible.sync="dialogAddFormVisible" :width="formWidth">
-            <el-form :model="addForm">
-                <el-form-item label="角色编码" :label-width="formLabelWidth">
+        <el-dialog title="新增" :visible.sync="dialogAddFormVisible" :width="formWidth"  @close="closeDialog('add')">
+            <el-form :model="addForm" ref="add" :rules="rules">
+                <el-form-item label="角色编码" :label-width="formLabelWidth" prop="roleCode">
                     <el-input v-model="addForm.roleCode" size="small" autocomplete="off" style="width: 200px"></el-input>
                 </el-form-item>
-                <el-form-item label="角色名称" :label-width="formLabelWidth">
+                <el-form-item label="角色名称" :label-width="formLabelWidth" prop="roleName">
                     <el-input v-model="addForm.roleName" size="small" autocomplete="off" style="width: 200px"></el-input>
                 </el-form-item>
-                <el-form-item label="备注" :label-width="formLabelWidth">
+                <el-form-item label="备注" :label-width="formLabelWidth" prop="remark">
                     <el-input v-model="addForm.remark" size="small" autocomplete="off" style="width: 200px"></el-input>
                 </el-form-item>
             </el-form>
@@ -118,16 +118,16 @@
                 <el-button type="primary" size="small" @click="saveAdd">确 定</el-button>
             </div>
         </el-dialog>
-        <el-dialog title="编辑" :visible.sync="dialogEditFormVisible" :width="formWidth">
-            <el-form :model="editForm">
+        <el-dialog title="编辑" :visible.sync="dialogEditFormVisible" :width="formWidth" @close="closeDialog('edit')">
+            <el-form :model="editForm" ref="add" :rules="rules">
                 <el-input v-model="editForm.roleId" type="hidden"></el-input>
-                <el-form-item label="角色编码" :label-width="formLabelWidth">
+                <el-form-item label="角色编码" :label-width="formLabelWidth" prop="roleCode">
                     <el-input v-model="editForm.roleCode" size="small" autocomplete="off" style="width: 200px"></el-input>
                 </el-form-item>
-                <el-form-item label="角色名称" :label-width="formLabelWidth">
+                <el-form-item label="角色名称" :label-width="formLabelWidth" prop="roleName">
                     <el-input v-model="editForm.roleName" size="small" autocomplete="off" style="width: 200px"></el-input>
                 </el-form-item>
-                <el-form-item label="备注" :label-width="formLabelWidth">
+                <el-form-item label="备注" :label-width="formLabelWidth" prop="remark">
                     <el-input v-model="editForm.remark" size="small" autocomplete="off" style="width: 200px"></el-input>
                 </el-form-item>
             </el-form>
@@ -201,7 +201,6 @@
                 dialogEditFormVisible: false,
                 dialogMenuVisible: false,
                 addForm: {
-                    roleId:'',
                     roleCode:'',
                     roleName:'',
                     remark:''
@@ -211,6 +210,17 @@
                     roleCode:'',
                     roleName:'',
                     remark:''
+                },
+                rules: {
+                    roleCode: [
+                        { required: true, message: '请输角色编码', trigger: 'blur' }
+                    ],
+                    roleName: [
+                        { required: true, message: '请输入角色名称', trigger: 'blur' }
+                    ],
+                    remark: [
+                        { required: true, message: '请输入备注', trigger: 'blur' }
+                    ]
                 },
                 formLabelWidth: '120px',
                 formWidth: '40%',
@@ -255,13 +265,12 @@
                     });
                     return;
                 }else{
-                    this.singleSelection=this.$refs.lzTable.singleSelection;
+                    this.singleSelection=deepClone(this.$refs.lzTable.singleSelection);
                 }
             },
             //行变化
             handleCurrentRowChange(currentRow, oldCurrentRow) {
                 this.currentRow = currentRow;
-                //this.tableRadio = currentRow.roleId;
             },
             //查询
             handQuery(){
@@ -274,26 +283,30 @@
             },
             //保存
             saveAdd() {
-                this.dialogAddFormVisible = false;
-                axios.post(context+'role/insert',{
-                    roleCode: this.addForm.roleCode,
-                    roleName: this.addForm.roleName,
-                    remark: this.addForm.remark
-                }).then(response => {
-                        if(response.data){
-                            this.$message({
-                                showClose: true,
-                                message: response.data.msg,
-                                type: response.data.success?'success':'error'
-                            });
-                            if(response.data.success){
-                                this.queryData(this.page);
+                this.$refs['edit'].validate((valid) => {
+                    if (valid) {
+                        this.dialogAddFormVisible = false;
+                        axios.post(context+'role/insert',{
+                            roleCode: this.addForm.roleCode,
+                            roleName: this.addForm.roleName,
+                            remark: this.addForm.remark
+                        }).then(response => {
+                            if(response.data){
+                                this.$message({
+                                    showClose: true,
+                                    message: response.data.msg,
+                                    type: response.data.success?'success':'error'
+                                });
+                                if(response.data.success){
+                                    this.queryData(this.page);
+                                }
                             }
-                        }
-                    })
-                    .catch(function (error) { // 请求失败处理
-                        console.log(error)
-                    });
+                        })
+                            .catch(function (error) { // 请求失败处理
+                                console.log(error)
+                            });
+                    }
+                });
             },
             //打开编辑
             openEdit() {
@@ -303,29 +316,31 @@
             },
             //保存编辑
             saveEdit() {
-                this.dialogEditFormVisible = false;
-                var that = this;
-                axios.post(context+'role/update',{
-                        roleId: this.editForm.roleId,
-                        roleCode: this.editForm.roleCode,
-                        roleName: this.editForm.roleName,
-                        remark: this.editForm.remark
-                    })
-                    .then(response => {
-                        if(response.data){
-                            this.$message({
-                                showClose: true,
-                                message: response.data.msg,
-                                type: response.data.success?'success':'error'
+                this.$refs['edit'].validate((valid) => {
+                    if (valid) {
+                        this.dialogEditFormVisible = false;
+                        axios.post(context+'role/update',{
+                            roleId: this.editForm.roleId,
+                            roleCode: this.editForm.roleCode,
+                            roleName: this.editForm.roleName,
+                            remark: this.editForm.remark
+                        }).then(response => {
+                                if(response.data){
+                                    this.$message({
+                                        showClose: true,
+                                        message: response.data.msg,
+                                        type: response.data.success?'success':'error'
+                                    });
+                                    if(response.data.success){
+                                        this.queryData(this.page);
+                                    }
+                                }
+                            })
+                            .catch(function (error) { // 请求失败处理
+                                console.log(error);
                             });
-                            if(response.data.success){
-                                this.queryData(this.page);
-                            }
-                        }
-                    })
-                    .catch(function (error) { // 请求失败处理
-                        console.log(error);
-                    });
+                    }
+                });
             },
             handleClick(row) {
                 console.log(row);
@@ -456,6 +471,13 @@
                         console.log(error);
                     });
 
+            },
+            closeDialog(val){
+                if("add"==val){
+                    this.$refs['add'].clearValidate();
+                }else if("edit"==val){
+                    this.$refs['edit'].clearValidate();
+                }
             }
         },
         mounted(){
