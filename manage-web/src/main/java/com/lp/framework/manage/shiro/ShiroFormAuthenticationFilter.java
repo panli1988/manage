@@ -49,14 +49,14 @@ public class ShiroFormAuthenticationFilter extends FormAuthenticationFilter {
                 jsonResult.setMsg("登录超时，请重新登录！");
                 response.getWriter().print(JSONObject.toJSONString(jsonResult));
             }else{
-                if(isSuccessRequest(request,response)){
-                    this.saveRequestAndRedirectToLogin(request, response);
-                    return false;
-                }
+                //内嵌页面
                 String authc = request.getParameter("authc");
                 if("false".equals(authc)){
                     request.setAttribute("accsess",true);
                     return true;
+                }else{
+                    this.saveRequestAndRedirectToLogin(request, response);
+                    return false;
                 }
             }
             return false;
@@ -67,9 +67,11 @@ public class ShiroFormAuthenticationFilter extends FormAuthenticationFilter {
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
         Subject subject = SecurityUtils.getSubject();
         Object principal = subject.getPrincipal();
-        String userCode = (String) principal;
-        if(subject.hasRole("admin") || "admin".equals(principal)){
-            return true;
+        if(null!=principal){
+            String userCode = (String) principal;
+            if(subject.hasRole("admin") || "admin".equals(userCode)){
+                return true;
+            }
         }
         return super.isAccessAllowed(request, response, mappedValue);
     }
